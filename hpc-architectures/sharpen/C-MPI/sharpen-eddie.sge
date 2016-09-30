@@ -1,0 +1,14 @@
+#!/bin/bash --login
+
+#$ -N sharpen
+#$ -l h_rt=00:01:00
+#$ -cwd
+#$ -P ecdf_physics
+#$ -R y
+
+# Use the Intel MPI library
+module load impi
+
+# Launch your MPI program on the requested number of processes
+mpirun -n $NSLOTS ./sharpen
+

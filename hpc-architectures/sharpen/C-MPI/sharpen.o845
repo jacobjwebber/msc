@@ -1,0 +1,22 @@
+
+Image sharpening code running on 2 processor(s)
+
+Input file is: fuzzy.pgm
+Image size is 564 x 770
+
+Using a filter of size 21 x 21
+
+Reading image file: fuzzy.pgm
+... done
+
+Starting calculation ...
+Rank 0 on core 0 of node <r1i0n0>
+Rank 1 on core 1 of node <r1i0n0>
+... finished
+
+Writing output file: sharpened.pgm
+
+... done
+
+Calculation time was 3.489627 seconds
+Overall run time was 3.613457 seconds

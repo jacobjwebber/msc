@@ -1,0 +1,2 @@
+ftn -o sharpen sharpen.f90 fio.f90
+rm -fr *.o

@@ -1,0 +1,1 @@
+ifort -o demons demons.f90 uni.f

@@ -1,0 +1,1 @@
+icc -D IO -D TIMING_OUTPUT -o demons -lm demons.c unic.c timer.c

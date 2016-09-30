@@ -1,0 +1,2 @@
+cc -o sharp -lm Halo_Image.c cio.c
+rm -fr *.o 

@@ -1,0 +1,17 @@
+#!/bin/bash --login
+
+# PBS job options (name, processor cores, job time)
+#PBS -N dacsharpen
+#PBS -l ncpus=4
+#PBS -l walltime=00:01:00
+
+# Change to the directory that the job was submitted from
+# (remember this should be on the /work filesystem)
+cd $PBS_O_WORKDIR
+
+# Increase the stack size as sharpen code allocates many stack arrays
+ulimit -s unlimited
+
+# Launch the parallel job, e.g. run on four threads
+export OMP_NUM_THREADS=4
+./sharpen
