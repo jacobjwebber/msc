@@ -9,12 +9,13 @@ CHARACTER*(10) picfile
 
 ! 1)  Declare main arrays 
 !
-
-
+INTEGER, DIMENSION(N, N) :: BOARD
 
 ! 2)  Initialise board
 !
-
+BOARD = 0
+BOARD(:,4) = 1
+BOARD(4,:) = 1
 
 !     Leave this bit as is
 !     Print starting config (array board) to file life00.pgm
@@ -29,7 +30,7 @@ CLOSE(UNIT=10)
 ! 3)  Perform MAXLOOP updates
 !     Start of a DO loop   
 !
-
+DO i = 1, N 
 
 
 ! 4)  Count number of neighbours
