@@ -70,18 +70,18 @@ int main (int argc, char **argv)
   {
       for (j=0; j < NY; j++)
       {
-          store.re[i][j] = data[i][j];
-          store.im[i][j] = 0;
+          store[i][j].re = data[i][j];
+          store[i][j].im = 0;
       }
   }
 
-
+  
 
   /*
    * Create FFTW plans.
    */
 
-
+  plan_forward = fftw_create_plan(NX, FFTW_FORWARD, FFTW_ESTIMATE);
 
 
 
@@ -93,7 +93,24 @@ int main (int argc, char **argv)
   /*
    * Perform the forward FFT in the 1st dimension.
    */
+  for (j = 0; j < NY; j++)
+  {
 
+
+    for (i = 0; i < NX; i++)
+    {
+        in[i] = store[i][j];
+    }
+    
+    fftw_one(plan_forward, in, out);
+
+    for (i = 0; i < NX; i++)
+    {
+        store[i][j] = out[i];
+    }
+    
+
+  }
 
 
 
@@ -101,6 +118,25 @@ int main (int argc, char **argv)
   /*
    * Perform the forward FFT in the 2nd dimension.
    */
+
+for (i = 0; i < NY; i++)
+{
+
+
+  for (j = 0; j < NX; j++)
+  {
+      in[j] = store[i][j];
+  }
+  
+  fftw_one(plan_forward, in, out);
+
+  for (j = 0; j < NX; j++)
+  {
+      store[i][j] = out[j];
+  }
+  
+
+}
 
 
 
