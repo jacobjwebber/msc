@@ -105,9 +105,13 @@ void loop1(void) {
 void loop2(void) {
   int i,j,k; 
   double rN2; 
-
+  int sharedN = N;
   rN2 = 1.0 / (double) (N*N);  
-
+  
+  #pragma omp parallel for default(none) \
+  schedule(auto) \
+  private(i,j,k) \
+  shared(a,b,c,rN2,jmax)
   for (i=0; i<N; i++){ 
     for (j=0; j < jmax[i]; j++){
       for (k=0; k<j; k++){ 
