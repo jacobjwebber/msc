@@ -13,7 +13,7 @@ int main(void)
   int size_of_world;
   int namelen;
   char procname[MPI_MAX_PROCESSOR_NAME];
-  float time;
+  double time;
   
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   MPI_Comm_size(MPI_COMM_WORLD, &size_of_world);
@@ -27,7 +27,8 @@ int main(void)
             procname);
  
   int array[ARRAY_SIZE] = { 0 };
-  int i; 
+  int i;
+  time = MPI_Wtime();
   for (i = 0; i < N; i++)
   {
     if(rank == 0)
@@ -52,6 +53,7 @@ int main(void)
   //calculate band width
   // total data = sizeof(array) * N * 2
   // total time = time
+  time  = MPI_Wtime()- time;
   if (rank == 0)
   {
   float bandwidth = (sizeof(array) * N * 2.0) / time;
