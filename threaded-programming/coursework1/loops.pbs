@@ -11,5 +11,5 @@
  module load intel-compilers-16
     
      
- export OMP_NUM_THREADS=72
+ export OMP_NUM_THREADS=4
  ./loopspar
