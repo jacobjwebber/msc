@@ -20,13 +20,24 @@ int main(int argc, char** argv)
     {
         for (j = 1; j < (Nx- 1); j++)
         {
-            output[i][j] =  image[i][j-1] + image[i][j+1]
+            output[i][j] =  image[i][j] ;// image[i][j+1]
                              //image[i-1][j] + image[i+1][j]
-                           - 2*image[i][j];
+                           //- 2*image[i][j];
         }
     }
     
     pgmwrite("output.pgm", output, Nx, Ny);
 
+    int k=0;
+    for (k=0;k<10;k++)
+    {
+        for (j=0;j<10;j++)
+        {
+            printf("%d\t",image[k][j]);
+        }
+        printf("\n");
+    }
+
     return 0;
 }
+
