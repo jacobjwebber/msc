@@ -1,0 +1,7 @@
+1.0         # Ellipticity of orbit.
+1.0         # Pericentric Distance.
+1000.0      # Mass of object one.
+0.1         # Mass of object two (<< one).
+75.0        # Initial separation.
+20.0        # End time.
+0.0001      # Time step.
