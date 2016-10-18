@@ -15,11 +15,11 @@ int main()
     }
 
     int k=0;
-    for (k=0;k<10;k++)
+    for (k=1;k<10;k++)
     {
         for (j=0;j<10;j++)
         {
-            printf("%i\t",array[k][j]);
+            printf("%i\t",array[k-1][j]);
         }
         printf("\n");
     }
