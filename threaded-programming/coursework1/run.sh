@@ -1,9 +1,6 @@
 #!/bin/bash
 
-reps=6
-rm temp
-rm temploop1
-rm temploop2
+reps=2
 
 do_loops() {
     echo "SCHEDULE=${OMP_SCHEDULE}"
@@ -25,6 +22,15 @@ do_loops() {
     rm temp temploop1 temploop2
 }
 
+
+manysched() {
+    for ((j=0;j<=6;j++)); do
+        size_of_block=$((2**j))
+        export OMP_SCHEDULE="$1,${size_of_block}"
+        do_loops
+    done
+}
+
 export OMP_NUM_THREADS=4
 export OMP_SCHEDULE="static"
 
@@ -33,3 +39,9 @@ do_loops
 export OMP_SCHEDULE="auto"
 
 do_loops
+
+manysched static
+
+manysched dynamic
+
+manysched guided
