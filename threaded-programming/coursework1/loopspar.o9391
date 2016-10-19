@@ -1,0 +1,18 @@
+SCHEDULE=STATIC
+balls
+balls
+balls
+balls
+balls
+loop 1 times
+Total time for 1000 reps of loop 1 = 0.784516
+Total time for 1000 reps of loop 1 = 0.738668
+Total time for 1000 reps of loop 1 = 0.722231
+Total time for 1000 reps of loop 1 = 0.738754
+Total time for 1000 reps of loop 1 = 0.722709
+loop 2 times
+Total time for 1000 reps of loop 2 = 6.294819
+Total time for 1000 reps of loop 2 = 6.294668
+Total time for 1000 reps of loop 2 = 6.292698
+Total time for 1000 reps of loop 2 = 6.294631
+Total time for 1000 reps of loop 2 = 6.296780

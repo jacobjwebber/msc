@@ -12,4 +12,6 @@
     
      
  export OMP_NUM_THREADS=4
- ./loopspar && ./loopspar && ./loopspar && ./loopspar && ./loopspar
+#./loopspar && ./loopspar && ./loopspar && ./loopspar && ./loopspar
+
+./run.sh
