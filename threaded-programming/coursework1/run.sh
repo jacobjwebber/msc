@@ -5,19 +5,21 @@ reps=2
 do_loops() {
     echo "SCHEDULE=${OMP_SCHEDULE}"
 
-    for ((i=1;i<=reps+1;i++)); do
+    for ((i=1;i<=reps+2;i++)); do
         ./loopspar_runtime >> temp
         printf "."
     done
     
-    cat temp | sed -n '6~4p' > temploop1
-    cat temp | sed -n '8~4p' > temploop2
- 
-    echo "loop 1 times"
-    cat temploop1
+    cat temp | sed -n '10~4p' > temploop1
+    cat temp | sed -n '12~4p' > temploop2
 
-    echo "loop 2 times"
-    cat temploop2
+    echo ""
+    echo "Total time for 1000 reps of loop 1"
+    cat temploop1 | grep -oE '[^ ]+$'
+
+    echo ""
+    echo "Total time for 1000 reps of loop 2"
+    cat temploop2 | grep -oE '[^ ]+$'
 
     rm temp temploop1 temploop2
 }
