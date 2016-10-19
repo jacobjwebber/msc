@@ -9,7 +9,7 @@ do_loops() {
         ./loopspar_runtime >> temp
         printf "."
     done
-    
+    #skip first two repitions of program - these seem slower
     cat temp | sed -n '10~4p' > temploop1
     cat temp | sed -n '12~4p' > temploop2
 
