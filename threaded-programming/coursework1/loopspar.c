@@ -90,6 +90,7 @@ void init2(void){
 void loop1(void) { 
   int i,j; 
   #pragma omp parallel for default(none) \
+  schedule(runtime) \
   private(i,j) \
   shared(a,b)
   for (i=0; i<N; i++){ 
@@ -109,7 +110,7 @@ void loop2(void) {
   rN2 = 1.0 / (double) (N*N);  
   
   #pragma omp parallel for default(none) \
-  schedule(dynamic, 1) \
+  schedule(runtime) \
   private(i,j,k) \
   shared(a,b,c,rN2,jmax)
   for (i=0; i<N; i++){ 

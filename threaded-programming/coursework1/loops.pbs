@@ -2,7 +2,7 @@
 #
 #PBS -N loopspar
 #PBS -l select=72
-#PBS -l walltime=3:10:0
+#PBS -l walltime=30:10:0
 #PBS -A d136
  
  cd $PBS_O_WORKDIR
@@ -12,4 +12,4 @@
     
      
  export OMP_NUM_THREADS=4
- ./loopspar
+ ./loopspar && ./loopspar && ./loopspar && ./loopspar && ./loopspar
