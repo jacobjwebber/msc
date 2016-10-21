@@ -1,0 +1,5 @@
+RESULTS LOOP 2
+
+schedule, num-threads, mean time (s), std
+"static", 4, 0, 0
+"auto", 4, 0, 0

@@ -2,9 +2,12 @@
 
 reps=2
 DATE=$(date +"%Y%m%d%H%M")
-RESULTS_FILE_NAME=results_${DATE}
+RESULTS_1_FILE_NAME=results/results_${DATE}_loop1
+RESULTS_2_FILE_NAME=results/results_${DATE}_loop2
 
-echo "RESULTS FROM ${DATE} \n\n" > ${RESULTS_FILE_NAME}
+
+cat results_empty_1 > $RESULTS_1_FILE_NAME
+cat results_empty_2 > $RESULTS_2_FILE_NAME
 
 do_loops() {
     echo "SCHEDULE=${OMP_SCHEDULE}"
@@ -14,20 +17,45 @@ do_loops() {
         printf "."
     done
     #skip first two repitions of program - these seem slower
-    cat temp | sed -n '10~4p' > temploop1
-    cat temp | sed -n '12~4p' > temploop2
+    cat temp | sed -n '10~4p' | grep -oE '[^ ]+$'> temploop1
+    cat temp | sed -n '12~4p' | grep -oE '[^ ]+$'> temploop2
 
     echo ""
     echo "Total time for 1000 reps of loop 1"
-    cat temploop1 | grep -oE '[^ ]+$'
+    cat temploop1 
 
     echo ""
     echo "Total time for 1000 reps of loop 2"
-    cat temploop2 | grep -oE '[^ ]+$'
+    cat temploop2
+    
+    mean temploop1
+    mean_loop1=$mean_time
+
+    std temploop1
+    std_loop1=$std
+
+    mean temploop2
+    mean_loop2=$mean_time
+
+    std temploop2
+    std_loop2=$std
+
+    echo "\"${OMP_SCHEDULE}\", ${OMP_NUM_THREADS}, $mean_loop1, $std_loop1" >> $RESULTS_1_FILE_NAME
+    echo "\"${OMP_SCHEDULE}\", ${OMP_NUM_THREADS}, $mean_loop2, $std_loop2" >> $RESULTS_2_FILE_NAME
 
     rm temp temploop1 temploop2
 }
 
+mean() {
+    cat $1 >> balls
+    mean_time=$(awk '{ sum += $1; n++ } END { if (n > 0) print sum / n; }' $1)
+    echo $mean_time >> balls
+}
+
+std() {
+    std="$(awk '{sum+=$1; sumsq+=$1*$1} END {print sqrt(sumsq/NR - (sum/NR)**2)}' $1)"
+    echo ${std} >> balls
+}
 
 manysched() {
     for ((j=0;j<=4;j++)); do
@@ -46,8 +74,10 @@ manythread() {
         do_loops
     done
 }
+#prepare first line of csv
+#echo "schedule, num-threads, mean time loop 1 (s), std loop 1, mean time loop 2 (s), std loop 2 (s) " >> ${RESULTS_FILE_NAME}
 
-echo "schedule, num-threads, mean time (s), std" >> ${RESULTS_FILE_NAME}
+
 export OMP_NUM_THREADS=4
 export OMP_SCHEDULE="static"
 
