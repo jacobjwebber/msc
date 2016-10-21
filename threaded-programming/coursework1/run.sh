@@ -1,6 +1,6 @@
 #!/bin/bash
 
-reps=2
+reps=10
 DATE=$(date +"%Y%m%d%H%M")
 RESULTS_1_FILE_NAME=results/results_${DATE}_loop1.csv
 RESULTS_2_FILE_NAME=results/results_${DATE}_loop2.csv
@@ -74,8 +74,6 @@ manythread() {
         do_loops
     done
 }
-#prepare first line of csv
-#echo "schedule, num-threads, mean time loop 1 (s), std loop 1, mean time loop 2 (s), std loop 2 (s) " >> ${RESULTS_FILE_NAME}
 
 
 export OMP_NUM_THREADS=4

@@ -1,9 +1,0 @@
-RESULTS LOOP 2
-
-schedule, num-threads, mean time (s), std
-"static", 4, 0, 0
-"auto", 4, 0, 0
-"static,1", 4, 0, 0
-"static,2", 4, 0, 0
-"static,4", 4, 0, 0
-"static,8", 4, 0, 0
