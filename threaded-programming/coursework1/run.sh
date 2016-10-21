@@ -2,8 +2,8 @@
 
 reps=2
 DATE=$(date +"%Y%m%d%H%M")
-RESULTS_1_FILE_NAME=results/results_${DATE}_loop1
-RESULTS_2_FILE_NAME=results/results_${DATE}_loop2
+RESULTS_1_FILE_NAME=results/results_${DATE}_loop1.csv
+RESULTS_2_FILE_NAME=results/results_${DATE}_loop2.csv
 
 
 cat results_empty_1 > $RESULTS_1_FILE_NAME
