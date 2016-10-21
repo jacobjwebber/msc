@@ -1,6 +1,6 @@
 #!/bin/bash --login
 #
-#PBS -N loopspar
+#PBS -N job_run_loopspar
 #PBS -l select=72
 #PBS -l walltime=30:10:0
 #PBS -A d136
