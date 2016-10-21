@@ -1,6 +1,10 @@
 #!/bin/bash
 
 reps=2
+DATE=$(date +"%Y%m%d%H%M")
+RESULTS_FILE_NAME=results_${DATE}
+
+echo "RESULTS FROM ${DATE} \n\n" > ${RESULTS_FILE_NAME}
 
 do_loops() {
     echo "SCHEDULE=${OMP_SCHEDULE}"
@@ -43,7 +47,7 @@ manythread() {
     done
 }
 
-
+echo "schedule, num-threads, mean time (s), std" >> ${RESULTS_FILE_NAME}
 export OMP_NUM_THREADS=4
 export OMP_SCHEDULE="static"
 
