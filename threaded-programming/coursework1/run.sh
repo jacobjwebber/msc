@@ -58,7 +58,7 @@ std() {
 }
 
 manysched() {
-    for ((j=0;j<=4;j++)); do
+    for ((j=0;j<=6;j++)); do
         size_of_block=$((2**j))
         export OMP_SCHEDULE="$1,${size_of_block}"
         do_loops
@@ -67,7 +67,7 @@ manysched() {
 
 manythread() {
     export OMP_SCHEDULE="$1,$2"
-    for ((j=0;j<=6;j++)); do
+    for ((j=0;j<=4;j++)); do
         num_of_threads=$((2**j))
         echo on ${num_of_threads} threads
         export OMP_NUM_THREADS=${num_of_threads}
