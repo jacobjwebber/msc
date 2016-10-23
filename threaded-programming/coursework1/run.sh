@@ -1,6 +1,6 @@
 #!/bin/bash
 
-reps=10
+reps=20
 DATE=$(date +"%Y%m%d%H%M")
 RESULTS_1_FILE_NAME=results/results_${DATE}_loop1.csv
 RESULTS_2_FILE_NAME=results/results_${DATE}_loop2.csv
