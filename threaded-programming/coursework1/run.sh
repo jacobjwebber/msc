@@ -5,8 +5,8 @@ DATE=$(date +"%Y%m%d%H%M")
 RESULTS_DIR_NAME=results/${DATE}
 echo $RESULTS_DIR_NAME
 mkdir ${RESULTS_DIR_NAME}
-RESULTS_1_FILE_NAME=results/${date}/results_${DATE}_loop1.csv
-RESULTS_2_FILE_NAME=results/${date}/results_${DATE}_loop2.csv
+RESULTS_1_FILE_NAME=${RESULTS_DIR_NAME}/results_${DATE}_loop1.csv
+RESULTS_2_FILE_NAME=${RESULTS_DIR_NAME}/results_${DATE}_loop2.csv
 
 
 cat results_empty_1 > $RESULTS_1_FILE_NAME
