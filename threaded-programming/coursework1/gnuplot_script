@@ -4,6 +4,7 @@ set xlabel "block size"
 set autoscale
 set ylabel "time (s)"  
 set style data linespoints
+set key below  
 
 plot "guided_loop1_graph" with lines lc rgb "blue" title "guided", '' using 1:2:3 with errorbars lc rgb "blue" notitle, \
     "dynamic_loop1_graph" with lines lc rgb "red" title "dynamic", '' using 1:2:3 with errorbars lc rgb "red" notitle,  \
