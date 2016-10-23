@@ -97,3 +97,7 @@ manysched dynamic
 manysched guided
 
 manythread guided 4
+
+cd $RESULTS_DIR_NAME
+
+gnuplot ../../gnuplot_script

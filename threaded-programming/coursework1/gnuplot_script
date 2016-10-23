@@ -1,0 +1,18 @@
+set terminal pdf
+set output "loop1_blocksize.pdf"
+set xlabel "block size"
+set autoscale
+set ylabel "time (s)"  
+set style data linespoints
+
+plot "guided_loop1_graph" with lines lc rgb "blue" title "guided", '' using 1:2:3 with errorbars lc rgb "blue" notitle, \
+    "dynamic_loop1_graph" with lines lc rgb "red" title "dynamic", '' using 1:2:3 with errorbars lc rgb "red" notitle,  \
+    "static_loop1_graph" with lines lc rgb "green" title "static", '' using 1:2:3 with errorbars lc rgb "green" notitle 
+
+set output "loop2_blocksize.pdf"
+
+plot "guided_loop2_graph" with lines lc rgb "blue" title "guided", '' using 1:2:3 with errorbars lc rgb "blue" notitle, \
+    "dynamic_loop2_graph" with lines lc rgb "red" title "dynamic", '' using 1:2:3 with errorbars lc rgb "red" notitle,  \
+    "static_loop2_graph" with lines lc rgb "green" title "static", '' using 1:2:3 with errorbars lc rgb "green" notitle 
+
+
