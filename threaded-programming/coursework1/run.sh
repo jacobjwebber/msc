@@ -1,6 +1,6 @@
 #!/bin/bash
 module load intel-compilers-16
-reps=2
+reps=5
 DATE=$(date +"%Y%m%d%H%M")
 RESULTS_DIR_NAME=results/${DATE}
 echo $RESULTS_DIR_NAME
