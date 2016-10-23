@@ -1,9 +1,12 @@
 #!/bin/bash
-
-reps=20
+module load intel-compilers-16
+reps=2
 DATE=$(date +"%Y%m%d%H%M")
-RESULTS_1_FILE_NAME=results/results_${DATE}_loop1.csv
-RESULTS_2_FILE_NAME=results/results_${DATE}_loop2.csv
+RESULTS_DIR_NAME=results/${DATE}
+echo $RESULTS_DIR_NAME
+mkdir ${RESULTS_DIR_NAME}
+RESULTS_1_FILE_NAME=results/${date}/results_${DATE}_loop1.csv
+RESULTS_2_FILE_NAME=results/${date}/results_${DATE}_loop2.csv
 
 
 cat results_empty_1 > $RESULTS_1_FILE_NAME
@@ -62,6 +65,8 @@ manysched() {
         size_of_block=$((2**j))
         export OMP_SCHEDULE="$1,${size_of_block}"
         do_loops
+        echo -e "$size_of_block \t ${mean_loop1} \t ${std_loop1}" >> ${RESULTS_DIR_NAME}/$1_loop1_graph
+        echo -e "$size_of_block \t ${mean_loop2} \t ${std_loop2}" >> ${RESULTS_DIR_NAME}/$1_loop2_graph
     done
 }
 
