@@ -21,6 +21,7 @@ plot "guided_loop2_graph" with lines lc rgb "blue" title "guided", '' using 1:2:
 set xlabel "Number of Threads"
 set ylabel "Speed Up (T_{1}/T_{p})"
 set xtics 2
+set yrange [0:16]
 
 set output "speedup_loop1.pdf"
 
