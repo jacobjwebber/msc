@@ -1,12 +1,14 @@
 #include <stdio.h>
 #include "pgmio.h"
 
+#define N 1000
+
 int main(int argc, char** argv)
 {
-    int Nx, Ny, i, j;
+    int Nx, Ny, i, j,k;
     pgmsize(argv[1], &Nx, &Ny);
 
-    float image[Nx][Ny], output[Nx][Ny];
+    float image[Nx][Ny], output[Nx][Ny], inverse[Nx][Ny];
     
 
     pgmread(argv[1], image, Nx, Ny);
@@ -31,7 +33,6 @@ int main(int argc, char** argv)
         }
     }
     
-    
     //main loop
     
     for (i= 0; i < (Nx+1); i++)
@@ -45,6 +46,37 @@ int main(int argc, char** argv)
     }
     
     pgmwrite("output.pgm", output, Nx, Ny);
+
+
+    // build another large array for carrying out inverse operation.
+    for (i= 0; i < (Nx+2); i++)
+    {
+        for(j = 0; j < (Ny+2); j++)
+        {
+            if(j== 0 | i == 0 | j == Ny+1 | i == Nx+1)
+                image_bigger[i][j] = 255;
+            else
+                image_bigger[i][j] = output[i-1][j-1];
+        }
+    }
+
+    for (k = 0; k < N; k++)
+    {
+
+        for (i= 0; i < (Nx+1); i++)
+        {
+            for (j = 0; j < (Ny+1); j++)
+            {
+                inverse[i][j] =  (image_bigger[i][j-1] + image_bigger[i][j+1]
+                           +  image_bigger[i-1][j] + image_bigger[i+1][j]
+                           - image_bigger[i][j])*0.25;
+            } 
+        }   
+    }
+
+    pgmwrite("inversed.pgm", inverse, Nx, Ny);
+
+ 
 
     return 0;
 }
