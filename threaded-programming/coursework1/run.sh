@@ -77,8 +77,8 @@ manythread() {
         echo on ${num_of_threads} threads
         export OMP_NUM_THREADS=${num_of_threads}
         do_loops
-        echo -e "$size_of_block \t ${mean_loop1} \t ${std_loop1}" >> ${RESULTS_DIR_NAME}/speedup_$1_loop1_graph
-        echo -e "$size_of_block \t ${mean_loop2} \t ${std_loop2}" >> ${RESULTS_DIR_NAME}/speedup_$1_loop2_graph
+        echo -e "$num_of_threads \t ${mean_loop1} \t ${std_loop1}" >> ${RESULTS_DIR_NAME}/speedup_$1_loop1_graph
+        echo -e "$num_of_threads \t ${mean_loop2} \t ${std_loop2}" >> ${RESULTS_DIR_NAME}/speedup_$1_loop2_graph
     done
 }
 
