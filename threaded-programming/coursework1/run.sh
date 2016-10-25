@@ -80,9 +80,9 @@ manythread() {
         echo -e "$num_of_threads \t ${mean_loop1}" >> ${RESULTS_DIR_NAME}/speed_$1_loop1_graph
         echo -e "$num_of_threads \t ${mean_loop2}" >> ${RESULTS_DIR_NAME}/speed_$1_loop2_graph
     done
-    awk '{if(NR==1)Tone=$2; $2/=Tone}1' ${RESULTS_DIR_NAME}/speed_$1_loop1_graph >  ${RESULTS_DIR_NAME}/speedup_$1_loop1_graph
+    awk '{if(NR==1)Tone=$2; Tone/=$2}1' ${RESULTS_DIR_NAME}/speed_$1_loop1_graph >  ${RESULTS_DIR_NAME}/speedup_$1_loop1_graph
 
-    awk '{if(NR==1)Tone=$2; $2/=Tone}1' ${RESULTS_DIR_NAME}/speed_$1_loop2_graph >  ${RESULTS_DIR_NAME}/speedup_$1_loop2_graph
+    awk '{if(NR==1)Tone=$2; Tone/=$2}1' ${RESULTS_DIR_NAME}/speed_$1_loop2_graph >  ${RESULTS_DIR_NAME}/speedup_$1_loop2_graph
 }
 
 
