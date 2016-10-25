@@ -1,0 +1,5 @@
+RESULTS LOOP 2
+
+schedule, num-threads, mean time (s), std
+"static", 4, 6.30452, 0.0009935
+"auto", 4, 5.52088, 0.000961

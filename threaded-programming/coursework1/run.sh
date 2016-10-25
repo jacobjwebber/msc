@@ -71,18 +71,19 @@ manysched() {
 }
 
 manythread() {
+    values=( 1 2 4 6 8 12 16 )
     export OMP_SCHEDULE="$1,$2"
-    for ((j=0;j<=4;j++)); do
-        num_of_threads=$((2**j))
+    for j in "${values[@]}"; do
+        num_of_threads=$j
         echo on ${num_of_threads} threads
         export OMP_NUM_THREADS=${num_of_threads}
         do_loops
         echo -e "$num_of_threads \t ${mean_loop1}" >> ${RESULTS_DIR_NAME}/speed_$1_loop1_graph
         echo -e "$num_of_threads \t ${mean_loop2}" >> ${RESULTS_DIR_NAME}/speed_$1_loop2_graph
     done
-    awk '{if(NR==1)Tone=$2; Tone/=$2}1' ${RESULTS_DIR_NAME}/speed_$1_loop1_graph >  ${RESULTS_DIR_NAME}/speedup_$1_loop1_graph
+    awk '{if(NR==1)Tone=$2; $2=Tone/$2}1' ${RESULTS_DIR_NAME}/speed_$1_loop1_graph >  ${RESULTS_DIR_NAME}/speedup_$1_loop1_graph
 
-    awk '{if(NR==1)Tone=$2; Tone/=$2}1' ${RESULTS_DIR_NAME}/speed_$1_loop2_graph >  ${RESULTS_DIR_NAME}/speedup_$1_loop2_graph
+    awk '{if(NR==1)Tone=$2; $2=Tone/$2}1' ${RESULTS_DIR_NAME}/speed_$1_loop2_graph >  ${RESULTS_DIR_NAME}/speedup_$1_loop2_graph
 }
 
 
