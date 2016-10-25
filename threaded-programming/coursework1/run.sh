@@ -78,12 +78,12 @@ manythread() {
         echo on ${num_of_threads} threads
         export OMP_NUM_THREADS=${num_of_threads}
         do_loops
-        echo -e "$num_of_threads \t ${mean_loop1}" >> ${RESULTS_DIR_NAME}/speed_$1_loop1_graph
-        echo -e "$num_of_threads \t ${mean_loop2}" >> ${RESULTS_DIR_NAME}/speed_$1_loop2_graph
+        echo -e "$num_of_threads \t ${mean_loop1}" >> ${RESULTS_DIR_NAME}/speed_$1$2_loop1_graph
+        echo -e "$num_of_threads \t ${mean_loop2}" >> ${RESULTS_DIR_NAME}/speed_$1$2_loop2_graph
     done
-    awk '{if(NR==1)Tone=$2; $2=Tone/$2}1' ${RESULTS_DIR_NAME}/speed_$1_loop1_graph >  ${RESULTS_DIR_NAME}/speedup_$1_loop1_graph
+    awk '{if(NR==1)Tone=$2; $2=Tone/$2}1' ${RESULTS_DIR_NAME}/speed_$1$2_loop1_graph >  ${RESULTS_DIR_NAME}/speedup_$1$2_loop1_graph
 
-    awk '{if(NR==1)Tone=$2; $2=Tone/$2}1' ${RESULTS_DIR_NAME}/speed_$1_loop2_graph >  ${RESULTS_DIR_NAME}/speedup_$1_loop2_graph
+    awk '{if(NR==1)Tone=$2; $2=Tone/$2}1' ${RESULTS_DIR_NAME}/speed_$1$2_loop2_graph >  ${RESULTS_DIR_NAME}/speedup_$1$2_loop2_graph
 }
 
 
@@ -102,7 +102,9 @@ manysched dynamic
 
 manysched guided
 
-manythread guided 4
+manythread dynamic 8
+
+manythread dynamic 16
 
 cd $RESULTS_DIR_NAME
 
