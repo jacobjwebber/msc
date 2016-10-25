@@ -25,8 +25,8 @@ set yrange [0:16]
 
 set output "speedup_loop1.pdf"
 
-plot "speedup_guided_loop1_graph" with linespoints notitle
+plot "speedup_guided_loop1_graph" with linespoints notitle, x with lines lt 2
 
 
 set output "speedup_loop2.pdf"
-plot "speedup_guided_loop2_graph" with linespoints notitle
+plot "speedup_guided_loop2_graph" with linespoints notitle, x with lines lt 2
