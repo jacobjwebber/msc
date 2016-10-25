@@ -1,4 +1,4 @@
-set terminal pdf enhanced font "cmr10"
+set terminal pdf dashed enhanced font "cmr10"
 set output "loop1_blocksize.pdf"
 set xlabel "block size"
 set autoscale
@@ -18,6 +18,7 @@ plot "guided_loop2_graph" with lines lc rgb "blue" title "guided", '' using 1:2:
     "static_loop2_graph" with lines lc rgb "green" title "static", '' using 1:2:3 with errorbars lc rgb "green" notitle 
 
 
+set terminal pdf monochrome dashed enhanced font "cmr10"
 set xlabel "Number of Threads"
 set ylabel "Speed Up (T_{1}/T_{p})"
 set xtics 2
@@ -25,8 +26,8 @@ set yrange [0:16]
 
 set output "speedup_loop1.pdf"
 
-plot "speedup_guided_loop1_graph" with linespoints notitle, x with lines lt 2
+plot "speedup_guided_loop1_graph" with linespoints notitle, x notitle with lines lt 2 
 
 
 set output "speedup_loop2.pdf"
-plot "speedup_guided_loop2_graph" with linespoints notitle, x with lines lt 2
+plot "speedup_guided_loop2_graph" with linespoints notitle, x notitle with lines lt 2
