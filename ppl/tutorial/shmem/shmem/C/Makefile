@@ -1,7 +1,7 @@
 PRG=	shmem
 
-CC=	cc
-LIBS=
+CC=	mpicc -cc=icc
+LIBS= -lsma
 
 # Leave alone below here !
 

@@ -20,7 +20,10 @@ int main(void)
  * and procnum, the identifier for this CPU in the range [0,nproc-1]
  */
 
-  /* ... */
+  shmem_init();
+  procnum = shmem_my_pe();
+  nproc = shmem_n_pes();
+
 
   if (0 == procnum) printf("Running OpenSHEM program on %d CPUs\n", nproc);
 
@@ -31,7 +34,7 @@ int main(void)
   nbuf = nproc;
 
   rowbuf = (int *) malloc(nbuf*sizeof(int));
-  colbuf = (int *) malloc(nbuf*sizeof(int));
+  colbuf = (int *) shmalloc(nbuf*sizeof(int));
 
 /*
  * Initialise the row buffer appropriately on each CPU
@@ -39,6 +42,13 @@ int main(void)
  */
 
   /* ... */
+  for (i = 0; i < nproc; i++)
+  {
+      rowbuf[i] = i + procnum * nproc;
+      colbuf[i] = -1;
+  }
+
+  shmem_barrier_all();
 
 /*
  * Print out the initial values
@@ -54,6 +64,10 @@ int main(void)
 
 
   /* ... */
+  for(i=0; i < nproc; i++)
+  {
+      shmem_int_put(&colbuf[procnum], &rowbuf[i], 1, i);
+  }
 
 /*
  * Print out the final values
@@ -67,7 +81,7 @@ int main(void)
  * Close down the parallel program
  */
 
-  /* ... */
+  shmem_finalize();
 
   return(0);
 }
