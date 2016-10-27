@@ -51,6 +51,9 @@ From these results, the scheduling option with the best performance for each loo
 For all measurements the running time was measured multiple times and a mean of these values used. In addition the standard deviation was also calculated. This allows the comparison of performance variability between different schedules. Performance variability is often an important consideration in HPC applications, where it may be desirable to avoid methods that often, but unreliably, yield high performance.
 
 \section{Results}
+\subsection{Correctness}
+For almost all HPC applications correctness is the primary concern. The serial code provided included a check sum that could be used to verify the correctness of future parallel results. In all parallel cases this sum yielded the same result as the serial code. We can therefore disregard correctness as a factor when comparing the different schedules. 
+
 \begin{figure}
 \centering
 \includegraphics[width=1\textwidth]{"graphs/loop1_blocksize"}
@@ -60,7 +63,7 @@ For all measurements the running time was measured multiple times and a mean of 
 
 
 
-\subsection{Results on 4 Threads}
+\subsection{Results of Schedules on 4 Threads}
 The first results gathered were execution times for each loop for every available loop schedule. The results for these are shown in Figures \ref{loop1scheds} and \ref{loop2scheds}. 
 
 \begin{figure}
@@ -78,7 +81,8 @@ The highest performing schedule for loop 1 was found to be \verb|dynamic,32|. Th
 
 The highest performing schedule for loop 2 was not immediately obvious. The mean execution time with the \verb|dynamic,8| and \verb|dynamic,16| was similar to the order of nanoseconds - well beyond the accuracies of this experiment. It was therefore decided that both of these schedules would be jointly selected as the best.
 
-\subsection{Speedup of Best Schedules}
+\subsection{Speed Up of Best Schedules}
+
 
 \begin{figure}
 \centering
@@ -97,8 +101,20 @@ The highest performing schedule for loop 2 was not immediately obvious. The mean
 \label{dynamic16}
 \end{figure}
 
+After the best schedules for loop 1 and loop 2 had been found they were then run again on  
+
 \section{conclusion}
 The best way to do it was:
+
+\bibliographystyle{plain}
+\begin{thebibliography}{}
+\bibitem{intelmp}
+Intel Corp.
+\textit{OpenMP Loop Scheduling}
+\url{https://software.intel.com/en-us/articles/openmp-loop-scheduling}
+Accessed: 26-10-2016
+
+\end{thebibliography}
 
 \pagebreak
 \pagebreak
@@ -196,13 +212,5 @@ The best way to do it was:
 
 
 
-\bibliographystyle{plain}
-\begin{thebibliography}{}
-\bibitem{intelmp}
-Intel Corp.
-\textit{OpenMP Loop Scheduling}
-\url{https://software.intel.com/en-us/articles/openmp-loop-scheduling}
-Accessed: 26-10-2016
 
-\end{thebibliography}
 \end{document}
