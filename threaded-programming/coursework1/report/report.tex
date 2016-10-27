@@ -46,7 +46,7 @@ Where \verb|n| specifies a chunksize. The Intel documentation \cite{intelmp} des
 
 As with the serial case the code was compiled using the Intel C Compiler and using the \verb|-O3| optimisation flag. In this case, however, the appropriate compiler flag was used to compile an OpenMP program. To measure the performance of the different scheduling options the code was initially run on 4 threads on a backend node of \verb|cirrus|, an Intel Xeon powered cluster. For the schedules where it is possible to set a chunksize, this chunksize took the values 1, 2, 4, 8, 32 and 64.
 
-From these results, the scheduling option with the best performance for each loop on 4 threads was determined. Using these two options, the best for loop 1 and the best for loop 2, the code was then run again on 1, 2, 4, 6, 8, 12 and 16 threads. This allowed the measurement of the speedup, as defined by $T_{p}/T_{1}$, so that the scalability of the best performing schedule on 4 threads could be analysed.
+From these results, the scheduling option with the best performance for each loop on 4 threads was determined. Using these two options, the best for loop 1 and the best for loop 2, the code was then run again on 1, 2, 4, 6, 8, 12 and 16 threads. This allowed the measurement of the speed up, as defined by $T_{p}/T_{1}$, so that the scalability of the best performing schedule on 4 threads could be analysed.
 
 For all measurements the running time was measured multiple times and a mean of these values used. In addition the standard deviation was also calculated. This allows the comparison of performance variability between different schedules. Performance variability is often an important consideration in HPC applications, where it may be desirable to avoid methods that often, but unreliably, yield high performance.
 
@@ -83,25 +83,32 @@ The highest performing schedule for loop 2 was not immediately obvious. The mean
 
 \subsection{Speed Up of Best Schedules}
 
+\begin{figure}
+  \centering
+  \includegraphics[width=1\linewidth]{graphs/speedup_dynamic32_loop1}
+  \caption{\small Speed Up of loop 1 for the dynamic 32 schedule. A theoretical ideal speed up is shown as a black dotted line.}
+  \label{dynamic32}
+\label{dynamic16}
+\end{figure}
 
 \begin{figure}
 \centering
 
   \centering
   \includegraphics[width=1\linewidth]{graphs/speedup_dynamic8_loop2}
-  \caption{\small Speed Up for the dynamic 8 schedule}
+  \caption{\small Speed Up for the dynamic 8 schedule. A theoretical ideal speed up is shown as a black dotted line.}
   \label{dynamic8}
 \end{figure}
 
 \begin{figure}
   \centering
   \includegraphics[width=1\linewidth]{graphs/speedup_dynamic16_loop2}
-  \caption{\small Speed Up for the dynamic 16 schedule}
-  \label{fig:sub2}
+  \caption{\small Speed Up for the dynamic 16 schedule. A theoretical ideal speed up is shown as a black dotted line.}
 \label{dynamic16}
 \end{figure}
 
-After the best schedules for loop 1 and loop 2 had been found they were then run again on  
+
+After the best schedules for loop 1 and loop 2 had been found they were then run again on 1, 2, 4, 6, 8, 12 and 16 threads. The speed up for loop  1 on the \verb|dynamic,32| schedule is shown in Figure \ref{dynamic32}. Here relatively good scalability is shown until the system reaches 12 cores. At this point no more speed up is achieved.
 
 \section{conclusion}
 The best way to do it was:
