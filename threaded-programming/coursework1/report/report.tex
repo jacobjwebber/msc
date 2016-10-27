@@ -3,6 +3,10 @@
 \setlength{\parindent}{0em}
 \usepackage{url}
 \usepackage{graphicx}
+\usepackage{caption}
+\usepackage[justification=centering, margin=2cm, labelfont=bf
+]{caption}
+
 
 \begin{document}
 
@@ -47,13 +51,20 @@ For all measurements the running time was measured multiple times and a mean of 
 
 \section{Results}
 \subsection{Results on 4 Threads}
-The first results gathered were execution times for each loop for every available loop schedule.
+The first results gathered were execution times for each loop for every available loop schedule. The results for these are shown in Figures \ref{loop1scheds} and \ref{loop2scheds}. For the loop 1 results the 
 
 \begin{figure}[h]
 \centering
 \includegraphics[width=1\textwidth]{"graphs/loop1_blocksize"}
-\caption{Graph showing execution time for loop 1 against block size for the guided, dynamic and static schedules. The error bars show 1 standard deviation. Note that these error bars are much larger than in loop 2, indicating greater performance variability. }
-\label{image-myimage}
+\caption{Graph showing execution time for loop 1 against block size for the guided, dynamic and static schedules. The error bars show 1 standard deviation. Note that these error bars are much larger than in loop 2. }
+\label{loop1scheds}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=1\textwidth]{"graphs/loop2_blocksize"}
+\caption{Graph showing execution time for loop 2 against block size for the guided, dynamic and static schedules.}
+\label{loop2scheds}
 \end{figure}
 
 \section{conclusion}
