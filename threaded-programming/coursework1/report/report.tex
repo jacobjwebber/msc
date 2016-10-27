@@ -6,7 +6,8 @@
 \usepackage{caption}
 \usepackage[justification=centering, margin=2cm, labelfont=bf
 ]{caption}
-
+\usepackage{float}
+\usepackage{subcaption}
 
 \begin{document}
 
@@ -50,25 +51,150 @@ From these results, the scheduling option with the best performance for each loo
 For all measurements the running time was measured multiple times and a mean of these values used. In addition the standard deviation was also calculated. This allows the comparison of performance variability between different schedules. Performance variability is often an important consideration in HPC applications, where it may be desirable to avoid methods that often, but unreliably, yield high performance.
 
 \section{Results}
-\subsection{Results on 4 Threads}
-The first results gathered were execution times for each loop for every available loop schedule. The results for these are shown in Figures \ref{loop1scheds} and \ref{loop2scheds}. For the loop 1 results the 
-
-\begin{figure}[h]
+\begin{figure}
 \centering
 \includegraphics[width=1\textwidth]{"graphs/loop1_blocksize"}
-\caption{Graph showing execution time for loop 1 against block size for the guided, dynamic and static schedules. The error bars show 1 standard deviation. Note that these error bars are much larger than in loop 2. }
+\caption{\small Graph showing execution time for loop 1 against block size for the guided, dynamic and static schedules. The error bars show 1 standard deviation. Note that these error bars are much larger than in loop 2. }
 \label{loop1scheds}
 \end{figure}
 
-\begin{figure}[h]
+
+
+\subsection{Results on 4 Threads}
+The first results gathered were execution times for each loop for every available loop schedule. The results for these are shown in Figures \ref{loop1scheds} and \ref{loop2scheds}. 
+
+\begin{figure}
 \centering
 \includegraphics[width=1\textwidth]{"graphs/loop2_blocksize"}
-\caption{Graph showing execution time for loop 2 against block size for the guided, dynamic and static schedules.}
+\caption{\small Graph showing execution time for loop 2 against chunk size for the guided, dynamic and static schedules.}
 \label{loop2scheds}
+\end{figure}
+
+
+
+For the loop 1 results there was a large standard deviation in all the schedules and chunk sizes. This shows a wide performance variability for this loop, particularly where the \verb|static| schedule was used. For loop 2 much less variable results were achieved as shown by the small error bars showing standard deviation in Figure \ref{loop2scheds}.
+
+The highest performing schedule for loop 1 was found to be \verb|dynamic,32|. This had the lowest mean execution time and also had one of the lowest standard deviations, meaning this schedule had reliably good performance for this loop.
+
+The highest performing schedule for loop 2 was not immediately obvious. The mean execution time with the \verb|dynamic,8| and \verb|dynamic,16| was similar to the order of nanoseconds - well beyond the accuracies of this experiment. It was therefore decided that both of these schedules would be jointly selected as the best.
+
+\subsection{Speedup of Best Schedules}
+
+\begin{figure}
+\centering
+
+  \centering
+  \includegraphics[width=1\linewidth]{graphs/speedup_dynamic8_loop2}
+  \caption{\small Speed Up for the dynamic 8 schedule}
+  \label{dynamic8}
+\end{figure}
+
+\begin{figure}
+  \centering
+  \includegraphics[width=1\linewidth]{graphs/speedup_dynamic16_loop2}
+  \caption{\small Speed Up for the dynamic 16 schedule}
+  \label{fig:sub2}
+\label{dynamic16}
 \end{figure}
 
 \section{conclusion}
 The best way to do it was:
+
+\pagebreak
+\pagebreak
+\appendix
+\section{Full Results}
+
+\begin {table}[H]
+\caption {Loop 1}
+\small
+\center
+\begin{tabular}{ | l | l | l | l | }
+\hline
+	Schedule &  No. Threads &  Mean Time (s) &  Std. Deviation (s) \\ \hline
+	static & 4 & 0.728231 & 0.00666976 \\ 
+	auto & 4 & 0.430124 & 0.00860091 \\ 
+	static,1 & 4 & 0.481388 & 0.0319373 \\ 
+	static,2 & 4 & 0.451891 & 0.0298839 \\ 
+	static,4 & 4 & 0.467681 & 0.0250977 \\ 
+	static,8 & 4 & 0.462157 & 0.0250929 \\ 
+	static,16 & 4 & 0.471986 & 0.0222526 \\ 
+	static,32 & 4 & 0.490942 & 0.0162345 \\ 
+	static,64 & 4 & 0.538883 & 0.0171833 \\ 
+	dynamic,1 & 4 & 0.460126 & 0.0069964 \\
+	dynamic,2 & 4 & 0.443026 & 0.00900873 \\
+	dynamic,4 & 4 & 0.434388 & 0.00780827 \\
+	dynamic,8 & 4 & 0.430674 & 0.00608488 \\
+	dynamic,16 & 4 & 0.42792 & 0.00766377 \\
+	dynamic,32 & 4 & 0.427667 & 0.0082635 \\
+	dynamic,64 & 4 & 0.459919 & 0.00837936 \\
+	guided,1 & 4 & 0.434381 & 0.0120444 \\
+	guided,2 & 4 & 0.432622 & 0.0123446 \\
+	guided,4 & 4 & 0.432052 & 0.0134753 \\ 
+	guided,8 & 4 & 0.431721 & 0.0135889 \\ 
+	guided,16 & 4 & 0.43101 & 0.0144585 \\
+	guided,32 & 4 & 0.438409 & 0.0131864 \\ 
+	guided,64 & 4 & 0.440735 & 0.0127809 \\ 
+	dynamic,8 & 1 & 1.64584 & 0.00368912 \\ 
+	dynamic,8 & 2 & 0.842835 & 0.000531856 \\ 
+	dynamic,8 & 4 & 0.432655 & 0.0101219 \\ 
+	dynamic,8 & 6 & 0.300801 & 0.0106516 \\ 
+	dynamic,8 & 8 & 0.229031 & 0.00784543 \\ 
+	dynamic,8 & 12 & 0.159318 & 0.00782003 \\
+	dynamic,8 & 16 & 0.126953 & 0.00697052 \\
+	dynamic,16 & 1 & 1.6453 & 0.000578072 \\ 
+	dynamic,16 & 2 & 0.837223 & 0.00103113 \\ 
+	dynamic,16 & 4 & 0.432996 & 0.0128874 \\ 
+	dynamic,16 & 6 & 0.303278 & 0.0114546 \\ 
+	dynamic,16 & 8 & 0.23483 & 0.00944744 \\ 
+	dynamic,16 & 12 & 0.162625 & 0.00981424 \\ 
+	dynamic,16 & 16 & 0.138232 & 0.00830332 \\ \hline
+\end{tabular}
+\end{table}
+
+
+
+\begin {table}[H]
+\caption {Loop 2}
+\center
+\begin{tabular}{ | l | l | l | l | }
+\hline
+	Schedule &  No. Threads &  Mean Time (s) &  Std. Deviation (s) \\ \hline 
+	static & 4 & 6.35165 & 0.0350881 \\
+	auto & 4 & 5.5247 & 0.0176731 \\ 
+	static,1 & 4 & 4.09267 & 0.0922924 \\ 
+	static,2 & 4 & 3.02777 & 0.0478233 \\ 
+	static,4 & 4 & 2.7703 & 0.0496694 \\
+	static,8 & 4 & 2.4068 & 0.0457846 \\
+	static,16 & 4 & 3.18633 & 0.0415496 \\ 
+	static,32 & 4 & 4.91394 & 0.0732637 \\
+	static,64 & 4 & 5.55721 & 0.0367112 \\
+	dynamic,1 & 4 & 2.76134 & 0.0153146 \\
+	dynamic,2 & 4 & 2.72649 & 0.0267236 \\
+	dynamic,4 & 4 & 2.61394 & 0.0205074 \\
+	dynamic,8 & 4 & 2.23896 & 0.007317 \\
+	dynamic,16 & 4 & 2.23559 & 0.00661029 \\
+	dynamic,32 & 4 & 3.94226 & 0.00563607 \\
+	dynamic,64 & 4 & 5.00349 & 0.0262898 \\
+	guided,1 & 4 & 5.52794 & 0.0151542 \\
+	guided,2 & 4 & 5.52264 & 0.00682783 \\
+	guided,4 & 4 & 5.52289 & 0.00714884 \\
+	guided,8 & 4 & 5.52478 & 0.00667864 \\ 
+	guided,16 & 4 & 5.52349 & 0.00793705 \\ 
+	guided,32 & 4 & 5.5337 & 0.0532817 \\ 
+	guided,64 & 4 & 5.52464 & 0.00727738 \\ 
+	dynamic,32 & 1 & 8.84485 & 0.0103624 \\
+	dynamic,32 & 2 & 4.46239 & 0.00300086 \\
+	dynamic,32 & 4 & 3.94598 & 0.00589791 \\
+	dynamic,32 & 6 & 3.94177 & 0.00235488 \\
+	dynamic,32 & 8 & 3.9493 & 0.00520081 \\
+	dynamic,32 & 12 & 3.98098 & 0.0194448 \\
+	dynamic,32 & 16 & 3.95387 & 0.00761888 \\ \hline
+\end{tabular}
+\end{table}
+
+
+
 
 \bibliographystyle{plain}
 \begin{thebibliography}{}

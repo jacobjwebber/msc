@@ -1,6 +1,6 @@
 set terminal pdf enhanced font "cmr10"
 set output "loop1_blocksize.pdf"
-set xlabel "block size"
+set xlabel "Chunk Size"
 set autoscale
 set ylabel "time (s)"  
 set style data linespoints
@@ -41,3 +41,9 @@ plot "speedup_dynamic16_loop1_graph" with linespoints notitle, x notitle with li
 
 set output "speedup_dynamic16_loop2.pdf"
 plot "speedup_dynamic16_loop2_graph" with linespoints notitle, x notitle with lines lt 2 lc 7
+
+
+set output "speedup_dynamic32_loop1.pdf"
+plot "speedup_dynamic32_loop1_graph" with linespoints notitle, x notitle with lines lt 2 lc 7
+
+

@@ -1,0 +1,11 @@
+set terminal pdf monochrome enhanced font "cmr10" dashed
+set xlabel "Number of Threads"
+set ylabel "Speed Up (T_{1}/T_{p})"
+set xtics 2
+set yrange [0:16]
+
+set output "speedup_dynamic32_loop1.pdf"
+plot "speedup_dynamic32_loop1_graph" with linespoints notitle, x notitle with lines lt 2 lc 7
+
+set output "speedup_dynamic32_loop2.pdf"
+plot "speedup_dynamic32_loop2_graph" with linespoints notitle, x notitle with lines lt 2 lc 7
