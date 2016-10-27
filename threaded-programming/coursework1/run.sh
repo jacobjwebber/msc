@@ -90,21 +90,23 @@ manythread() {
 export OMP_NUM_THREADS=4
 export OMP_SCHEDULE="static"
 
-do_loops
+#do_loops
 
 export OMP_SCHEDULE="auto"
 
-do_loops
+#do_loops
 
-manysched static
+#manysched static
 
-manysched dynamic
+#manysched dynamic
 
-manysched guided
+#manysched guided
 
-manythread dynamic 8
+#manythread dynamic 8
 
-manythread dynamic 16
+#manythread dynamic 16
+
+manythread dynamic 32
 
 cd $RESULTS_DIR_NAME
 

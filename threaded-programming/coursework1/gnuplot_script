@@ -18,7 +18,7 @@ plot "guided_loop2_graph" with lines lc rgb "blue" title "guided", '' using 1:2:
     "static_loop2_graph" with lines lc rgb "green" title "static", '' using 1:2:3 with errorbars lc rgb "green" notitle 
 
 
-set terminal pdf enhanced font "cmr10" monochrome dashed
+set terminal pdf monochrome enhanced font "cmr10" dashed
 set xlabel "Number of Threads"
 set ylabel "Speed Up (T_{1}/T_{p})"
 set xtics 2
@@ -26,18 +26,18 @@ set yrange [0:16]
 
 set output "speedup_dynamic8_loop1.pdf"
 
-plot "speedup_dynamic8_loop1_graph" with linespoints notitle, x notitle with lines lt 2 
+plot "speedup_dynamic8_loop1_graph" with linespoints notitle, x notitle with lines lt 7
 
 
 set output "speedup_dynamic8_loop2.pdf"
-plot "speedup_dynamic8_loop2_graph" with linespoints notitle, x notitle with lines lt 2
+plot "speedup_dynamic8_loop2_graph" with linespoints notitle, x notitle with lines lt 7
 
 
 #Dynamic 16
 
 set output "speedup_dynamic16_loop1.pdf"
-plot "speedup_dynamic16_loop1_graph" with linespoints notitle, x notitle with lines lt 2 
+plot "speedup_dynamic16_loop1_graph" with linespoints notitle, x notitle with lines lt 2 lc 7
 
 
 set output "speedup_dynamic16_loop2.pdf"
-plot "speedup_dynamic16_loop2_graph" with linespoints notitle, x notitle with lines lt 2
+plot "speedup_dynamic16_loop2_graph" with linespoints notitle, x notitle with lines lt 2 lc 7

@@ -2,6 +2,7 @@
 \setlength{\parskip}{1em}
 \setlength{\parindent}{0em}
 \usepackage{url}
+\usepackage{graphicx}
 
 \begin{document}
 
@@ -45,6 +46,15 @@ From these results, the scheduling option with the best performance for each loo
 For all measurements the running time was measured multiple times and a mean of these values used. In addition the standard deviation was also calculated. This allows the comparison of performance variability between different schedules. Performance variability is often an important consideration in HPC applications, where it may be desirable to avoid methods that often, but unreliably, yield high performance.
 
 \section{Results}
+\subsection{Results on 4 Threads}
+The first results gathered were execution times for each loop for every available loop schedule.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=1\textwidth]{"graphs/loop1_blocksize"}
+\caption{Graph showing execution time for loop 1 against block size for the guided, dynamic and static schedules. The error bars show 1 standard deviation. Note that these error bars are much larger than in loop 2, indicating greater performance variability. }
+\label{image-myimage}
+\end{figure}
 
 \section{conclusion}
 The best way to do it was:
