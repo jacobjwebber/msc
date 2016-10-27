@@ -4,7 +4,7 @@
 \usepackage{url}
 \usepackage{graphicx}
 \usepackage{caption}
-\usepackage[justification=centering, margin=2cm, labelfont=bf
+\usepackage[justification=centering, margin=2cm, labelfont=bf, font={small}
 ]{caption}
 \usepackage{float}
 \usepackage{subcaption}
@@ -24,7 +24,7 @@ The first loop (loop 1) iterates through the elements of a two dimensional array
 
 The nature of these loops led to different performance characteristics under parallelisation for each. This is due to the varying complexities of calculation within and between each of these loops. The variation in amounts of operations performed per loop cycle can cause issues with load balancing, where some threads complete all assigned work before others, leading to idling and sub-optimal performance.
 
-The purpose of the loop scheduling options provided by OpenMP is to provide a range of strategies to improve load balancing between different threads. The remainder of this report will describe the methods used to measure the effectiveness of each of the loop schedules before detailing the results of these experiments. Finally, this report will present a conclusion drawn from these results.
+The purpose of the loop scheduling options provided by OpenMP is to provide a range of strategies to improve load balancing between different threads. The remainder of this report will describe the methods used to measure the effectiveness of each of the loop schedules, before detailing the results of these experiments. Finally, this report will present a conclusion drawn from these results.
 
 \section{Methods}
 \subsection{Compiling and Running Serial Code}
@@ -40,13 +40,21 @@ Before different scheduling clauses could be used, the code had first to be para
 \item \verb|dynamic,n|
 \item \verb|guided,n|
 \end{itemize}
-Where \verb|n| specifies a chunksize. The Intel documentation \cite{intelmp} describes how the programmer has the option to set the schedule using an environment variable. This was done so that the schedule could be changed programmatically and that all experiments would be easily repeatable.
+where \verb|n| specifies a chunksize. 
+
+The \verb|static| loop schedule divides the loop into equal-sized chunks, or as evenly as possible where the number of loop iterations is not divisible by the number of threads multiplied by the chunksize. By default contiguous iterations assigned to each core. Setting a chunksize stripes the iterations in blocks of chunksize.  
+
+The \verb|auto| schedule leaves scheduling options to the compiler. Intel does not provide documentation as to the implementation within their compliers.
+
+The \verb|dynamic,n| schedule uses an internal work queue to distribute blocks of chunksize to each core. When each core completes a block it is assigned another from the work queue. A similar technique is applied when the \verb|guided| strategy is selected by the programmer, however in this case the block sizes start larger and then diminish in size. This theoretically reduces the overhead of work assignment, while allowing fine grain distribution towards the end of the computation, where load balancing issues are more likely to occur.
+
+The Intel documentation \cite{intelmp} describes how the programmer has the option to set the schedule using an environment variable. This was done so that the schedule could be changed programmatically and that all experiments would be easily repeatable.
 
 \subsection{Compiling and Running the Code}
 
 As with the serial case the code was compiled using the Intel C Compiler and using the \verb|-O3| optimisation flag. In this case, however, the appropriate compiler flag was used to compile an OpenMP program. To measure the performance of the different scheduling options the code was initially run on 4 threads on a backend node of \verb|cirrus|, an Intel Xeon powered cluster. For the schedules where it is possible to set a chunksize, this chunksize took the values 1, 2, 4, 8, 32 and 64.
 
-From these results, the scheduling option with the best performance for each loop on 4 threads was determined. Using these two options, the best for loop 1 and the best for loop 2, the code was then run again on 1, 2, 4, 6, 8, 12 and 16 threads. This allowed the measurement of the speed up, as defined by $T_{p}/T_{1}$, so that the scalability of the best performing schedule on 4 threads could be analysed.
+From these results, the scheduling option with the best performance for each loop on 4 threads was determined. Using these optimal options the code was then run again on 1, 2, 4, 6, 8, 12 and 16 threads. This allowed the measurement of the speed up, as defined by $T_{p}/T_{1}$, so that the scalability of the best performing schedule on 4 threads could be analysed.
 
 For all measurements the running time was measured multiple times and a mean of these values used. In addition the standard deviation was also calculated. This allows the comparison of performance variability between different schedules. Performance variability is often an important consideration in HPC applications, where it may be desirable to avoid methods that often, but unreliably, yield high performance.
 
@@ -73,11 +81,13 @@ The first results gathered were execution times for each loop for every availabl
 \label{loop2scheds}
 \end{figure}
 
+It is possible to use the results from the \verb|static| schedule to give a good experimental indication as to how evenly computational complexity is spread between iterations for the two loops. As the iterations are evenly distributed between threads with this \verb|static| method we can compare its performance to the best schedule and see how poorly it performs compared with an optimally load balanced solution. Doing this we see that for loop 1 computational complexity is far better distributed between loop iterations than in loop 2. This ties in with static analysis of the code which shows that the number of floating point operations in each iteration of loop 2 is proportional to the index of the iteration.
 
-
-For the loop 1 results there was a large standard deviation in all the schedules and chunk sizes. This shows a wide performance variability for this loop, particularly where the \verb|static| schedule was used. For loop 2 much less variable results were achieved as shown by the small error bars showing standard deviation in Figure \ref{loop2scheds}.
+For the loop 1 results there was a large standard deviation in all the schedules and chunk sizes. This shows a wide performance variability for this loop, particularly where the \verb|static| schedule was used. For loop 2 much less variable results were achieved as shown by the small error bars showing standard deviation in Figure \ref{loop2scheds}. This could be explained by the short excution time for 1000 repetitions of this loop is less than a second, at which point noise from I/O and other system processes can make results less reliable. 
 
 The highest performing schedule for loop 1 was found to be \verb|dynamic,32|. This had the lowest mean execution time and also had one of the lowest standard deviations, meaning this schedule had reliably good performance for this loop.
+
+For loop 2 we saw a general pattern where there was an optimal chunksize that was not so small that the overhead of work allocation became dominant, but not so large that the slowest chunk to complete was the dominnt factor. This pattern was not followed by the \verb|guided| schedule, which performed uniformly, and relatively badly, regarldess of chunksize. This may be because this scheme starts by assigning large chunks from the work queue, meaning that a large slow chunk was the dominant factor for all chunksizes.
 
 The highest performing schedule for loop 2 was not immediately obvious. The mean execution time with the \verb|dynamic,8| and \verb|dynamic,16| was similar to the order of nanoseconds - well beyond the accuracies of this experiment. It was therefore decided that both of these schedules would be jointly selected as the best.
 
@@ -108,7 +118,13 @@ The highest performing schedule for loop 2 was not immediately obvious. The mean
 \end{figure}
 
 
-After the best schedules for loop 1 and loop 2 had been found they were then run again on 1, 2, 4, 6, 8, 12 and 16 threads. The speed up for loop  1 on the \verb|dynamic,32| schedule is shown in Figure \ref{dynamic32}. Here relatively good scalability is shown until the system reaches 12 cores. At this point no more speed up is achieved.
+After the best schedules for loop 1 and loop 2 had been found they were then run again on 1, 2, 4, 6, 8, 12 and 16 threads. The speed up for loop  1 on the \verb|dynamic,32| schedule is shown in Figure \ref{dynamic32}. Here relatively good scalability is shown until the system reaches 12 cores. At this point no more speed up is achieved. There are many reasons that could explain this, but as the chunksize is larger for this schedule, it could be that there are not enough blocks in the work queue to distribute between these threads.
+
+The best schedule for loop 2 was taken to be either \verb|dynamic,8| or \verb|16|. Here Figures \ref{dynamic8} and \ref{dynamic16} show extremely interesting results. The scalability completely plateaus after 8 threads where the chunksize is 8, and 4 threads where the chunksize is 16. There are two plausible explanations for this. It could be that with the larger chunksizes there is a shortage of work in the work queue for these extra threads to do, as the total work is divided into fewer larger blocks. However, because this threshold is not reached by loop 1 where the loop is split into chunks of size 32,  it seems more likely that that this is due to the time it takes for the slowest block to complete. As loop 2 is an inherently badly load balanced problem - the amount of flops per cycle is proportional to the loop index - it seems more likely that one of the threads is left with a larger block of these longer computations where the chunksize is bigger, and however well distributed the remainder of the problem is the loop cannot complete before this longest problem is solved. What we see, then, is the size of this most computationally dense chunk doubling as the chunksize doubles, leaving no further room for improvement however many threads are used.
+
+Comparing these two loops we can see that in a more evenly distributed loop a larger chunksize is better. This is explained by the overhead from each thread going to the work queue. This becomes the dominant factor where the time taken for each chunk to complete is approximately even.
+
+
 
 \section{conclusion}
 The best way to do it was:
