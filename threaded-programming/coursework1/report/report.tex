@@ -18,9 +18,7 @@
 
 \section{Introduction}
 
-This report details experiments undertaken to compare the performance of the loop scheduling options available in OpenMP. A serial code involving two separate loops was provided to the Author. This code measured and reported the time taken for each loop to execute 1000 times. 
-
-The first loop (loop 1) iterates through the elements of a two dimensional array, calculating the cosine of each element and assigning this value to another similarly sized array. The second loop (loop 2) performs more operations per element in a similarly sized array to those in loop 1. This time a sum of varying length is performed for every element in the two dimensional array, with each term in the sum requiring the calculation of a logarithm.
+This report details experiments undertaken to compare the performance of the loop scheduling options available in OpenMP. A serial code involving two separate loops was provided. This code measured and reported the time taken for each loop to execute 1000 times. 
 
 The nature of these loops led to different performance characteristics under parallelisation for each. This is due to the varying complexities of calculation within and between each of these loops. The variation in amounts of operations performed per loop cycle can cause issues with load balancing, where some threads complete all assigned work before others, leading to idling and sub-optimal performance.
 
@@ -29,6 +27,8 @@ The purpose of the loop scheduling options provided by OpenMP is to provide a ra
 \section{Methods}
 \subsection{Compiling and Running Serial Code}
 As a precaution, to check the correctness of any subsequent parallel version, the original code was compiled in its serial form. This was done using the Intel C Compiler with the \verb|-O3| option specified at compile time for maximum serial optimisation. Beyond using this to verify the correctness of parallel solution and that parallel performance was credible, analysis of the performance of this serial code falls outside the scope of this report.
+
+%The first loop (loop 1) iterates through the elements of a two dimensional array, calculating the cosine of each element and assigning this value to another similarly sized array. The second loop (loop 2) performs more operations per element in a similarly sized array to those in loop 1. This time a sum of varying length is performed for every element in the two dimensional array, with each term in the sum requiring the calculation of a logarithm.
 
 \subsection{Parallelising the Code}
 
@@ -106,14 +106,14 @@ The highest performing schedule for loop 2 was not immediately obvious. The mean
 
   \centering
   \includegraphics[width=1\linewidth]{graphs/speedup_dynamic8_loop2}
-  \caption{\small Speed Up for the dynamic 8 schedule. A theoretical ideal speed up is shown as a black dotted line.}
+  \caption{\small Speed Up of loop 2 for the dynamic 8 schedule. A theoretical ideal speed up is shown as a black dotted line.}
   \label{dynamic8}
 \end{figure}
 
 \begin{figure}
   \centering
   \includegraphics[width=1\linewidth]{graphs/speedup_dynamic16_loop2}
-  \caption{\small Speed Up for the dynamic 16 schedule. A theoretical ideal speed up is shown as a black dotted line.}
+  \caption{\small Speed Up of loop 2 for the dynamic 16 schedule. A theoretical ideal speed up is shown as a black dotted line.}
 \label{dynamic16}
 \end{figure}
 
