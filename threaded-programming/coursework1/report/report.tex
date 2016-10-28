@@ -22,7 +22,7 @@ This report details experiments undertaken to compare the performance of the loo
 
 The nature of these loops led to different performance characteristics under parallelisation for each. This is due to the varying complexities of calculation within and between each of these loops. The variation in amounts of operations performed per loop cycle can cause issues with load balancing, where some threads complete all assigned work before others, leading to idling and sub-optimal performance.
 
-The purpose of the loop scheduling options provided by OpenMP is to provide a range of strategies to improve load balancing between different threads. The remainder of this report will describe the methods used to measure the effectiveness of each of the loop schedules, before detailing the results of these experiments. Finally, this report will present a conclusion drawn from these results. Full results and optimised parallel code are included as appendices.
+The purpose of the loop scheduling options provided by OpenMP is to provide a range of strategies to improve load balancing between different threads. The remainder of this report will describe the methods used to measure the effectiveness of each of the loop schedules, before detailing the results of these experiments. Finally, this report will present a conclusion drawn from these results. Full results and a code snippet containing the two loops are included as appendices.
 
 \section{Methods}
 \subsection{Compiling and Running Serial Code}
@@ -81,9 +81,9 @@ The first results gathered were execution times for each loop for every availabl
 \label{loop2scheds}
 \end{figure}
 
-It is possible to use the results from the \verb|static| schedule to give a good experimental indication as to how evenly computational complexity is spread between iterations for the two loops. As the iterations are evenly distributed between threads with this \verb|static| method we can compare its performance to the best schedule and see how poorly it performs compared with an optimally load balanced solution. Doing this we see that for loop 1 computational complexity is far better distributed between loop iterations than in loop 2. This ties in with static analysis of the code which shows that the number of floating point operations in each iteration of loop 2 is proportional to the index of the iteration.
+It is possible to use the results from the \verb|static| schedule to give a good experimental indication as to how evenly computational complexity is spread between iterations for the two loops. As the iterations are evenly distributed between threads with this \verb|static| method, how performant this strategy is gives a good indication as to the spread of operations between iterations. Doing this we see that for loop 1 computational complexity is far better distributed between loop iterations than in loop 2. We also see, comparing the results for \verb|static| and \verb|static,n| (see Figure \ref{loop2scheds} and Appendix A) that performance is drastically improved when these dense iterations are striped across threads. This ties in with static analysis of the code which shows that the number of floating point operations in each iteration of loop 2 is proportional to the index of the iteration.
 
-For the loop 1 results there was a large standard deviation in all the schedules and chunk sizes. This shows a wide performance variability for this loop, particularly where the \verb|static| schedule was used. For loop 2 much less variable results were achieved as shown by the small error bars showing standard deviation in Figure \ref{loop2scheds}. This could be explained by the short excution time for 1000 repetitions of this loop is less than a second, at which point noise from I/O and other system processes can make results less reliable. 
+The loop 1 results are shown in Figure \ref{loop1scheds}. These show there was a large standard deviation in all the schedules and chunk sizes. This shows a wide performance variability for this loop, particularly where the \verb|static| schedule was used. The loop 2 results shown in Figure \ref{loop2scheds} demonstrate much less performance variability for this loop, with error bars showing a much smaller standard deviation. This could be explained by the short execution time for 1000 repetitions of loop 1. This execution time is less than a second, at which point noise from I/O and other system processes can make results less reliable. 
 
 The highest performing schedule for loop 1 was found to be \verb|dynamic,32|. This had the lowest mean execution time and also had one of the lowest standard deviations, meaning this schedule had reliably good performance for this loop.
 
@@ -115,22 +115,22 @@ The highest performing schedule for loop 2 was not immediately obvious. The mean
 \end{figure}
 
 
-After the best schedules for loop 1 and loop 2 had been found they were then run again on 1, 2, 4, 6, 8, 12 and 16 threads. The speed up for loop  1 on the \verb|dynamic,32| schedule is shown in Figure \ref{dynamic32}. Here relatively good scalability is shown until the system reaches 12 cores. At this point no more speed up is achieved. There are many reasons that could explain this, but as the chunksize is larger for this schedule. It could be that there are not enough blocks in the work queue to distribute between these threads, however considering the results for loop 2, detailed below, that the performance peaks at the time taken for the slowest chunk of 32 to execute.
+After the best schedules for loop 1 and loop 2 had been found they were then run again on 1, 2, 4, 6, 8, 12 and 16 threads. The speed up for loop  1 on the \verb|dynamic,32| schedule is shown in Figure \ref{dynamic32}. Here relatively good scalability is shown until the system reaches 12 cores. At this point no more speed up is achieved. There are many reasons that could explain this, but as the chunksize is larger for this schedule it could be that there are not enough blocks in the work queue to distribute between these threads. However, considering the results for loop 2, detailed below, it seems likely that performance is limited by the time taken for the slowest chunk of 32 to execute.
 
-The best schedule for loop 2 was taken to be either \verb|dynamic,8| or \verb|16|. Here Figures \ref{dynamic8} and \ref{dynamic16} show extremely interesting results. The scalability completely plateaus after 8 threads where the chunksize is 8, and 4 threads where the chunksize is 16. There are two plausible explanations for this. It could be that with the larger chunksizes there is a shortage of work in the work queue for these extra threads to do, as the total work is divided into fewer larger blocks. However, because this threshold is not reached by loop 1 where the loop is split into chunks of size 32,  it seems more likely that that this is due to the time it takes for the slowest block to complete. As loop 2 is an inherently badly load balanced problem - the amount of flops per cycle is proportional to the loop index - it seems more likely that one of the threads is left with a larger block of these longer computations where the chunksize is bigger, and however well distributed the remainder of the problem is the loop cannot complete before this longest problem is solved. What we see, then, is the size of this most computationally dense chunk doubling as the chunksize doubles, leaving no further room for improvement however many threads are used.
+The best schedule for loop 2 was taken to be either \verb|dynamic,8| or \verb|16|. Here Figures \ref{dynamic8} and \ref{dynamic16} show extremely interesting results. The scalability completely plateaus after 8 threads where the chunksize is 8, and 4 threads where the chunksize is 16. There are two plausible explanations for this. It could be that with the larger chunksizes there is a shortage of work in the work queue for these extra threads to do, as the total work is divided into fewer larger blocks. However, because this threshold is not reached by loop 1 where the loop is split into chunks of size 32,  it seems more likely that that this is due to the time it takes for the slowest block to complete. As loop 2 is an inherently badly load balanced problem - the amount of flops per cycle is proportional to the loop index - it seems more likely that one of the threads is left with a larger block of these longer computations where the chunksize is bigger. However well distributed the remainder of the problem is, the loop cannot complete before this longest problem is solved. What we see, then, is the size of this most computationally dense chunk doubling as the chunksize doubles, leaving no further room for improvement however many threads are used.
 
-Comparing these two loops we can see that in a more evenly distributed loop a larger chunksize is better. This is explained by the overhead from each thread going to the work queue. This becomes the dominant factor where the time taken for each chunk to complete is approximately even.
+Comparing these two loops we can see that in a more evenly distributed loop a larger chunksize is better. This is explained by reducing the overhead from each thread going to the work queue. This becomes the dominant factor where the time taken for each chunk to complete is approximately even.
 
 
 
 \section{conclusion}
-To conclude, the results found in this experiment shows that loop schedules deserve considerable attention from a programmer trying to achieve high performance with an OpenMP code. A poor selection was shown to increase execution time in some cases by more than a factor of 2. 
+To conclude, the results found in this experiment shows that loop schedules deserve considerable attention from a programmer trying to achieve high performance with an OpenMP code. A poor selection was shown to increase execution time in some cases by more than a factor of 2 even on 4 threads and drastically reduce horizontal scalability. 
 
-The results also demonstrate there are a balance of factors to consider when selecting the the optimal schedule. The experiments showed that the assignment of work from a queue has an overhead. It was also shown that performance could be limited by poor load balancing where a chunksize that was too large was selected. This had a severe impact on horizontal scaling.
+The results also demonstrate there are a balance of factors to consider when selecting the the optimal schedule. The experiments showed that the assignment of work from a queue has an overhead. It was also shown that performance could be limited by poor load balancing where a chunksize that was too large was selected, particularly where a larger number of threads are used.
 
 Specifically in this case, results showed that the optimal scheduling strategy was for \verb|dynamic,32| for loop 1 and \verb|dynamic,8| for loop 2.
 
-More generally it was shown that the optimal schedule will depend on the number of threads that the program will be run on as well as the nature of the loop being parallelised. It would therefore be advisable for any HPC programmer to conduct some experiments for there specific use cases before running a large job.
+More generally it was shown that the optimal schedule will depend on the number of threads that the program will be run on as well as the nature of the loop being parallelised. It would therefore be advisable for any HPC programmer to conduct some experiments for their specific use cases before running a large job.
 
 
 
@@ -156,43 +156,36 @@ Accessed: 26-10-2016
 \begin{tabular}{ | l | l | l | l | }
 \hline
 	Schedule &  No. Threads &  Mean Time (s) &  Std. Deviation (s) \\ \hline
-	static & 4 & 0.728231 & 0.00666976 \\ 
-	auto & 4 & 0.430124 & 0.00860091 \\ 
-	static,1 & 4 & 0.481388 & 0.0319373 \\ 
-	static,2 & 4 & 0.451891 & 0.0298839 \\ 
-	static,4 & 4 & 0.467681 & 0.0250977 \\ 
-	static,8 & 4 & 0.462157 & 0.0250929 \\ 
-	static,16 & 4 & 0.471986 & 0.0222526 \\ 
-	static,32 & 4 & 0.490942 & 0.0162345 \\ 
-	static,64 & 4 & 0.538883 & 0.0171833 \\ 
-	dynamic,1 & 4 & 0.460126 & 0.0069964 \\
-	dynamic,2 & 4 & 0.443026 & 0.00900873 \\
-	dynamic,4 & 4 & 0.434388 & 0.00780827 \\
-	dynamic,8 & 4 & 0.430674 & 0.00608488 \\
-	dynamic,16 & 4 & 0.42792 & 0.00766377 \\
-	dynamic,32 & 4 & 0.427667 & 0.0082635 \\
-	dynamic,64 & 4 & 0.459919 & 0.00837936 \\
-	guided,1 & 4 & 0.434381 & 0.0120444 \\
-	guided,2 & 4 & 0.432622 & 0.0123446 \\
-	guided,4 & 4 & 0.432052 & 0.0134753 \\ 
-	guided,8 & 4 & 0.431721 & 0.0135889 \\ 
-	guided,16 & 4 & 0.43101 & 0.0144585 \\
-	guided,32 & 4 & 0.438409 & 0.0131864 \\ 
-	guided,64 & 4 & 0.440735 & 0.0127809 \\ 
-	dynamic,8 & 1 & 1.64584 & 0.00368912 \\ 
-	dynamic,8 & 2 & 0.842835 & 0.000531856 \\ 
-	dynamic,8 & 4 & 0.432655 & 0.0101219 \\ 
-	dynamic,8 & 6 & 0.300801 & 0.0106516 \\ 
-	dynamic,8 & 8 & 0.229031 & 0.00784543 \\ 
-	dynamic,8 & 12 & 0.159318 & 0.00782003 \\
-	dynamic,8 & 16 & 0.126953 & 0.00697052 \\
-	dynamic,16 & 1 & 1.6453 & 0.000578072 \\ 
-	dynamic,16 & 2 & 0.837223 & 0.00103113 \\ 
-	dynamic,16 & 4 & 0.432996 & 0.0128874 \\ 
-	dynamic,16 & 6 & 0.303278 & 0.0114546 \\ 
-	dynamic,16 & 8 & 0.23483 & 0.00944744 \\ 
-	dynamic,16 & 12 & 0.162625 & 0.00981424 \\ 
-	dynamic,16 & 16 & 0.138232 & 0.00830332 \\ \hline
+	static & 4 & 0.73 & 0.00 \\ 
+	auto & 4 & 0.43 & 0.00 \\ 
+	static,1 & 4 & 0.48 & 0.03 \\ 
+	static,2 & 4 & 0.45 & 0.02 \\ 
+	static,4 & 4 & 0.47 & 0.02 \\ 
+	static,8 & 4 & 0.46 & 0.02 \\ 
+	static,16 & 4 & 0.47 & 0.02 \\ 
+	static,32 & 4 & 0.49 & 0.01 \\ 
+	static,64 & 4 & 0.54 & 0.01 \\ 
+	dynamic,1 & 4 & 0.46 & 0.00 \\
+	dynamic,2 & 4 & 0.44 & 0.01 \\
+	dynamic,4 & 4 & 0.43 & 0.01 \\
+	dynamic,8 & 4 & 0.43 & 0.01 \\
+	dynamic,16 & 4 & 0.43 & 0.01 \\
+	dynamic,32 & 4 & 0.43 & 0.01 \\
+	dynamic,64 & 4 & 0.46 & 0.01 \\
+	guided,1 & 4 & 0.43 & 0.01 \\
+	guided,2 & 4 & 0.43 & 0.01 \\
+	guided,4 & 4 & 0.43 & 0.01 \\ 
+	guided,8 & 4 & 0.43 & 0.01 \\ 
+	guided,16 & 4 & 0.43 & 0.01 \\
+	guided,32 & 4 & 0.44 & 0.01 \\ 
+	guided,64 & 4 & 0.44 & 0.01 \\ 
+	dynamic,32 & 1 & 1.64 & 0.00 \\ 
+	dynamic,32 & 2 & 0.83 & 0.00 \\ 
+	dynamic,32 & 4 & 0.43 & 0.01 \\ 
+	dynamic,32 & 6 & 0.30 & 0.01 \\ 
+	dynamic,32 & 8 & 0.23 & 0.01 \\ 
+	dynamic,32 & 12 & 0.16 & 0.01 \\ 
+	dynamic,32 & 16 & 0.13 & 0.01 \\ \hline
 \end{tabular}
 \end{table}
 
@@ -200,45 +193,100 @@ Accessed: 26-10-2016
 
 \begin {table}[H]
 \caption {Loop 2}
+\small
 \center
 \begin{tabular}{ | l | l | l | l | }
 \hline
 	Schedule &  No. Threads &  Mean Time (s) &  Std. Deviation (s) \\ \hline 
-	static & 4 & 6.35165 & 0.0350881 \\
-	auto & 4 & 5.5247 & 0.0176731 \\ 
-	static,1 & 4 & 4.09267 & 0.0922924 \\ 
-	static,2 & 4 & 3.02777 & 0.0478233 \\ 
-	static,4 & 4 & 2.7703 & 0.0496694 \\
-	static,8 & 4 & 2.4068 & 0.0457846 \\
-	static,16 & 4 & 3.18633 & 0.0415496 \\ 
-	static,32 & 4 & 4.91394 & 0.0732637 \\
-	static,64 & 4 & 5.55721 & 0.0367112 \\
-	dynamic,1 & 4 & 2.76134 & 0.0153146 \\
-	dynamic,2 & 4 & 2.72649 & 0.0267236 \\
-	dynamic,4 & 4 & 2.61394 & 0.0205074 \\
-	dynamic,8 & 4 & 2.23896 & 0.007317 \\
-	dynamic,16 & 4 & 2.23559 & 0.00661029 \\
-	dynamic,32 & 4 & 3.94226 & 0.00563607 \\
-	dynamic,64 & 4 & 5.00349 & 0.0262898 \\
-	guided,1 & 4 & 5.52794 & 0.0151542 \\
-	guided,2 & 4 & 5.52264 & 0.00682783 \\
-	guided,4 & 4 & 5.52289 & 0.00714884 \\
-	guided,8 & 4 & 5.52478 & 0.00667864 \\ 
-	guided,16 & 4 & 5.52349 & 0.00793705 \\ 
-	guided,32 & 4 & 5.5337 & 0.0532817 \\ 
-	guided,64 & 4 & 5.52464 & 0.00727738 \\ 
-	dynamic,32 & 1 & 8.84485 & 0.0103624 \\
-	dynamic,32 & 2 & 4.46239 & 0.00300086 \\
-	dynamic,32 & 4 & 3.94598 & 0.00589791 \\
-	dynamic,32 & 6 & 3.94177 & 0.00235488 \\
-	dynamic,32 & 8 & 3.9493 & 0.00520081 \\
-	dynamic,32 & 12 & 3.98098 & 0.0194448 \\
-	dynamic,32 & 16 & 3.95387 & 0.00761888 \\ \hline
+	static & 4 & 6.35 & 0.03 \\
+	auto & 4 & 5.52 & 0.02 \\ 
+	static,1 & 4 & 4.09 & 0.09 \\ 
+	static,2 & 4 & 3.03 & 0.04 \\ 
+	static,4 & 4 & 2.77 & 0.04 \\
+	static,8 & 4 & 2.40 & 0.04 \\
+	static,16 & 4 & 3.18 & 0.04 \\ 
+	static,32 & 4 & 4.91 & 0.07 \\
+	static,64 & 4 & 5.56 & 0.04 \\
+	dynamic,1 & 4 & 2.76 & 0.02 \\
+	dynamic,2 & 4 & 2.72 & 0.03 \\
+	dynamic,4 & 4 & 2.61 & 0.02 \\
+	dynamic,8 & 4 & 2.24 & 0.01 \\
+	dynamic,16 & 4 & 2.24 & 0.01 \\
+	dynamic,32 & 4 & 3.94 & 0.01 \\
+	dynamic,64 & 4 & 5.00 & 0.03 \\
+	guided,1 & 4 & 5.53 & 0.02 \\
+	guided,2 & 4 & 5.52 & 0.01 \\
+	guided,4 & 4 & 5.52 & 0.01 \\
+	guided,8 & 4 & 5.52 & 0.01 \\ 
+	guided,16 & 4 & 5.52 & 0.01 \\ 
+	guided,32 & 4 & 5.53 & 0.05 \\ 
+	guided,64 & 4 & 5.52 & 0.01 \\
+	dynamic,8 & 1& 8.84 & 0.01\\
+	dynamic,8 & 2& 4.47 & 0.02\\
+dynamic,8 & 4 & 2.24 & 0.01\\
+dynamic,8 & 6 & 1.57 & 0.00\\
+dynamic,8 & 8 & 1.18 & 0.00\\
+dynamic,8 & 12 & 1.07 & 0.01\\
+dynamic,8 & 16 & 1.12 & 0.10\\
+dynamic,16 & 1 & 8.84 & 0.00\\
+dynamic,16 & 2 & 4.47 & 0.02\\
+dynamic,16 & 4 & 2.23 & 0.01\\
+dynamic,16 & 6 & 2.10 & 0.01\\
+dynamic,16 & 8 & 2.10 & 0.01\\
+dynamic,16 & 12 & 2.15 & 0.09\\
+dynamic,16 & 16 & 2.12 & 0.04\\
+	dynamic,32 & 1 & 8.84 & 0.01 \\
+	dynamic,32 & 2 & 4.46 & 0.00 \\
+	dynamic,32 & 4 & 3.95 & 0.01 \\
+	dynamic,32 & 6 & 3.94 & 0.00 \\
+	dynamic,32 & 8 & 3.94 & 0.01 \\
+	dynamic,32 & 12 & 3.98 & 0.02 \\
+	dynamic,32 & 16 & 3.95 & 0.01 \\ \hline
 \end{tabular}
 \end{table}
 
+\pagebreak
+\section{Code Snippet}
+\begin{verbatim}
+void loop1(void) { 
+  int i,j;
+  //OpenMP directive with optimal scheduling strategy.
+  #pragma omp parallel for default(none) \
+  schedule(dynamic,32) \
+  private(i,j) \
+  shared(a,b)
+  for (i=0; i<N; i++){ 
+    for (j=N-1; j>i; j--){
+      a[i][j] += cos(b[i][j]);
+    } 
+  }
+
+} 
 
 
+
+void loop2(void) {
+  int i,j,k; 
+  double rN2; 
+  int sharedN = N;
+  rN2 = 1.0 / (double) (N*N);  
+  //OpenMP directive with optimal scheduling strategy.
+  #pragma omp parallel for default(none) \
+  schedule(dynamic,8) \
+  private(i,j,k) \
+  shared(a,b,c,rN2,jmax)
+  for (i=0; i<N; i++){ 
+    for (j=0; j < jmax[i]; j++){
+      for (k=0; k<j; k++){ 
+	c[i] += (k+1) * log (b[i][j]) * rN2;
+      } 
+    }
+  }
+
+}
+
+
+\end{verbatim}
 
 
 \end{document}
