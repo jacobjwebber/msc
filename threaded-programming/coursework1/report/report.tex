@@ -22,11 +22,11 @@ This report details experiments undertaken to compare the performance of the loo
 
 The nature of these loops led to different performance characteristics under parallelisation for each. This is due to the varying complexities of calculation within and between each of these loops. The variation in amounts of operations performed per loop cycle can cause issues with load balancing, where some threads complete all assigned work before others, leading to idling and sub-optimal performance.
 
-The purpose of the loop scheduling options provided by OpenMP is to provide a range of strategies to improve load balancing between different threads. The remainder of this report will describe the methods used to measure the effectiveness of each of the loop schedules, before detailing the results of these experiments. Finally, this report will present a conclusion drawn from these results.
+The purpose of the loop scheduling options provided by OpenMP is to provide a range of strategies to improve load balancing between different threads. The remainder of this report will describe the methods used to measure the effectiveness of each of the loop schedules, before detailing the results of these experiments. Finally, this report will present a conclusion drawn from these results. Full results and optimised parallel code are included as appendices.
 
 \section{Methods}
 \subsection{Compiling and Running Serial Code}
-As a precaution, to check the correctness of any subsequent parallel version, the original code was compiled in its serial form. This was done using the Intel C Compiler with the \verb|-O3| option specified at compile time for maximum serial optimisation. Beyond using this to verify the correctness of parallel solution and that parallel performance was credible, analysis of the performance of this serial code falls outside the scope of this report.
+As a precaution, to check the correctness of any subsequent parallel version, the original code was compiled in its serial form. This was done using the Intel C Compiler with the \verb|-O3| option specified at compile time for maximum serial optimisation. Beyond using this to verify the correctness of any parallel solution and that parallel performance was credible, analysis of the performance of this serial code falls outside the scope of this report.
 
 %The first loop (loop 1) iterates through the elements of a two dimensional array, calculating the cosine of each element and assigning this value to another similarly sized array. The second loop (loop 2) performs more operations per element in a similarly sized array to those in loop 1. This time a sum of varying length is performed for every element in the two dimensional array, with each term in the sum requiring the calculation of a logarithm.
 
@@ -87,7 +87,7 @@ For the loop 1 results there was a large standard deviation in all the schedules
 
 The highest performing schedule for loop 1 was found to be \verb|dynamic,32|. This had the lowest mean execution time and also had one of the lowest standard deviations, meaning this schedule had reliably good performance for this loop.
 
-For loop 2 we saw a general pattern where there was an optimal chunksize that was not so small that the overhead of work allocation became dominant, but not so large that the slowest chunk to complete was the dominnt factor. This pattern was not followed by the \verb|guided| schedule, which performed uniformly, and relatively badly, regarldess of chunksize. This may be because this scheme starts by assigning large chunks from the work queue, meaning that a large slow chunk was the dominant factor for all chunksizes.
+For loop 2 we saw a general pattern where there was an optimal chunksize that was not so small that the overhead of work allocation became dominant, but not so large that the slowest chunk to complete was the dominant factor. This pattern was not followed by the \verb|guided| schedule, which performed uniformly, and relatively badly, regardless of chunksize. This may be because this scheme starts by assigning large chunks from the work queue, meaning that a large slow chunk was the dominant factor for all chunksizes.
 
 The highest performing schedule for loop 2 was not immediately obvious. The mean execution time with the \verb|dynamic,8| and \verb|dynamic,16| was similar to the order of nanoseconds - well beyond the accuracies of this experiment. It was therefore decided that both of these schedules would be jointly selected as the best.
 
@@ -98,12 +98,9 @@ The highest performing schedule for loop 2 was not immediately obvious. The mean
   \includegraphics[width=1\linewidth]{graphs/speedup_dynamic32_loop1}
   \caption{\small Speed Up of loop 1 for the dynamic 32 schedule. A theoretical ideal speed up is shown as a black dotted line.}
   \label{dynamic32}
-\label{dynamic16}
 \end{figure}
 
 \begin{figure}
-\centering
-
   \centering
   \includegraphics[width=1\linewidth]{graphs/speedup_dynamic8_loop2}
   \caption{\small Speed Up of loop 2 for the dynamic 8 schedule. A theoretical ideal speed up is shown as a black dotted line.}
@@ -118,7 +115,7 @@ The highest performing schedule for loop 2 was not immediately obvious. The mean
 \end{figure}
 
 
-After the best schedules for loop 1 and loop 2 had been found they were then run again on 1, 2, 4, 6, 8, 12 and 16 threads. The speed up for loop  1 on the \verb|dynamic,32| schedule is shown in Figure \ref{dynamic32}. Here relatively good scalability is shown until the system reaches 12 cores. At this point no more speed up is achieved. There are many reasons that could explain this, but as the chunksize is larger for this schedule, it could be that there are not enough blocks in the work queue to distribute between these threads.
+After the best schedules for loop 1 and loop 2 had been found they were then run again on 1, 2, 4, 6, 8, 12 and 16 threads. The speed up for loop  1 on the \verb|dynamic,32| schedule is shown in Figure \ref{dynamic32}. Here relatively good scalability is shown until the system reaches 12 cores. At this point no more speed up is achieved. There are many reasons that could explain this, but as the chunksize is larger for this schedule. It could be that there are not enough blocks in the work queue to distribute between these threads, however considering the results for loop 2, detailed below, that the performance peaks at the time taken for the slowest chunk of 32 to execute.
 
 The best schedule for loop 2 was taken to be either \verb|dynamic,8| or \verb|16|. Here Figures \ref{dynamic8} and \ref{dynamic16} show extremely interesting results. The scalability completely plateaus after 8 threads where the chunksize is 8, and 4 threads where the chunksize is 16. There are two plausible explanations for this. It could be that with the larger chunksizes there is a shortage of work in the work queue for these extra threads to do, as the total work is divided into fewer larger blocks. However, because this threshold is not reached by loop 1 where the loop is split into chunks of size 32,  it seems more likely that that this is due to the time it takes for the slowest block to complete. As loop 2 is an inherently badly load balanced problem - the amount of flops per cycle is proportional to the loop index - it seems more likely that one of the threads is left with a larger block of these longer computations where the chunksize is bigger, and however well distributed the remainder of the problem is the loop cannot complete before this longest problem is solved. What we see, then, is the size of this most computationally dense chunk doubling as the chunksize doubles, leaving no further room for improvement however many threads are used.
 
@@ -127,7 +124,15 @@ Comparing these two loops we can see that in a more evenly distributed loop a la
 
 
 \section{conclusion}
-The best way to do it was:
+To conclude, the results found in this experiment shows that loop schedules deserve considerable attention from a programmer trying to achieve high performance with an OpenMP code. A poor selection was shown to increase execution time in some cases by more than a factor of 2. 
+
+The results also demonstrate there are a balance of factors to consider when selecting the the optimal schedule. The experiments showed that the assignment of work from a queue has an overhead. It was also shown that performance could be limited by poor load balancing where a chunksize that was too large was selected. This had a severe impact on horizontal scaling.
+
+Specifically in this case, results showed that the optimal scheduling strategy was for \verb|dynamic,32| for loop 1 and \verb|dynamic,8| for loop 2.
+
+More generally it was shown that the optimal schedule will depend on the number of threads that the program will be run on as well as the nature of the loop being parallelised. It would therefore be advisable for any HPC programmer to conduct some experiments for there specific use cases before running a large job.
+
+
 
 \bibliographystyle{plain}
 \begin{thebibliography}{}

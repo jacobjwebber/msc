@@ -1,3 +1,8 @@
+//=======================================\\
+//      parallelised  loops program      \\
+//=======================================\\
+
+
 #include <stdio.h>
 #include <math.h>
 
@@ -88,9 +93,10 @@ void init2(void){
 } 
 
 void loop1(void) { 
-  int i,j; 
+  int i,j;
+  //OpenMP directive with optimal scheduling strategy.
   #pragma omp parallel for default(none) \
-  schedule(runtime) \
+  schedule(dynamic,32) \
   private(i,j) \
   shared(a,b)
   for (i=0; i<N; i++){ 
@@ -108,9 +114,9 @@ void loop2(void) {
   double rN2; 
   int sharedN = N;
   rN2 = 1.0 / (double) (N*N);  
-  
+  //OpenMP directive with optimal scheduling strategy.
   #pragma omp parallel for default(none) \
-  schedule(runtime) \
+  schedule(dynamic,8) \
   private(i,j,k) \
   shared(a,b,c,rN2,jmax)
   for (i=0; i<N; i++){ 
