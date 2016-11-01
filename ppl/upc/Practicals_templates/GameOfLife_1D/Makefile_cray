@@ -1,0 +1,38 @@
+#----------------------#
+#                      #
+# Makefile for UPC     #
+#                      #
+#----------------------#
+MF=	Makefile_cray
+
+CC=	cc
+
+CFLAGS= -h upc -X 8
+
+SRC= life.c
+
+EXE= life.x
+
+OBJ= $(SRC:.c=.o)
+
+#
+# No need to edit below this line
+#
+
+.SUFFIXES:
+.SUFFIXES: .c .o
+
+
+all:	$(EXE)
+
+.c.o:
+	$(CC) $(CFLAGS) -c $<
+
+$(EXE):	$(OBJ)
+	$(CC) $(CFLAGS) -o $@ $(OBJ) $(LFLAGS)
+
+$(OBJ): $(MF)
+
+clean:
+	rm -f $(EXE) *.o 
+
