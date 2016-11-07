@@ -1,0 +1,43 @@
+#!/bin/sh --login
+#PBS -N test_changes
+#PBS -l mppwidth=24
+#PBS -l mppnppn=24
+#PBS -j oe
+#PBS -A <budget>
+#PBS -l walltime=00:03:00
+
+# Flags explanation
+# -----------------
+# -N           -->  give a name to the job, easier to track
+# -l mppwidth  -->  total number of tasks
+# -l mppnppn   -->  how many jobs per node (takes values of 1 to 24)
+# -j oe        -->  merge std error and std output files
+# -A           -->  name of the budget
+# -l walltime  -->  how much time I expect to take, in case of a problem this will
+#                   save us from wasting AUs
+
+# Go to "~/work" directory, all files must be copied there
+cd ~/work
+
+# Make a new directory (use job ID for convinience)
+mkdir UPC_GOL_$PBS_JOBID
+
+# Go to directory the "qsub" is executed
+cd $PBS_O_WORKDIR
+
+# Copy all files needed to the new directory
+cp life.x ~/work/UPC_GOL_$PBS_JOBID
+
+# Go to work directory
+cd ~/work/UPC_GOL_$PBS_JOBID
+
+export NPROC=`qstat -f $PBS_JOBID | awk '/mppwidth/ {print $3}'`
+export NTASK=`qstat -f $PBS_JOBID | awk '/mppnppn/  {print $3}'`
+
+aprun -a xt -n 8 ./life.x
+
+# This run will produce no output file. We only need the std output
+# Clean directory
+cd ..
+rm -r ./UPC_GOL_$PBS_JOBID
+
