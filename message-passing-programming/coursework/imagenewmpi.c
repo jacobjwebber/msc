@@ -17,7 +17,7 @@
 #define MAXITER   1500
 #define PRINTFREQ  200
 
-#define P 4
+#define P 8
 
 #define MP M/2
 #define NP N/2
@@ -29,10 +29,11 @@ int mp_init(int* rank, int* size, int argc, char** argv)
     MPI_Init(&argc, &argv);
     MPI_Comm_size(MPI_COMM_WORLD, size);
     MPI_Comm_rank(MPI_COMM_WORLD, rank);
-    if (*size != P)
+    printf("ERROR: size = %d, P = %d\n", size, P);
+
+    if (size != P)
     {
         if (rank==0) printf("ERROR: size = %d, P = %d\n", size, P);
-        MPI_Finalize();
         return -1;
     }
 }
@@ -52,10 +53,11 @@ int main (int argc, char **argv)
 
   int initialised_ok = mp_init(&rank, &size, argc, argv);
 
-  if (!initialised_ok)
+  if (initialised_ok)
   {
       printf("error initialising message passing");
       exit(-1);
+      MPI_Finalize();
   }
 
   /* Master thread section */
