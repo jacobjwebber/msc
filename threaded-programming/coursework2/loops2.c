@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <math.h>
 
+//maximum number of threads this code can support.
+#define MAX_THREADS 128
 
 #define N 729
 #define reps 1000 
@@ -91,12 +93,27 @@ void init2(void){
 
 
 void runloop(int loopid)  {
-
-#pragma omp parallel default(none) shared(loopid) 
+  
+  int remaining[MAX_THREADS];
+  for (i = 0; i < MAX_THREADS)
+  {
+      remaining[i] = 0;
+  }
+#pragma omp parallel default(none) shared(loopid, remaining) 
   {
     int myid  = omp_get_thread_num();
+
     int nthreads = omp_get_num_threads(); 
+
+    if (MAX_THREADS < nthreads)
+    {
+        printf("TOO MANY THREADS.\n");
+        exit (-1);
+    }   
+    
     int ipt = (int) ceil((double)N/(double)nthreads); 
+
+
     int lo = myid*ipt;
     int hi = (myid+1)*ipt;
     if (hi > N) hi = N; 
@@ -162,5 +179,3 @@ void valid2(void) {
   }
   printf("Loop 2 check: Sum of c is %f\n", sumc);
 } 
- 
-
