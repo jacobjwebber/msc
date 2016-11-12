@@ -1,0 +1,10 @@
+#Parameters. Defaults shown in brackets apply if this file is not present.
+0.04    # r - The birth rate of hares, defaults to 0.04
+0.04    # a - The predation rate at which pumas eat hares (0.04)
+0.02    # b - The birth rate of pumas per one hare eaten (0.02)
+0.06    # m - The puma mortality rate (0.06)
+0.20    # k - The diffusion rate for hares (0.2)
+0.20    # l - The diffusion rate for pumas (0.2)
+0.40    # dt - The time step (0.4)
+100     # T - The number of iterations between ppm outputs (100)
+100     # T_average - The iterations between averages (100)
