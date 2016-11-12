@@ -7,5 +7,5 @@ done
 
 for i in $(ls scaled)
 do
-        ./pnm2dat scaled/${i} ${i}.dat
+        ./pnm2dat scaled/${i} scaled_dat/{i}.dat
 done
