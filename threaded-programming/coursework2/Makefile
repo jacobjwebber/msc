@@ -1,6 +1,6 @@
-cc=gcc -O3 $(LDFLAGS)
+cc=pgcc -O3 $(LDFLAGS)
 
-LDFLAGS=-lm -fopenmp
+LDFLAGS=-lm -mp
 
 OBJS=
 
