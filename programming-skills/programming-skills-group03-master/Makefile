@@ -1,6 +1,6 @@
 #This is a make file
 
-cc=gcc -O3 $(LDFLAGS)
+cc=pgcc $(LDFLAGS)
 
 LDFLAGS=-lcunit -lm 
 
