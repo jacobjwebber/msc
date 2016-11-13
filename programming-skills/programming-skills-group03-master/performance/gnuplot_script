@@ -1,6 +1,6 @@
 set terminal pdf enhanced font "cmr10"
 set output "gcc_times.pdf"
-set xlabel "Terrain Size"
+set xlabel "Terrain Size (10^{-4})"
 set ylabel "time (s)"
 set style data linespoints
 set key below
