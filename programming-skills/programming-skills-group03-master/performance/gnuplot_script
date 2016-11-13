@@ -8,7 +8,15 @@ set key below
 
 plot "graphs/times_gcc_cliph-none_graph" with lines lc rgb "blue" title "no optimisation", '' lc rgb "blue" notitle, \
     "graphs/times_gcc_cliphO1_graph" with lines lc rgb "red" title "-O1 optimisation", '' lc rgb "red" notitle,  \
-    "graphs/times_gcc_cliphO2_graph" with lines lc rgb "green" title "-O2 optimisation", '' lc rgb "green" notitle
+    "graphs/times_gcc_cliphO2_graph" with lines lc rgb "green" title "-O2 optimisation", '' lc rgb "green" notitle, \
+    "graphs/times_gcc_cliphO3_graph" with lines lc rgb "darkgoldenrod" title "-O3 optimisation", '' lc rgb "green" notitle
+
 
 set output "pgi_times.pdf"
+
+plot "graphs/times_pgi_cliph-none_graph" with lines lc rgb "blue" title "no optimisation", '' lc rgb "blue" notitle, \
+    "graphs/times_pgi_cliphO1_graph" with lines lc rgb "red" title "-O1 optimisation", '' lc rgb "red" notitle,  \
+    "graphs/times_pgi_cliphO2_graph" with lines lc rgb "green" title "-O2 optimisation", '' lc rgb "green" notitle, \
+    "graphs/times_pgi_cliphO3_graph" with lines lc rgb "darkgoldenrod" title "-O3 optimisation", '' lc rgb "green" notitle
+
 
