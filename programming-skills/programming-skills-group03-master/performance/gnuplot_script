@@ -1,11 +1,9 @@
 set terminal pdf enhanced font "cmr10"
 set output "gcc_times.pdf"
 set xlabel "Terrain Size"
-set autoscale
 set ylabel "time (s)"
 set style data linespoints
 set key below
-set format x "%t"
 
 plot "graphs/times_gcc_cliph-none_graph" with lines lc rgb "blue" title "no optimisation", '' lc rgb "blue" notitle, \
     "graphs/times_gcc_cliphO1_graph" with lines lc rgb "red" title "-O1 optimisation", '' lc rgb "red" notitle,  \
