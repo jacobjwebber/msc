@@ -32,13 +32,26 @@ run_cliph() {
     rm -r results*
 }
 
-run_cliph pgi_cliphO1
-run_cliph pgi_cliphO2
-run_cliph pgi_cliphO3
-run_cliph pgi_cliph-none
+make_graphs() {
+    for i in $(ls times/)
+    do
+        paste template_graph times/${i} > graphs/${i}_graph
+    done
+}
+        
+
+#run_cliph pgi_cliphO1
+#run_cliph pgi_cliphO2
+#run_cliph pgi_cliphO3
+#run_cliph pgi_cliph-none
 
 
-run_cliph gcc_cliphO1
-run_cliph gcc_cliphO2
-run_cliph gcc_cliphO3
-run_cliph gcc_cliph-none
+#run_cliph gcc_cliphO1
+#run_cliph gcc_cliphO2
+#run_cliph gcc_cliphO3
+#run_cliph gcc_cliph-none
+
+#move results to times dir
+
+mkdir graphs
+make_graphs
