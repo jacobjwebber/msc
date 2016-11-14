@@ -63,19 +63,22 @@ The fully passing unit tests along with somewhat unscientific inspection of the 
 \label{gcc}
 \end{figure}
 
-\subsection{Performance Characteristics}
-In broad terms, for both compilers and all optimisation flags, the time taken to complete a simulation increased linearly with the number of terrain elements ($M \cdot N$). This is what would be expected, as the size of the terrain is proportional to the number of calculations required to compute the simulation.
-
-There are, however some irregularities in this linear relationship between compute time and terrain size. In all cases but the unoptimised GCC executable, there is a small bump in compute time as the number of elements reaches 60,000. This could be explained by a caching effect. The CPU used had 6 MiB of L3 cache. As each element on the terrain was represented by a 64 bit double precision floating point number, a terrain modelled as a 2 dimensional array of doubles would consume this 6 MiB of cache. However, it is then surprising that no non-linear performance decrease is observable at a figure half of this, as the simulation depends on 2 arrays of this size.
-
-For the GNU compiler, the results, shown in figure \ref{gcc}, show that with no optimisation executions times are longer than those of the various optimisation degrees by approximately a factor of two. In the source code a new 2 dimensional array is calculated from the last, using a finite difference scheme. After this is done the data in the new array is explicitly copied element by element from the old to the new. This process, is however unnecessary, as the pointers to these two arrays could simply be swapped. Although no calculations are performed on this copying pass, if memory access is the completely dominant factor in this computation, doing this unnecessary copy could almost double the execution time. As described in \cite{gnuopt} all optimisation options up from \verb|-O1| include the \verb|-ftree-copy-prop| option. This option removes unnecessary memory copies. From this it therefore seems clear not just that removing this copy drastically increases performance, but that in these simulations memory access dominates the execution time. It is also worth noting that for the PGI compiler there is no major difference between any of the compile options or none and performance in general is similar to the optimised results from GCC. This suggests that this unnecessary copy reduction optimisation is done by default with the PGI compiler.
-
 \begin{figure}
 \centering
 \includegraphics[width=1\textwidth]{"graphs/pgi_times"}
 \caption{\small Graph showing pgi execution times}
 \label{pgi}
 \end{figure}
+
+\subsection{Performance Characteristics}
+In broad terms, for both compilers and all optimisation flags, the time taken to complete a simulation increased linearly with the number of terrain elements ($M \cdot N$). This is what would be expected, as the size of the terrain is proportional to the number of calculations required to compute the simulation.
+
+There are, however some irregularities in this linear relationship between compute time and terrain size. In all cases but the unoptimised GCC executable, there is a small bump in compute time as the number of elements reaches 60,000. This could be explained by a caching effect. The CPU used had 6 MiB of L3 cache. As each element on the terrain was represented by a 64 bit double precision floating point number, a terrain modelled as a 2 dimensional array of doubles would consume this 6 MiB of cache. However, it is then surprising that no non-linear performance decrease is observable at a figure half of this, as the simulation depends on 2 arrays of this size. 
+
+For the GNU compiler, the results, shown in figure \ref{gcc}, show that with no optimisation executions times are longer than those of the various optimisation degrees by approximately a factor of two. In the source code a new 2 dimensional array is calculated from the last, using a finite difference scheme. After this is done the data in the new array is explicitly copied element by element from the old to the new. This process, is however unnecessary, as the pointers to these two arrays could simply be swapped. Although no calculations are performed on this copying pass, if memory access is the completely dominant factor in this computation, doing this unnecessary copy could almost double the execution time. As described in \cite{gnuopt} all optimisation options up from \verb|-O1| include the \verb|-ftree-copy-prop| option. This option removes unnecessary memory copies. From this it therefore seems clear not just that removing this copy drastically increases performance, but that in these simulations memory access dominates the execution time. It is also worth noting that for the PGI compiler there is no major difference between any of the compile options or none and performance in general is similar to the optimised results from GCC. This suggests that this unnecessary copy reduction optimisation is done by default with the PGI compiler.
+
+For both compilers, apart from the unoptimised GCC case, we see there are two distinct groupings of results, with one approximately 10\% faster than the other. This separation occurs between the \verb|-O2| and \verb|-O3| optimisation levels with the GNU compiler and between the \verb|-O1| and \verb|-O2| levels on the PGI compiler. It seems likely that there is an optimisation that increases the performance by this specific amount. As the \verb|-O3| flag switches on five optimisation techniques, it goes beyond the scope of this report to try each and find which is responsible for this performance increase. The Portland Group do not release details of specific techniques used by each optimisation level.
+
 
 
 
@@ -84,8 +87,9 @@ For the GNU compiler, the results, shown in figure \ref{gcc}, show that with no 
 
 \section{Conclusion}
 
-They are both well fast
+In conclusion, it has been shown that using aggressive compiler optimisation was, in this case, a very worthwhile endeavour. In extreme cases the performance increased by approximately a factor of two with no detectable degradation of correctness. For this code the compile times and executable file sizes were too small to be considered as important factors. 
 
+It is clear that optimising to remove unnecessary memory copies was the most important optimisation and that memory usage  
 
 \bibliographystyle{plain}
 \begin{thebibliography}{}
