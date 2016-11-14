@@ -46,15 +46,16 @@ The variously sized images were used as inputs for the different executables gen
 For the sake of repeatability all stages of the experiment were conducted programmatically using a Bash script and the Make utility for compilation as well as gnuplot for displaying results. These scripts are available on request from the author and would make conducting the same experiments on different processors trivial.
 
 \section{Results}
-\subsection{Compilation, Stability and Correctness}
+\subsection{Compilation}
+
+Both GNU and The Portland Group, the authors of the two compilers, warn that using high levels of compiler optimisation increase compilation times and memory usage \cite{gnuopt}\cite{pgiopt}. However, as in all cases compilation times were imperceptible to a human user, it was considered unnecessary to accurately measure or discuss further compilation time or memory use. 
+
+\subsection{Stability and Correctness}
 
 In all cases the code was compiled with no warnings or errors from the compiler and the suite of unit tests passed completely. Beyond this it is hard to compare with surety the accuracy of the results generated, as the initial population densities are generated pseudo-randomly. This means that accuracy cannot be verified by repetition. It was noted that credible results were generated in all cases, with populations of predator and prey oscillating in a slightly out of phase manner, as would be expected.
 
 The fully passing unit tests along with somewhat unscientific inspection of the output population densities convinced the author that correctness should not be a factor when comparing compilers, or the compiler optimisation techniques, used on this code.
 
-Both GNU and The Portland Group, the authors of the two compilers, warn that using high levels of compiler optimisation increase compilation times and memory usage \cite{gnuopt}\cite{pgiopt}. However, as in all cases compilation times was imperceptible to a human user, it was considered unnecessary to accurately measure or discuss further compilation time or memory use. 
-
-\subsection{Performance Characteristics}
 \begin{figure}
 \centering
 \includegraphics[width=1\textwidth]{"graphs/gcc_times"}
@@ -62,8 +63,12 @@ Both GNU and The Portland Group, the authors of the two compilers, warn that usi
 \label{gcc}
 \end{figure}
 
+\subsection{Performance Characteristics}
+In broad terms, for both compilers and all optimisation flags, the time taken to complete a simulation increased linearly with the number of terrain elements ($M \cdot N$). This is what would be expected, as the size of the terrain is proportional to the number of calculations required to compute the simulation.
 
+There are, however some irregularities in this linear relationship between compute time and terrain size. In all cases but the unoptimised GCC executable, there is a small bump in compute time as the number of elements reaches 60,000. This could be explained by a caching effect. The CPU used had 6 MiB of L3 cache. As each element on the terrain was represented by a 64 bit double precision floating point number, a terrain modelled as a 2 dimensional array of doubles would consume this 6 MiB of cache. However, it is then surprising that no non-linear performance decrease is observable at a figure half of this, as the simulation depends on 2 arrays of this size.
 
+For the GNU compiler, the results, shown in figure \ref{gcc}, show that with no optimisation executions times are longer than those of the various optimisation degrees by approximately a factor of two. In the source code a new 2 dimensional array is calculated from the last, using a finite difference scheme. After this is done the data in the new array is explicitly copied element by element from the old to the new. This process, is however unnecessary, as the pointers to these two arrays could simply be swapped. Although no calculations are performed on this copying pass, if memory access is the completely dominant factor in this computation, doing this unnecessary copy could almost double the execution time. As described in \cite{gnuopt} all optimisation options up from \verb|-O1| include the \verb|-ftree-copy-prop| option. This option removes unnecessary memory copies. From this it therefore seems clear not just that removing this copy drastically increases performance, but that in these simulations memory access dominates the execution time. It is also worth noting that for the PGI compiler there is no major difference between any of the compile options or none and performance in general is similar to the optimised results from GCC. This suggests that this unnecessary copy reduction optimisation is done by default with the PGI compiler.
 
 \begin{figure}
 \centering

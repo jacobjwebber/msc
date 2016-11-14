@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013) (format=pdflatex 2016.4.30)  14 NOV 2016 19:10
+This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013) (format=pdflatex 2016.4.30)  14 NOV 2016 20:42
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -184,47 +184,43 @@ LaTeX Font Info:    External font `cmex10' loaded for size
 File: "graphs/gcc_times".pdf Graphic file (type pdf)
 
 <use "graphs/gcc_times".pdf>
-Package pdftex.def Info: "graphs/gcc_times".pdf used on input line 60.
+Package pdftex.def Info: "graphs/gcc_times".pdf used on input line 61.
 (pdftex.def)             Requested size: 390.0pt x 234.00243pt.
-
-<"graphs/pgi_times".pdf, id=16, 361.35pt x 216.81pt>
+ [3] [4 <./graphs/gcc_times.pdf>]
+<"graphs/pgi_times".pdf, id=38, 361.35pt x 216.81pt>
 File: "graphs/pgi_times".pdf Graphic file (type pdf)
 
 <use "graphs/pgi_times".pdf>
-Package pdftex.def Info: "graphs/pgi_times".pdf used on input line 70.
+Package pdftex.def Info: "graphs/pgi_times".pdf used on input line 75.
 (pdftex.def)             Requested size: 390.0pt x 234.00243pt.
- [3] [4 <./graphs/gcc_times.pdf> <./graphs/pgi_times.pdf
 
-pdfTeX warning: pdflatex (file ./graphs/pgi_times.pdf): PDF inclusion: multiple
- pdfs with page group included in a single page
->]
-Underfull \hbox (badness 10000) in paragraph at lines 89--93
+Underfull \hbox (badness 10000) in paragraph at lines 94--98
 []\OT1/cmr/m/n/12 GNU. \OT1/cmr/m/it/12 Op-ti-mize Op-tions $\OT1/cmtt/m/n/12 h
 ttps : / / gcc . gnu . org / onlinedocs / gcc /
  []
 
-[5] [6] (./report.aux) ) 
+[5 <./graphs/pgi_times.pdf>] [6] [7] (./report.aux) ) 
 Here is how much of TeX's memory you used:
  2710 strings out of 495063
  42450 string characters out of 3182201
- 97850 words of memory out of 3000000
+ 98850 words of memory out of 3000000
  5882 multiletter control sequences out of 15000+200000
  9625 words of font info for 34 fonts, out of 3000000 for 9000
  14 hyphenation exceptions out of 8191
- 38i,6n,38p,695b,332s stack positions out of 5000i,500n,10000p,200000b,50000s
-</usr/share/texlive/texmf-dist/fonts/type1/public/amsfo
-nts/cm/cmbx10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm
-/cmbx12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi1
-2.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb><
-/usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/sh
-are/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/share/tex
-live/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/t
-exmf-dist/fonts/type1/public/amsfonts/cm/cmti12.pfb></usr/share/texlive/texmf-d
-ist/fonts/type1/public/amsfonts/cm/cmtt12.pfb>
-Output written on report.pdf (6 pages, 141683 bytes).
+ 38i,6n,38p,1391b,330s stack positions out of 5000i,500n,10000p,200000b,50000s
+</usr/share/texlive/texmf-
+dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/share/texlive/texmf-dist/f
+onts/type1/public/amsfonts/cm/cmbx12.pfb></usr/share/texlive/texmf-dist/fonts/t
+ype1/public/amsfonts/cm/cmmi12.pfb></usr/share/texlive/texmf-dist/fonts/type1/p
+ublic/amsfonts/cm/cmr10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/a
+msfonts/cm/cmr12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts
+/cm/cmr17.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cms
+y10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmti12.pf
+b></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt12.pfb>
+Output written on report.pdf (7 pages, 144146 bytes).
 PDF statistics:
- 88 PDF objects out of 1000 (max. 8388607)
- 60 compressed objects within 1 object stream
+ 94 PDF objects out of 1000 (max. 8388607)
+ 65 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
  11 words of extra memory for PDF output out of 10000 (max. 10000000)
 
