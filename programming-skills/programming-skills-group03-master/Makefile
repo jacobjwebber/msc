@@ -1,8 +1,8 @@
 #This is a make file
 
-cc=pgcc $(LDFLAGS)
+cc=gcc $(LDFLAGS)
 
-LDFLAGS=-lcunit -lm 
+LDFLAGS= -ftree-copy-prop -lcunit -lm 
 
 INC=-Isrc -Isrc/params -Isrc/input -Isrc/model -Isrc/output -Isrc/arralloc -Isrc/build_results_dir
 TESTINC=-Itest -Itest/params -Itest/input -Itest/model -Itest/output
