@@ -50,8 +50,8 @@ make_graphs() {
 #run_cliph gcc_cliphO2
 #run_cliph gcc_cliphO3
 #run_cliph gcc_cliph-none
-run_cliph gcc_cliph-copy-reduce
+#run_cliph gcc_cliph-copy-reduce
 #move results to times dir
 
 #mkdir graphs
-#make_graphs
+make_graphs

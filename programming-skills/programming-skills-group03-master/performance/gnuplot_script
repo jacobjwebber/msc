@@ -19,4 +19,8 @@ plot "graphs/times_pgi_cliph-none_graph" with lines lc rgb "blue" title "no opti
     "graphs/times_pgi_cliphO2_graph" with lines lc rgb "green" title "-O2 optimisation", '' lc rgb "green" notitle, \
     "graphs/times_pgi_cliphO3_graph" with lines lc rgb "purple" title "-O3 optimisation", '' lc rgb "purple" notitle
 
+set output "gcc_nocopy.pdf"
 
+plot "graphs/times_gcc_cliph-none_graph" with lines lc rgb "blue" title "no optimisation", '' lc rgb "blue" notitle, \
+    "graphs/times_gcc_cliph-copy-reduce_graph" with lines lc rgb "red" title "-ftree-copy-prop optimisation", '' lc rgb "red" notitle,  \
+ 
