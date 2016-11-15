@@ -23,4 +23,9 @@ set output "gcc_nocopy.pdf"
 
 plot "graphs/times_gcc_cliph-none_graph" with lines lc rgb "blue" title "no optimisation", '' lc rgb "blue" notitle, \
     "graphs/times_gcc_cliph-copy-reduce_graph" with lines lc rgb "red" title "-ftree-copy-prop optimisation", '' lc rgb "red" notitle,  \
- 
+
+set output "best.pdf"
+plot "graphs/times_gcc_cliphO3_graph" with lines lc rgb "blue" title "gcc with -O3", '' lc rgb "blue" notitle, \
+    "graphs/times_pgi_cliphO3_graph" with lines lc rgb "red" title "pgcc with -O3", '' lc rgb "red" notitle,  \
+
+
