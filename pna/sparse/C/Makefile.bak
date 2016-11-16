@@ -1,0 +1,58 @@
+MF=Makefile
+
+# Compile Flags
+
+CC=cc
+C_COMPILE_FLAGS= -g
+C_LINK_FLAGS=
+C_LIB_FLAGS=-lm
+
+SRC = \
+	coomatrix.c \
+	csrmatrix.c \
+
+INC	= \
+	matrix.h \
+
+OBJ = $(SRC:.c=.o)
+
+.SUFFIXES: .c .o
+
+.c.o: $(SRC) 
+	$(CC) $(C_COMPILE_FLAGS) -c $<
+
+csrtest: csrtest.o $(OBJ)
+	$(CC) $(C_LINK_FLAGS) csrtest.o -o $@ $(OBJ) $(C_LIB_FLAGS)
+
+pollutionModel: pollutionModel.o $(OBJ)
+	$(CC) $(C_COMPILE_FLAGS) $(C_LINK_FLAGS) pollutionModel.o -o $@ $(OBJ) $(C_LIB_FLAGS)
+
+clean:
+	rm $(OBJ)
+	rm *.o
+	rm csrtest
+	rm pollutionModel
+
+depend:
+	makedepend -f $(MF) $(SRC) 
+
+# DO NOT DELETE THIS LINE -- make depend depends on it.
+
+coomatrix.o: matrix.h /usr/include/stdio.h /usr/include/iso/stdio_iso.h
+coomatrix.o: /usr/include/sys/feature_tests.h /usr/include/sys/isa_defs.h
+coomatrix.o: /usr/include/sys/va_list.h /usr/include/stdio_tag.h
+coomatrix.o: /usr/include/stdio_impl.h /usr/include/stddef.h
+coomatrix.o: /usr/include/iso/stddef_iso.h /usr/include/malloc.h
+coomatrix.o: /usr/include/sys/types.h /usr/include/sys/machtypes.h
+coomatrix.o: /usr/include/sys/int_types.h /usr/include/sys/select.h
+coomatrix.o: /usr/include/sys/time.h /usr/include/sys/time.h
+coomatrix.o: /usr/include/math.h /usr/include/iso/math_iso.h
+csrmatrix.o: matrix.h /usr/include/stdio.h /usr/include/iso/stdio_iso.h
+csrmatrix.o: /usr/include/sys/feature_tests.h /usr/include/sys/isa_defs.h
+csrmatrix.o: /usr/include/sys/va_list.h /usr/include/stdio_tag.h
+csrmatrix.o: /usr/include/stdio_impl.h /usr/include/stddef.h
+csrmatrix.o: /usr/include/iso/stddef_iso.h /usr/include/malloc.h
+csrmatrix.o: /usr/include/sys/types.h /usr/include/sys/machtypes.h
+csrmatrix.o: /usr/include/sys/int_types.h /usr/include/sys/select.h
+csrmatrix.o: /usr/include/sys/time.h /usr/include/sys/time.h
+csrmatrix.o: /usr/include/math.h /usr/include/iso/math_iso.h
