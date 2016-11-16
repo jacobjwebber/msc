@@ -2,13 +2,13 @@ cc=pgcc -O3 $(LDFLAGS)
 
 LDFLAGS=-lm -mp
 
-OBJS=
+OBJS=loops2.o
 
-loopspar: $(OBJS) loops2.o
+loopspar: $(OBJS)
 	$(cc) -o $@ $^ $(LDFLAGS)
 
 %.o : %.c
-	$(cc) -c $^ -o $@
+	$(cc) -c $^ -o $@ $(LDFLAGS)
 
 .PHONY : clean
 clean :

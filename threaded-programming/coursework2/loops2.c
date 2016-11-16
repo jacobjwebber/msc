@@ -100,10 +100,13 @@ void runloop(int loopid)  {
   {
       remaining[i] = 0;
   }
-#pragma omp parallel default(none) shared(loopid, remaining) 
+#pragma omp parallel default(none) shared(loopid, remaining)
   {
+      /*SETUP*/
+      /*====================================================*/
     int myid  = omp_get_thread_num();
 
+    int end_index;
     int nthreads = omp_get_num_threads(); 
 
     if (MAX_THREADS < nthreads)
@@ -114,15 +117,69 @@ void runloop(int loopid)  {
     
     int ipt = (int) ceil((double)N/(double)nthreads); 
 
+    /*Set how much work each thread starts with*/
+    /*For cache coherency reasons this works better than remaining[myid] = ipt*/
+    #pragma omp critical
+    {
+        for (i = 0; i < nthreads; i++)
+        {
+            remaining[i] = ipt;
+        }
+    }
 
-    int lo = myid*ipt;
-    int hi = (myid+1)*ipt;
-    if (hi > N) hi = N; 
-  
-    switch (loopid) { 
-       case 1: loop1chunk(lo,hi); break;
-       case 2: loop2chunk(lo,hi); break;
-    } 
+    end_index = ipt * (myid+1);
+
+    if (end_index > N)
+        end_index = N;
+      
+      
+      /*Do Work*/
+      /*====================================================*/
+    int done = 0;
+    int chunk_size, lo, hi, temp_max, steal_index;
+    temp_max=1;
+    while(!done)
+    {
+        #pragma omp critical
+        {
+
+        if(remaining[myid] == 0)
+        {
+            //use loop to find thread with most work remaining
+            temp_max = 0;
+            for (i = 0; i < nthreads; i++)
+            {
+                if(temp_max < remaining[i])
+                {
+                    temp_max = remaining[i];
+                    steal_index = i;
+                }
+            }
+
+        }
+        else
+        {
+            steal_index = myid;
+        }
+
+
+        chunk_size = (int) ceil((double) remaining[steal_index] /(double) nthreads);
+        lo  = end_index - remaining[steal_index];
+        hi = lo + chunk_size;
+
+
+        remaining[steal_index] -= chunk_size;
+        } //END CRITICAL
+
+        switch (loopid) { 
+           case 1: loop1chunk(lo,hi); break;
+           case 2: loop2chunk(lo,hi); break;
+        } 
+        
+        if(temp_max == 0)
+            break;
+
+    }
   }
 }
 
