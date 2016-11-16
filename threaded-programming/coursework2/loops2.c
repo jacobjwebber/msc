@@ -6,7 +6,7 @@
 #define MAX_THREADS 128
 
 #define N 729
-#define reps 1000 
+#define reps 1 
 #include <omp.h> 
 
 double a[N][N], b[N][N], c[N];
@@ -94,19 +94,28 @@ void init2(void){
 
 
 void runloop(int loopid)  {
+
+
+
   int i; 
-  int remaining[MAX_THREADS];
+  int remaining[MAX_THREADS], end_index[MAX_THREADS];
   for (i = 0; i < MAX_THREADS; i++)
   {
       remaining[i] = 0;
+      end_index[i] = 0;
   }
-#pragma omp parallel default(none) shared(loopid, remaining) private(i)
+
+
+  int num_loops = 0;
+
+
+
+#pragma omp parallel default(none) shared(loopid, remaining, num_loops, end_index) private(i)
   {
       /*SETUP*/
       /*====================================================*/
     int myid  = omp_get_thread_num();
 
-    int end_index;
     int nthreads = omp_get_num_threads(); 
 
     if (MAX_THREADS < nthreads)
@@ -124,14 +133,16 @@ void runloop(int loopid)  {
         for (i = 0; i < nthreads; i++)
         {
             remaining[i] = ipt;
+            end_index[i] = ipt * (i+1);
         }
+        end_index[nthreads-1] = N;
+        
+        remaining[nthreads-1] = (N- (nthreads-1)* ipt);
+        printf("remaining: [%i,%i,%i,%i]\n", remaining[0], remaining[1], remaining[2], remaining[3]);
+        printf("end_index: [%i,%i,%i,%i]\n", end_index[0], end_index[1], end_index[2], end_index[3]);
     }
 
-    end_index = ipt * (myid+1);
-
-    if (end_index > N)
-        end_index = N;
-      
+    
       
       /*Do Work*/
       /*====================================================*/
@@ -143,7 +154,7 @@ void runloop(int loopid)  {
         #pragma omp critical
         {
 
-        if(remaining[myid] == 0)
+        if(remaining[myid] == -999990)
         {
             //use loop to find thread with most work remaining
             temp_max = 0;
@@ -163,21 +174,25 @@ void runloop(int loopid)  {
         }
 
 
-        chunk_size = (int) ceil((double) remaining[steal_index] /(double) nthreads);
-        lo  = end_index - remaining[steal_index];
+        chunk_size = remaining[steal_index]; // (int) ceil((double) remaining[steal_index] /(double) nthreads);
+        lo  = end_index[steal_index] - remaining[steal_index];
         hi = lo + chunk_size;
-
+        num_loops += 1;
+        
 
         remaining[steal_index] -= chunk_size;
-        } //END CRITICAL
 
+
+       } //END CRITICAL
+        printf("doing %i to %i\n", lo, hi);
         switch (loopid) { 
            case 1: loop1chunk(lo,hi); break;
            case 2: loop2chunk(lo,hi); break;
         } 
         
-        if(temp_max == 0)
-            break;
+        if (remaining[myid] ==0) break;
+        /*if(temp_max == 0)
+            break;*/
 
     }
   }
