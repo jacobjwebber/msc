@@ -6,7 +6,7 @@
 #define MAX_THREADS 128
 
 #define N 729
-#define reps 1 
+#define reps 1000
 #include <omp.h> 
 
 double a[N][N], b[N][N], c[N];
@@ -128,7 +128,7 @@ void runloop(int loopid)  {
 
     /*Set how much work each thread starts with*/
     /*For cache coherency reasons this works better than remaining[myid] = ipt*/
-    #pragma omp critical
+    #pragma omp single 
     {
         for (i = 0; i < nthreads; i++)
         {
@@ -138,12 +138,8 @@ void runloop(int loopid)  {
         end_index[nthreads-1] = N;
         
         remaining[nthreads-1] = (N- (nthreads-1)* ipt);
-        printf("remaining: [%i,%i,%i,%i]\n", remaining[0], remaining[1], remaining[2], remaining[3]);
-        printf("end_index: [%i,%i,%i,%i]\n", end_index[0], end_index[1], end_index[2], end_index[3]);
     }
 
-    
-      
       /*Do Work*/
       /*====================================================*/
     int done = 0;
@@ -154,7 +150,7 @@ void runloop(int loopid)  {
         #pragma omp critical
         {
 
-        if(remaining[myid] == -999990)
+        if(remaining[myid] == 0)
         {
             //use loop to find thread with most work remaining
             temp_max = 0;
@@ -174,23 +170,29 @@ void runloop(int loopid)  {
         }
 
 
-        chunk_size = remaining[steal_index]; // (int) ceil((double) remaining[steal_index] /(double) nthreads);
+        chunk_size =  (int) ceil((double) remaining[steal_index] /(double) nthreads);
         lo  = end_index[steal_index] - remaining[steal_index];
         hi = lo + chunk_size;
-        num_loops += 1;
         
 
         remaining[steal_index] -= chunk_size;
 
 
        } //END CRITICAL
-        printf("doing %i to %i\n", lo, hi);
+       //printf("remaining: [%i,%i,%i,%i]\n", remaining[0], remaining[1], remaining[2], remaining[3]);
+       //printf("end_index: [%i,%i,%i,%i]\n", end_index[0], end_index[1], end_index[2], end_index[3]);
+ 
+        //printf("doing %i to %i\n", lo, hi);
+        if(lo < 0)
+            printf("BANGBANGBANG\n");
+
         switch (loopid) { 
            case 1: loop1chunk(lo,hi); break;
            case 2: loop2chunk(lo,hi); break;
         } 
         
-        if (remaining[myid] ==0) break;
+        if (temp_max ==0) 
+            done=1;
         /*if(temp_max == 0)
             break;*/
 

@@ -1,8 +1,8 @@
-#cc=pgcc -O3 $(LDFLAGS)
-#LDFLAGS=-lm -mp
+cc=pgcc -O3 $(LDFLAGS)
+LDFLAGS=-lm -mp
 
-cc=gcc -O3 $(LDFLAGS)
-LDFLAGS=-lm -fopenmp
+#cc=gcc -O3 $(LDFLAGS)
+#LDFLAGS=-lm -fopenmp
 
 OBJS=loops2.o
 
