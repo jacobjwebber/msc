@@ -24,11 +24,10 @@
 
 float boundaryval(int i, int m);
 
-int mp_init(int* rank, int* size, int argc, char** argv)
+int mp_init(int* rank, int* size, MPI_Comm* cart_comm, int argc, char** argv)
 {
     MPI_Init(&argc, &argv);
     MPI_Comm_size(MPI_COMM_WORLD, size);
-    MPI_Comm_rank(MPI_COMM_WORLD, rank);
 
     if (*size != P)
     {
@@ -38,10 +37,58 @@ int mp_init(int* rank, int* size, int argc, char** argv)
     }
     else
     {
-        return 0;
+    
+    MPI_Comm  old_comm, new_comm;
+    int ndims, reorder, ierr;
+    int dim_size[2], periods[2];
+
+    old_comm = MPI_COMM_WORLD;
+    ndims = 2;
+    dim_size[0] = 2; //replace with MPI_create_dims if poss
+    dim_size[1] = 2;
+    periods[0] = 0;
+    periods[1] = 1;
+    reorder = 1;
+          
+    ierr =  MPI_Cart_create(old_comm,ndims,dim_size,
+                       periods,reorder,cart_comm);
+
+    MPI_Comm_rank(*cart_comm, rank);
+    
+    return ierr;
     }
+
 }
 
+int get_north(MPI_Comm cart_comm, int my_rank)
+{
+    int north_rank;
+    MPI_Cart_shift(cart_comm, 0, 1, &my_rank, &north_rank);
+    return north_rank;
+}
+
+
+int get_south(MPI_Comm cart_comm, int my_rank)
+{
+    int south_rank;
+    MPI_Cart_shift(cart_comm, 0, -1, &my_rank, &south_rank);
+    return south_rank;
+}
+
+int get_east(MPI_Comm cart_comm, int my_rank)
+{
+    int east_rank;
+    MPI_Cart_shift(cart_comm, 1, 1, &my_rank, &east_rank);
+    return east_rank;
+}
+
+
+int get_west(MPI_Comm cart_comm, int my_rank)
+{
+    int west_rank;
+    MPI_Cart_shift(cart_comm, 1, -1, &my_rank, &west_rank);
+    return west_rank;
+}
 
 int main (int argc, char **argv)
 {
@@ -53,24 +100,38 @@ int main (int argc, char **argv)
   char *filename;
   float val;
   
-  int rank, size, up, down, left, right;
+  int rank, size; 
+  int north_rank, south_rank, east_rank, west_rank;
 
-  int initialised_ok = mp_init(&rank, &size, argc, argv);
+  MPI_Comm cart_comm;
 
-  if (initialised_ok)
+  int initialised_error = mp_init(&rank, &size, &cart_comm, argc, argv);
+
+  if (initialised_error)
   {
       printf("error initialising message passing\n");
       MPI_Finalize();
       exit(-1);
   }
+  
+  north_rank = get_north(cart_comm, rank);
+  south_rank = get_south(cart_comm, rank);
+  east_rank = get_east(cart_comm, rank);
+  west_rank = get_west(cart_comm, rank);
+  
+  int coords[2];
+
+  MPI_Cart_coords(cart_comm, rank, 2, coords);
+  printf("I am rank %i, coords [%i,%i] north is %i, south %i, west %i\n", 
+                 rank, coords[0], coords[1], north_rank, south_rank, west_rank);
+
 
   /* Master thread section */
   if (rank ==0)
   {
     printf("Processing %d x %d image\n", M, N);
     printf("Number of iterations = %d\n", MAXITER);
-
-    filename = "edgenew192x128.pgm";
+        filename = "edgenew192x128.pgm";
 
     printf("\nReading <%s>\n", filename);
     pgmread(filename, buf, M, N);
@@ -104,6 +165,8 @@ int main (int argc, char **argv)
       old[0][j]   = 255.0*val;
       old[M+1][j] = 255.0*(1.0-val);
     }
+  
+
 
   for (iter=1;iter<=MAXITER; iter++)
     {
@@ -112,6 +175,7 @@ int main (int argc, char **argv)
 	  printf("Iteration %d\n", iter);
 	}
 
+    
       /* Implement periodic boundary conditions on top and bottom sides */
 
       for (i=1; i < M+1; i++)
