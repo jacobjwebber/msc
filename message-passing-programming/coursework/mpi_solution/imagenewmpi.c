@@ -63,7 +63,7 @@ int mp_init(int* rank, int* size, MPI_Comm* cart_comm, int argc, char** argv)
 int get_north(MPI_Comm cart_comm, int my_rank)
 {
     int north_rank;
-    MPI_Cart_shift(cart_comm, 0, 1, &my_rank, &north_rank);
+    MPI_Cart_shift(cart_comm, 1, 1, &my_rank, &north_rank);
     return north_rank;
 }
 
@@ -71,14 +71,14 @@ int get_north(MPI_Comm cart_comm, int my_rank)
 int get_south(MPI_Comm cart_comm, int my_rank)
 {
     int south_rank;
-    MPI_Cart_shift(cart_comm, 0, -1, &my_rank, &south_rank);
+    MPI_Cart_shift(cart_comm, 1, -1, &my_rank, &south_rank);
     return south_rank;
 }
 
 int get_east(MPI_Comm cart_comm, int my_rank)
 {
     int east_rank;
-    MPI_Cart_shift(cart_comm, 1, 1, &my_rank, &east_rank);
+    MPI_Cart_shift(cart_comm, 0, 1, &my_rank, &east_rank);
     return east_rank;
 }
 
@@ -86,7 +86,7 @@ int get_east(MPI_Comm cart_comm, int my_rank)
 int get_west(MPI_Comm cart_comm, int my_rank)
 {
     int west_rank;
-    MPI_Cart_shift(cart_comm, 1, -1, &my_rank, &west_rank);
+    MPI_Cart_shift(cart_comm, 0, -1, &my_rank, &west_rank);
     return west_rank;
 }
 
@@ -94,7 +94,7 @@ int main (int argc, char **argv)
 {
   float old[M+2][N+2], new[M+2][N+2], edge[M+2][N+2];
 
-  float buf[M][N];
+  float masterbuf[M][N];
 
   int i, j, iter, maxiter;
   char *filename;
@@ -122,8 +122,8 @@ int main (int argc, char **argv)
   int coords[2];
 
   MPI_Cart_coords(cart_comm, rank, 2, coords);
-  printf("I am rank %i, coords [%i,%i] north is %i, south %i, west %i\n", 
-                 rank, coords[0], coords[1], north_rank, south_rank, west_rank);
+  printf("I am rank %i, coords [%i,%i] north is %i, south %i, west %i, east %i\n", 
+                 rank, coords[0], coords[1], north_rank, south_rank, west_rank, east_rank);
 
 
   /* Master thread section */
@@ -134,7 +134,7 @@ int main (int argc, char **argv)
         filename = "edgenew192x128.pgm";
 
     printf("\nReading <%s>\n", filename);
-    pgmread(filename, buf, M, N);
+    pgmread(filename, masterbuf, M, N);
     printf("\n");
 
 
@@ -142,7 +142,7 @@ int main (int argc, char **argv)
     {
       for (j=1;j<N+1;j++)
 	  {
-	    edge[i][j]=buf[i-1][j-1];
+	    edge[i][j]=masterbuf[i-1][j-1];
 	  }
     }
 
@@ -208,13 +208,13 @@ int main (int argc, char **argv)
     {
       for (j=1;j<N+1;j++)
 	{
-	  buf[i-1][j-1]=old[i][j];
+	  masterbuf[i-1][j-1]=old[i][j];
 	}
     }
 
   filename="imagenew192x128.pgm";
   printf("\nWriting <%s>\n", filename); 
-  pgmwrite(filename, buf, M, N);
+  pgmwrite(filename, masterbuf, M, N);
 
   }
   MPI_Finalize();
