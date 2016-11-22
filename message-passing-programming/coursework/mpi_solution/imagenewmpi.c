@@ -95,6 +95,7 @@ int main (int argc, char **argv)
   float old[M+2][N+2], new[M+2][N+2], edge[M+2][N+2];
 
   float masterbuf[M][N];
+  float local_old[MP+2], local_new[MP+2], local_edge[MP+2], local_partial_image[MP][NP];
 
   int i, j, iter, maxiter;
   char *filename;
@@ -166,6 +167,34 @@ int main (int argc, char **argv)
       old[M+1][j] = 255.0*(1.0-val);
     }
   
+  /*Distribute bits of the image to different procs*/
+  int proc, proc_coord[2];
+  for (proc = size; proc>=0; proc--)
+  {
+      printf("start proc loop\n");
+      MPI_Cart_coords(cart_comm, proc, 2, proc_coord);
+
+      for (i=0; i<MP; i++)
+      {
+        for (j=0; j<NP; j++)
+        {
+          local_partial_image[i][j] 
+          = masterbuf[ (proc_coord[0]*MP) + (i-1) ][ (proc_coord[1]*NP) + (j-1) ];
+        }
+      }
+
+      if(proc != 0)
+      {
+          //send to this process
+      }
+
+      if (proc==2)
+      {
+          printf("writing test file\n");
+          pgmwrite("test.pgm", local_partial_image, MP,NP);
+      }
+
+  }
 
 
   for (iter=1;iter<=MAXITER; iter++)
