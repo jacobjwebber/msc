@@ -1,6 +1,11 @@
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
+/********************************************************/
+/*                 Affinity Scheduling                  */
+/********************************************************/
+//An implementation of a work stealing algorithm in OpenMP
+//B024703.
 
 //maximum number of threads this code can support.
 #define MAX_THREADS 128
@@ -92,6 +97,43 @@ void init2(void){
  
 } 
 
+int get_work(int* remaining, int* end_index, int myid, int nthreads, int *lo, int *hi)
+{
+        int i, chunk_size, steal_index, temp_max;
+        temp_max=1;
+        //if a thread has no more work it should steal work.    
+        if(remaining[myid] == 0)
+        {
+            //use loop to find thread with most work remaining
+            temp_max = 0;
+            int i;
+            for (i = 0; i < nthreads -1; i++)
+            {
+                if(temp_max < remaining[i])
+                {
+                    temp_max = remaining[i];
+                    steal_index = i;
+                }
+            }
+        }
+        else
+        {
+            steal_index = myid;
+        }
+        
+        if (temp_max != 0)
+        {
+            chunk_size =  (int) ceil((double) remaining[steal_index] /(double) nthreads);
+            *lo  = end_index[steal_index] - remaining[steal_index];
+            *hi = *lo + chunk_size;
+            remaining[steal_index] -= chunk_size;
+            return 0;
+        }
+        else
+        {
+            return 1;
+        }
+}
 
 void runloop(int loopid)  {
 
@@ -103,7 +145,7 @@ void runloop(int loopid)  {
       end_index[i] = 0;
   }
 
-#pragma omp parallel default(none) shared(loopid, remaining, end_index) private(i)
+#pragma omp parallel default(none) shared(loopid, remaining, end_index) 
   {
     /*SETUP*/
     /*====================================================*/
@@ -123,10 +165,11 @@ void runloop(int loopid)  {
     /*For cache coherency reasons this works better than remaining[myid] = ipt*/
     #pragma omp single 
     {
-        for (i = 0; i < nthreads; i++)
+        int j;
+        for (j = 0; j < nthreads; j++)
         {
-            remaining[i] = ipt;
-            end_index[i] = ipt * (i+1);
+            remaining[j] = ipt;
+            end_index[j] = ipt * (j+1);
         }
         end_index[nthreads-1] = N;
         
@@ -136,45 +179,13 @@ void runloop(int loopid)  {
     /*Do Work*/
     /*====================================================*/
     int done = 0;
-    int chunk_size, lo, hi, temp_max, steal_index;
-    temp_max=1;
+    int lo, hi;
     while(!done)
     {
         #pragma omp critical
         {
-        //if a thread has no more work it should steal work.    
-        if(remaining[myid] == 0)
-        {
-            //use loop to find thread with most work remaining
-            temp_max = 0;
-            for (i = 0; i < nthreads -1; i++)
-            {
-                if(temp_max < remaining[i])
-                {
-                    temp_max = remaining[i];
-                    steal_index = i;
-                }
-            }
+           done = get_work(&remaining[0], &end_index[0], myid, nthreads, &lo, &hi);
         }
-        else
-        {
-            steal_index = myid;
-        }
-        
-        if (temp_max != 0)
-        {
-            chunk_size =  (int) ceil((double) remaining[steal_index] /(double) nthreads);
-            lo  = end_index[steal_index] - remaining[steal_index];
-            hi = lo + chunk_size;
-            remaining[steal_index] -= chunk_size;
-        }
-        else
-        {
-            done=1;
-        }
-
-
-       } //END CRITICAL
         
         if(!done)
         {
