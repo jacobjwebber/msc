@@ -2,7 +2,7 @@
 //      parallelised  loops program      \\
 //=======================================\\
 
-B024703
+//B024703
 #include <stdio.h>
 #include <math.h>
 
