@@ -71,7 +71,7 @@ The fully passing unit tests along with somewhat unscientific inspection of the 
 \end{figure}
 
 \subsection{Performance Characteristics}
-In broad terms, for both compilers and all optimisation flags, the time taken to complete a simulation increased linearly with the number of terrain elements ($M \cdot N$). This is what would be expected, as the size of the terrain is proportional to the number of calculations required to compute the simulation.
+In broad terms, for both compilers and all optimisation flags, the time taken to complete a simulation increased linearly with the number of terrain elements ($M \cdot N$). This is what would be expected, as the size of the terrain is proportional to the number of calculations required to compute the simulation. It could therefore be said that the CLiPH program is an $O(n)$ algorithm.
 
 There are, however some irregularities in this linear relationship between compute time and terrain size. In all cases but the unoptimised GCC executable, there is a small bump in compute time as the number of elements reaches 60,000. This could be explained by a caching effect. The CPU used had 6 MiB of L3 cache. As each element on the terrain was represented by a 64 bit double precision floating point number, a terrain modelled as a 2 dimensional array of doubles would consume this 6 MiB of cache. However, it is then surprising that no non-linear performance decrease is observable at a figure half of this, as the simulation depends on 2 arrays of this size. 
 
