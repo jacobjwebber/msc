@@ -184,7 +184,7 @@ int main(int argc, char **argv)
     }
   }
 
-  if (rank == 2) {
+  
 
     for (iter = 1; iter <= MAXITER; iter++) {
       if (iter % PRINTFREQ == 0) {
@@ -220,10 +220,12 @@ int main(int argc, char **argv)
       }
     }
 
-    filename = "imagenew768x768.pgm";
+    if(rank==2)
+    {
+    filename = "test3.pgm";
     printf("\nWriting <%s>\n", filename);
     pgmwrite(filename, masterbuf, M, N);
-  }
+    }
   MPI_Finalize();
 }
 
