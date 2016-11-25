@@ -95,7 +95,7 @@ int main (int argc, char **argv)
   float old[M+2][N+2], new[M+2][N+2], edge[M+2][N+2];
 
   float masterbuf[M][N];
-  float local_old[MP+2], local_new[MP+2], local_edge[MP+2], local_partial_image[MP][NP];
+  float local_old[MP+2], local_new[MP+2], local_edge[MP+2][NP+2], local_partial_image[MP][NP];
 
   int i, j, iter, maxiter;
   char *filename;
@@ -139,15 +139,7 @@ int main (int argc, char **argv)
     printf("\n");
 
 
-    for (i=1;i<M+1;i++)
-    {
-      for (j=1;j<N+1;j++)
-	  {
-	    edge[i][j]=masterbuf[i-1][j-1];
-	  }
-    }
-
-  for (i=0; i<M+2;i++)
+    for (i=0; i<M+2;i++)
     {
       for (j=0;j<N+2;j++)
 	{
@@ -169,9 +161,8 @@ int main (int argc, char **argv)
   
   /*Distribute bits of the image to different procs*/
   int proc, proc_coord[2];
-  for (proc = size; proc>=0; proc--)
+  for (proc = size-1; proc>=0; proc--)
   {
-      printf("start proc loop\n");
       MPI_Cart_coords(cart_comm, proc, 2, proc_coord);
 
       for (i=0; i<MP; i++)
@@ -186,6 +177,8 @@ int main (int argc, char **argv)
       if(proc != 0)
       {
           //send to this process
+          printf("sending to proc %i\n", proc);
+          MPI_Send(&local_partial_image[0], NP*MP, MPI_DOUBLE, proc, 0, cart_comm);
       }
 
       if (proc==2)
@@ -196,6 +189,22 @@ int main (int argc, char **argv)
 
   }
 
+  } 
+  else
+  {
+      MPI_Recv(&local_partial_image[0], NP*MP, MPI_DOUBLE,0, 0, cart_comm, MPI_STATUS_IGNORE);
+      printf("proc %i recieved partial image from master\n", rank);
+      if (rank==2)
+      {
+          printf("writing test file 2\n");
+          pgmwrite("test2.pgm", local_partial_image, MP,NP);
+      }
+
+
+  }
+
+  if (rank ==0)
+  {
 
   for (iter=1;iter<=MAXITER; iter++)
     {
@@ -204,18 +213,19 @@ int main (int argc, char **argv)
 	  printf("Iteration %d\n", iter);
 	}
 
-    
-      /* Implement periodic boundary conditions on top and bottom sides */
+      for (i=1;i<MP+1;i++)
+    {
+      for (j=1;j<NP+1;j++)
+	  {
+	    local_edge[i][j]=local_partial_image[i-1][j-1];
+	  }
+    }
 
-      for (i=1; i < M+1; i++)
-	{
-	  old[i][0]   = old[i][N];
-	  old[i][N+1] = old[i][1];
-	}
 
-      for (i=1;i<M+1;i++)
+
+      for (i=1;i<MP+1;i++)
 	{
-	  for (j=1;j<N+1;j++)
+	  for (j=1;j<NP+1;j++)
 	    {
 	      new[i][j]=0.25*(old[i-1][j]+old[i+1][j]+old[i][j-1]+old[i][j+1]
 			      - edge[i][j]);
