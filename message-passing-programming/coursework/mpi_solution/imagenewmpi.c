@@ -184,7 +184,7 @@ int main(int argc, char **argv)
     }
   }
 
-  if (rank == 0) {
+  if (rank == 2) {
 
     for (iter = 1; iter <= MAXITER; iter++) {
       if (iter % PRINTFREQ == 0) {
