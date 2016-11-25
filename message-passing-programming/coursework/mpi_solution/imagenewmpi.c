@@ -14,7 +14,7 @@
 #define M 768
 #define N 768
 
-#define MAXITER 1500
+#define MAXITER 9500
 #define PRINTFREQ 200
 
 #define P 4
@@ -187,7 +187,7 @@ int main(int argc, char **argv)
   
 
     for (iter = 1; iter <= MAXITER; iter++) {
-      if (iter % PRINTFREQ == 0) {
+      if (iter % PRINTFREQ == 0 && rank ==0) {
         printf("Iteration %d\n", iter);
       }
 
@@ -216,16 +216,42 @@ int main(int argc, char **argv)
 
     for (i = 1; i < MP + 1; i++) {
       for (j = 1; j < NP + 1; j++) {
-        masterbuf[i - 1][j - 1] = local_old[i][j];
+        local_partial_image[i - 1][j - 1] = local_old[i][j];
       }
     }
 
-    if(rank==2)
+    /*Send each local image back and form masterbuf!*/
+    if (rank!=0)
     {
-    filename = "test3.pgm";
+        MPI_Send(&local_partial_image[0], MP*NP, MPI_DOUBLE, 0, 0, cart_comm);
+    }
+    else
+    {
+        int proc, proc_coord[2];
+        for(proc= 0; proc < size; proc++)
+        {
+            if(proc!=0)
+            {
+                MPI_Recv(&local_partial_image[0], 
+                         MP*NP, MPI_DOUBLE, proc, 0, 
+                         cart_comm, MPI_STATUS_IGNORE);
+            }
+      
+      MPI_Cart_coords(cart_comm, proc, 2, proc_coord);
+
+      for (i = 0; i < MP; i++) {
+        for (j = 0; j < NP; j++) {
+         masterbuf[(proc_coord[0] * MP) + (i - 1)]
+                  [(proc_coord[1] * NP) + (j - 1)] =  local_partial_image[i][j];
+          
+        }
+      }
+        }
+    filename = "output.pgm";
     printf("\nWriting <%s>\n", filename);
     pgmwrite(filename, masterbuf, M, N);
-    }
+       } 
+
   MPI_Finalize();
 }
 
