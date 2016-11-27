@@ -14,7 +14,7 @@
 #define M 768
 #define N 768
 
-#define MAXITER 9500
+#define MAXITER 1500
 #define PRINTFREQ 200
 
 #define P 4
@@ -44,8 +44,8 @@ int mp_init(int *rank, int *size, MPI_Comm *cart_comm, int argc, char **argv)
     ndims = 2;
     dim_size[0] = 2; // replace with MPI_create_dims if poss
     dim_size[1] = 2;
-    periods[0] = 0;
-    periods[1] = 1;
+    periods[0] = 1;
+    periods[1] = 0;
     reorder = 1;
 
     ierr =
@@ -57,38 +57,39 @@ int mp_init(int *rank, int *size, MPI_Comm *cart_comm, int argc, char **argv)
   }
 }
 
+/*Slightly verbose list of functions for finding neighbors*/
 int get_north(MPI_Comm cart_comm, int my_rank)
 {
   int north_rank;
-  MPI_Cart_shift(cart_comm, 1, 1, &my_rank, &north_rank);
+  MPI_Cart_shift(cart_comm, 0, 1, &my_rank, &north_rank);
   return north_rank;
 }
 
 int get_south(MPI_Comm cart_comm, int my_rank)
 {
   int south_rank;
-  MPI_Cart_shift(cart_comm, 1, -1, &my_rank, &south_rank);
+  MPI_Cart_shift(cart_comm, 0, -1, &my_rank, &south_rank);
   return south_rank;
 }
 
 int get_east(MPI_Comm cart_comm, int my_rank)
 {
   int east_rank;
-  MPI_Cart_shift(cart_comm, 0, 1, &my_rank, &east_rank);
+  MPI_Cart_shift(cart_comm, 1, 1, &my_rank, &east_rank);
   return east_rank;
 }
 
 int get_west(MPI_Comm cart_comm, int my_rank)
 {
   int west_rank;
-  MPI_Cart_shift(cart_comm, 0, -1, &my_rank, &west_rank);
+  MPI_Cart_shift(cart_comm, 1, -1, &my_rank, &west_rank);
   return west_rank;
 }
 
 int main(int argc, char **argv)
 {
   printf("intitialising message passing \n");
-  float old[M + 2][N + 2], new[M + 2][N + 2], edge[M + 2][N + 2];
+  //float old[M + 2][N + 2], new[M + 2][N + 2], edge[M + 2][N + 2];
 
   float masterbuf[M][N];
   float local_old[MP + 2][NP + 2], local_new[MP + 2][NP + 2], local_edge[MP + 2][NP + 2],
@@ -122,6 +123,24 @@ int main(int argc, char **argv)
       "I am rank %i, coords [%i,%i] north is %i, south %i, west %i, east %i\n",
       rank, coords[0], coords[1], north_rank, south_rank, west_rank, east_rank);
 
+    for (i = 0; i < MP + 2; i++) {
+      for (j = 0; j < NP + 2; j++) {
+        local_old[i][j] = 255.0;
+      }
+    }
+
+    /* Set fixed boundary conditions on the left and right sides */
+
+    for (j = 1; j < NP + 1; j++) {
+      /* compute sawtooth value */
+
+      val = boundaryval(j, NP);
+
+      local_old[0][j+(NP*coords[1])] = 255.0 * val;
+      local_old[MP + 1][j+(NP*coords[1])] = 255.0 * (1.0 - val);
+    }
+
+
   /* Master thread section */
   if (rank == 0) {
     printf("Processing %d x %d image\n", M, N);
@@ -131,24 +150,7 @@ int main(int argc, char **argv)
     printf("\nReading <%s>\n", filename);
     pgmread(filename, masterbuf, M, N);
     printf("\n");
-
-    for (i = 0; i < M + 2; i++) {
-      for (j = 0; j < N + 2; j++) {
-        old[i][j] = 255.0;
-      }
-    }
-
-    /* Set fixed boundary conditions on the left and right sides */
-
-    for (j = 1; j < N + 1; j++) {
-      /* compute sawtooth value */
-
-      val = boundaryval(j, N);
-
-      old[0][j] = 255.0 * val;
-      old[M + 1][j] = 255.0 * (1.0 - val);
-    }
-
+  
     /*Distribute bits of the image to different procs*/
     int proc, proc_coord[2];
     for (proc = size - 1; proc >= 0; proc--) {
@@ -164,7 +166,7 @@ int main(int argc, char **argv)
       if (proc != 0) {
         // send to this process
         printf("sending to proc %i\n", proc);
-        MPI_Send(&local_partial_image[0], NP * MP, MPI_DOUBLE, proc, 0,
+        MPI_Send(&local_partial_image[0], NP * MP, MPI_FLOAT, proc, 0,
                  cart_comm);
       }
 
@@ -175,7 +177,7 @@ int main(int argc, char **argv)
     }
 
   } else {
-    MPI_Recv(&local_partial_image[0], NP * MP, MPI_DOUBLE, 0, 0, cart_comm,
+    MPI_Recv(&local_partial_image[0], NP * MP, MPI_FLOAT, 0, 0, cart_comm,
              MPI_STATUS_IGNORE);
     printf("proc %i recieved partial image from master\n", rank);
     if (rank == 2) {
@@ -186,30 +188,94 @@ int main(int argc, char **argv)
 
   
 
-    for (iter = 1; iter <= MAXITER; iter++) {
-      if (iter % PRINTFREQ == 0 && rank ==0) {
+    float recv_north_buf[NP], recv_south_buf[NP], send_north_buf[MP], send_south_buf[MP];
+    
+    for (iter = 1; iter <= MAXITER; iter++) 
+    {
+      if (iter % PRINTFREQ == 0 && rank ==0) 
+      {
         printf("Iteration %d\n", iter);
       }
 
-      for (i = 1; i < MP + 1; i++) {
+
+      for (i=0; i < MP; i++)
+      {
+          send_north_buf[i] = local_old[i+1][1];
+          send_south_buf[i] = local_old[i+1][NP];
+      }
+
+
+      //Send edge halos
+      if (coords[1]%2==0)
+      {
+          MPI_Send(&local_old[1][1], NP, MPI_FLOAT, west_rank, 0, cart_comm);
+          MPI_Recv(&local_old[0][1], NP, MPI_FLOAT, west_rank, 0, cart_comm, MPI_STATUS_IGNORE);
+
+          MPI_Send(&local_old[MP][1], NP, MPI_FLOAT, east_rank, 0, cart_comm);
+          MPI_Recv(&local_old[MP+1][1], NP, MPI_FLOAT, east_rank, 0, cart_comm, MPI_STATUS_IGNORE);
+      } 
+      else
+      {
+          MPI_Recv(&local_old[MP+1][1], NP, MPI_FLOAT, east_rank, 0, cart_comm, MPI_STATUS_IGNORE);
+          MPI_Send(&local_old[MP][1], NP, MPI_FLOAT, east_rank, 0, cart_comm);
+ 
+          MPI_Recv(&local_old[0][1], NP, MPI_FLOAT, west_rank, 0, cart_comm, MPI_STATUS_IGNORE);
+          MPI_Send(&local_old[1][1], NP, MPI_FLOAT, west_rank, 0, cart_comm) ;
+      }
+
+     if (coords[0]%2==0)
+     {
+          MPI_Send(&send_north_buf[0], MP, MPI_FLOAT, north_rank, 0, cart_comm);
+          MPI_Recv(&recv_north_buf[0], MP, MPI_FLOAT, north_rank, 0, cart_comm, MPI_STATUS_IGNORE);
+ 
+          MPI_Send(&send_south_buf[0], MP, MPI_FLOAT, south_rank, 0, cart_comm);
+          MPI_Recv(&recv_south_buf[0], MP, MPI_FLOAT, south_rank, 0, cart_comm, MPI_STATUS_IGNORE); 
+     }
+     else
+     {
+          MPI_Recv(&recv_south_buf[0], MP, MPI_FLOAT, south_rank, 0, cart_comm, MPI_STATUS_IGNORE);
+          MPI_Send(&send_south_buf[0], MP, MPI_FLOAT, south_rank, 0, cart_comm);
+ 
+          MPI_Recv(&recv_north_buf[0], MP, MPI_FLOAT, north_rank, 0, cart_comm, MPI_STATUS_IGNORE); 
+          MPI_Send(&send_north_buf[0], MP, MPI_FLOAT, north_rank, 0, cart_comm);
+     }
+
+
+
+      
+      for (i=0; i < MP; i++)
+      {
+          local_old[i+1][NP+1] = recv_south_buf[i];
+          local_old[i+1][1] = recv_north_buf[i];
+      }
+      
+
+      for (i = 1; i < MP + 1; i++) 
+      {
         for (j = 1; j < NP + 1; j++) {
           local_edge[i][j] = local_partial_image[i - 1][j - 1];
         }
       }
 
-      for (i = 1; i < MP + 1; i++) {
-        for (j = 1; j < NP + 1; j++) {
+      for (i = 1; i < MP + 1; i++) 
+      {
+        for (j = 1; j < NP + 1; j++) 
+        {
           local_new[i][j] = 0.25 * (local_old[i - 1][j] + local_old[i + 1][j] + local_old[i][j - 1] +
                               local_old[i][j + 1] - local_edge[i][j]);
         }
       }
 
       //memory copy
-      for (i = 1; i < MP + 1; i++) {
-        for (j = 1; j < NP + 1; j++) {
+      for (i = 1; i < MP + 1; i++) 
+      {
+        for (j = 1; j < NP + 1; j++) 
+        {
           local_old[i][j] = local_new[i][j];
         }
       }
+
+
     }
 
     printf("\nFinished %d iterations\n", iter - 1);
@@ -223,7 +289,7 @@ int main(int argc, char **argv)
     /*Send each local image back and form masterbuf!*/
     if (rank!=0)
     {
-        MPI_Send(&local_partial_image[0], MP*NP, MPI_DOUBLE, 0, 0, cart_comm);
+        MPI_Send(&local_partial_image[0], MP*NP, MPI_FLOAT, 0, 0, cart_comm);
     }
     else
     {
@@ -233,12 +299,12 @@ int main(int argc, char **argv)
             if(proc!=0)
             {
                 MPI_Recv(&local_partial_image[0], 
-                         MP*NP, MPI_DOUBLE, proc, 0, 
+                         MP*NP, MPI_FLOAT, proc, 0, 
                          cart_comm, MPI_STATUS_IGNORE);
             }
       
       MPI_Cart_coords(cart_comm, proc, 2, proc_coord);
-
+      printf("reassembling image from proc %i", proc);
       for (i = 0; i < MP; i++) {
         for (j = 0; j < NP; j++) {
          masterbuf[(proc_coord[0] * MP) + (i - 1)]

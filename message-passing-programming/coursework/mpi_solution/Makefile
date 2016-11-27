@@ -3,7 +3,7 @@ MF=	Makefile
 CC=	mpicc
 CFLAGS=
 
-LFLAGS=	-lm
+LFLAGS=	-lm -Wall
 
 EXE= imagempi	
 
