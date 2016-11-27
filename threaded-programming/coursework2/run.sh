@@ -1,6 +1,7 @@
 #!/bin/bash
 module load intel-compilers-16
-reps=50
+make
+reps=1
 DATE=$(date +"%Y%m%d%H%M")
 RESULTS_DIR_NAME=results/${DATE}
 echo $RESULTS_DIR_NAME
@@ -16,7 +17,7 @@ do_loops() {
     echo "SCHEDULE=${OMP_SCHEDULE}"
 
     for ((i=1;i<=reps+2;i++)); do
-        ./loopspar_runtime >> temp
+        ./$1 >> temp
         printf "."
     done
     #skip first two repitions of program - these seem slower
@@ -64,7 +65,7 @@ manysched() {
     for ((j=0;j<=6;j++)); do
         size_of_block=$((2**j))
         export OMP_SCHEDULE="$1,${size_of_block}"
-        do_loops
+        do_loops $2
         echo -e "$size_of_block \t ${mean_loop1} \t ${std_loop1}" >> ${RESULTS_DIR_NAME}/$1_loop1_graph
         echo -e "$size_of_block \t ${mean_loop2} \t ${std_loop2}" >> ${RESULTS_DIR_NAME}/$1_loop2_graph
     done
@@ -77,7 +78,7 @@ manythread() {
         num_of_threads=$j
         echo on ${num_of_threads} threads
         export OMP_NUM_THREADS=${num_of_threads}
-        do_loops
+        do_loops $3
         echo -e "$num_of_threads \t ${mean_loop1}" >> ${RESULTS_DIR_NAME}/speed_$1$2_loop1_graph
         echo -e "$num_of_threads \t ${mean_loop2}" >> ${RESULTS_DIR_NAME}/speed_$1$2_loop2_graph
     done
@@ -90,7 +91,7 @@ manythread() {
 export OMP_NUM_THREADS=4
 export OMP_SCHEDULE="static"
 
-#do_loops
+do_loops loops_affinity
 
 export OMP_SCHEDULE="auto"
 
@@ -106,7 +107,7 @@ export OMP_SCHEDULE="auto"
 
 #manythread dynamic 16
 
-manythread dynamic 32
+#manythread dynamic 32
 
 cd $RESULTS_DIR_NAME
 
