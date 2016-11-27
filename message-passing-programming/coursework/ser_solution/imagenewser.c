@@ -10,10 +10,10 @@
 
 #include "pgmio.h"
 
-#define M 192
-#define N 128
+#define M 768
+#define N 768
 
-#define MAXITER   15000
+#define MAXITER   1500
 #define PRINTFREQ  200
 
 float boundaryval(int i, int m);
@@ -31,7 +31,7 @@ int main (int argc, char **argv)
   printf("Processing %d x %d image\n", M, N);
   printf("Number of iterations = %d\n", MAXITER);
 
-  filename = "edgenew192x128.pgm";
+  filename = "edgenew768x768.pgm";
 
   printf("\nReading <%s>\n", filename);
   pgmread(filename, buf, M, N);
@@ -53,7 +53,6 @@ int main (int argc, char **argv)
 	  old[i][j]=255.0;
 	}
     }
-
   /* Set fixed boundary conditions on the left and right sides */
 
   for (j=1; j < N+1; j++)
@@ -65,6 +64,10 @@ int main (int argc, char **argv)
       old[0][j]   = 255.0*val;
       old[M+1][j] = 255.0*(1.0-val);
     }
+
+    printf("writing test file\n");
+    pgmwrite("test4.pgm", old, M+2, N+2); 
+
 
   for (iter=1;iter<=MAXITER; iter++)
     {
