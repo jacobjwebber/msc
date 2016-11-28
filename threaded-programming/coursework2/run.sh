@@ -1,7 +1,7 @@
 #!/bin/bash
 module load intel-compilers-16
 make
-reps=1
+reps=3
 DATE=$(date +"%Y%m%d%H%M")
 RESULTS_DIR_NAME=results/${DATE}
 echo $RESULTS_DIR_NAME
@@ -87,11 +87,28 @@ manythread() {
     awk '{if(NR==1)Tone=$2; $2=Tone/$2}1' ${RESULTS_DIR_NAME}/speed_$1$2_loop2_graph >  ${RESULTS_DIR_NAME}/speedup_$1$2_loop2_graph
 }
 
+manythread_affinity() {
+    values=( 1 2 4 6 8 12 16 )
+    export OMP_SCHEDULE=""
+    for j in "${values[@]}"; do
+        num_of_threads=$j
+        echo on ${num_of_threads} threads
+        export OMP_NUM_THREADS=${num_of_threads}
+        do_loops loops_affinity
+        echo -e "$num_of_threads \t ${mean_loop1}" >> ${RESULTS_DIR_NAME}/speed_affinity_loop1_graph
+        echo -e "$num_of_threads \t ${mean_loop2}" >> ${RESULTS_DIR_NAME}/speed_affinity_loop2_graph
+    done
+    awk '{if(NR==1)Tone=$2; $2=Tone/$2}1' ${RESULTS_DIR_NAME}/speed_affinity_loop1_graph >\
+    ${RESULTS_DIR_NAME}/speedup_affinity_loop1_graph
+
+    awk '{if(NR==1)Tone=$2; $2=Tone/$2}1' ${RESULTS_DIR_NAME}/speed_affinity_loop2_graph >\
+    ${RESULTS_DIR_NAME}/speedup_affinity_loop2_graph
+}
 
 export OMP_NUM_THREADS=4
 export OMP_SCHEDULE="static"
 
-do_loops loops_affinity
+#do_loops loops_affinity
 
 export OMP_SCHEDULE="auto"
 
@@ -108,6 +125,8 @@ export OMP_SCHEDULE="auto"
 #manythread dynamic 16
 
 #manythread dynamic 32
+
+manythread_affinity 
 
 cd $RESULTS_DIR_NAME
 
