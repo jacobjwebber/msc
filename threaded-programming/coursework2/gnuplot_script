@@ -1,10 +1,11 @@
 set terminal pdf enhanced font "cmr10"
-set xlabel "Chunk Size"
+set xlabel "Number of Threads"
 set autoscale
 set ylabel "time (s)"  
 set style data linespoints
 set key below  
-set xtics 8
+set xtics 2
+
 
 set output "loop1_speeds.pdf"
 plot "speed_affinity_loop1_graph" with lines lc rgb "blue" title "affinity", '' lc rgb "blue" notitle, \
@@ -12,7 +13,7 @@ plot "speed_affinity_loop1_graph" with lines lc rgb "blue" title "affinity", '' 
 
 set output "loop2_speeds.pdf"
 
-plot "speed_affinity_loop2_graph" with lines lc rgb "blue" title "guided", '' lc rgb "blue" notitle, \
+plot "speed_affinity_loop2_graph" with lines lc rgb "blue" title "affinity", '' lc rgb "blue" notitle, \
     "speed_dynamic8_loop2_graph" with lines lc rgb "red" title "dynamic, 8", '' lc rgb "red" notitle,  \
     "speed_dynamic16_loop2_graph" with lines lc rgb "green" title "dynamic, 16", '' lc rgb "green" notitle 
 
@@ -34,4 +35,7 @@ plot "speedup_dynamic8_loop2_graph" with linespoints notitle, x notitle with lin
 
 set output "speedup_dynamic16_loop2.pdf"
 plot "speedup_dynamic16_loop2_graph" with linespoints notitle, x notitle with lines lt 2 lc 7
+
+set output "speedup_affinity_loop2.pdf"
+plot "speedup_affinity_loop2_graph" with linespoints notitle, x notitle with lines lt 2 lc 7
 
