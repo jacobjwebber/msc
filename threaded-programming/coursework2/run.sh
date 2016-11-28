@@ -78,7 +78,7 @@ manythread() {
         num_of_threads=$j
         echo on ${num_of_threads} threads
         export OMP_NUM_THREADS=${num_of_threads}
-        do_loops $3
+        do_loops loopspar_runtime
         echo -e "$num_of_threads \t ${mean_loop1}" >> ${RESULTS_DIR_NAME}/speed_$1$2_loop1_graph
         echo -e "$num_of_threads \t ${mean_loop2}" >> ${RESULTS_DIR_NAME}/speed_$1$2_loop2_graph
     done
@@ -98,11 +98,9 @@ manythread_affinity() {
         echo -e "$num_of_threads \t ${mean_loop1}" >> ${RESULTS_DIR_NAME}/speed_affinity_loop1_graph
         echo -e "$num_of_threads \t ${mean_loop2}" >> ${RESULTS_DIR_NAME}/speed_affinity_loop2_graph
     done
-    awk '{if(NR==1)Tone=$2; $2=Tone/$2}1' ${RESULTS_DIR_NAME}/speed_affinity_loop1_graph >\
-    ${RESULTS_DIR_NAME}/speedup_affinity_loop1_graph
+    awk '{if(NR==1)Tone=$2; $2=Tone/$2}1' ${RESULTS_DIR_NAME}/speed_affinity_loop1_graph > ${RESULTS_DIR_NAME}/speedup_affinity_loop1_graph
 
-    awk '{if(NR==1)Tone=$2; $2=Tone/$2}1' ${RESULTS_DIR_NAME}/speed_affinity_loop2_graph >\
-    ${RESULTS_DIR_NAME}/speedup_affinity_loop2_graph
+    awk '{if(NR==1)Tone=$2; $2=Tone/$2}1' ${RESULTS_DIR_NAME}/speed_affinity_loop2_graph > ${RESULTS_DIR_NAME}/speedup_affinity_loop2_graph
 }
 
 export OMP_NUM_THREADS=4

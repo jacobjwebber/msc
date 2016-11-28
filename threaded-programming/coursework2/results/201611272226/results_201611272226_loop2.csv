@@ -1,0 +1,10 @@
+RESULTS LOOP 2
+
+schedule, num-threads, mean time (s), std
+"affinity,", 1, 8.75238, 0.000369919
+"affinity,", 2, 6.27868, 0
+"affinity,", 4, 4.45081, 0
+"affinity,", 6, 2.75371, 0
+"affinity,", 8, 1.61616, 0
+"affinity,", 12, 0.981892, 0
+"affinity,", 16, 0.733591, 0

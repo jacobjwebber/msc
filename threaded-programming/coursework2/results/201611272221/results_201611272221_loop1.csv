@@ -1,0 +1,10 @@
+RESULTS LOOP 1
+ 
+schedule, num-threads, mean time (s), std
+"loops_affinity,", 1, , 
+"loops_affinity,", 2, , 
+"loops_affinity,", 4, , 
+"loops_affinity,", 6, , 
+"loops_affinity,", 8, , 
+"loops_affinity,", 12, , 
+"loops_affinity,", 16, , 

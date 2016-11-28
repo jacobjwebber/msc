@@ -1,5 +1,4 @@
 set terminal pdf enhanced font "cmr10"
-set output "loop1_blocksize.pdf"
 set xlabel "Chunk Size"
 set autoscale
 set ylabel "time (s)"  
@@ -7,15 +6,15 @@ set style data linespoints
 set key below  
 set xtics 8
 
-plot "guided_loop1_graph" with lines lc rgb "blue" title "guided", '' using 1:2:3 with errorbars lc rgb "blue" notitle, \
-    "dynamic_loop1_graph" with lines lc rgb "red" title "dynamic", '' using 1:2:3 with errorbars lc rgb "red" notitle,  \
-    "static_loop1_graph" with lines lc rgb "green" title "static", '' using 1:2:3 with errorbars lc rgb "green" notitle 
+set output "loop1_speeds.pdf"
+plot "speed_affinity_loop1_graph" with lines lc rgb "blue" title "affinity", '' lc rgb "blue" notitle, \
+    "speed_dynamic32_loop1_graph" with lines lc rgb "red" title "dynamic 32", '' lc rgb "red" notitle
 
-set output "loop2_blocksize.pdf"
+set output "loop2_speeds.pdf"
 
-plot "guided_loop2_graph" with lines lc rgb "blue" title "guided", '' using 1:2:3 with errorbars lc rgb "blue" notitle, \
-    "dynamic_loop2_graph" with lines lc rgb "red" title "dynamic", '' using 1:2:3 with errorbars lc rgb "red" notitle,  \
-    "static_loop2_graph" with lines lc rgb "green" title "static", '' using 1:2:3 with errorbars lc rgb "green" notitle 
+plot "speed_affinity_loop2_graph" with lines lc rgb "blue" title "guided", '' lc rgb "blue" notitle, \
+    "speed_dynamic8_loop2_graph" with lines lc rgb "red" title "dynamic, 8", '' lc rgb "red" notitle,  \
+    "speed_dynamic16_loop2_graph" with lines lc rgb "green" title "dynamic, 16", '' lc rgb "green" notitle 
 
 
 set terminal pdf monochrome enhanced font "cmr10" dashed
@@ -24,26 +23,15 @@ set ylabel "Speed Up (T_{1}/T_{p})"
 set xtics 2
 set yrange [0:16]
 
-set output "speedup_dynamic8_loop1.pdf"
+set output "speedup_affinity_loop1.pdf"
+plot "speedup_affinity_loop1_graph" with linespoints notitle, x notitle with lines lt 7
 
-plot "speedup_dynamic8_loop1_graph" with linespoints notitle, x notitle with lines lt 7
-
+set output "speedup_dynamic32_loop1.pdf"
+plot "speedup_dynamic32_loop1_graph" with linespoints notitle, x notitle with lines lt 7
 
 set output "speedup_dynamic8_loop2.pdf"
 plot "speedup_dynamic8_loop2_graph" with linespoints notitle, x notitle with lines lt 7
 
-
-#Dynamic 16
-
-set output "speedup_dynamic16_loop1.pdf"
-plot "speedup_dynamic16_loop1_graph" with linespoints notitle, x notitle with lines lt 2 lc 7
-
-
 set output "speedup_dynamic16_loop2.pdf"
 plot "speedup_dynamic16_loop2_graph" with linespoints notitle, x notitle with lines lt 2 lc 7
-
-
-set output "speedup_dynamic32_loop1.pdf"
-plot "speedup_dynamic32_loop1_graph" with linespoints notitle, x notitle with lines lt 2 lc 7
-
 
