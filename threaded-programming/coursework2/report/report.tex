@@ -8,6 +8,7 @@
 ]{caption}
 \usepackage{float}
 \usepackage{subcaption}
+\usepackage[toc,page]{appendix}
 
 \begin{document}
 
@@ -48,9 +49,13 @@ The awareness was maintained with the use of a shared variable which recorded th
 
 In terms of synchronisation it was important not only that no two threads attempt to modify this array simultaneously, but that no thread attempts to modify it while another is scanning to see which thread has the most iterations remaining. To prevent these clashes a critical region was used. According to the OpenMP standard,  only one thread may enter this region at a time. This, however, can have negative effects on performance, particularly in highly parallel cases, as no thread can perform work while another is being assigned work.
 
-To go into more technical detail, the work assignment was lifted into a function. This function takes as input an array of the amount of remaining iterations, an array of the end index of each local set (this could theoretically be derived each time but this would be less performant), the thread id of the thread requesting work and the total number of threads. It gives as an output values \verb|hi| and \verb|lo|, between which is the contiguous block of iterations that the thread should execute. The function also has a return value which it sets to true when it determines all work is complete.
+To go into more technical detail, the work assignment was lifted into a function. This function takes as input an array of the amount of remaining iterations, an array of the end index of each local set - \verb|end_index| (this could theoretically be derived each time but this would be less performant), the thread id of the thread requesting work and the total number of threads. It gives as an output values \verb|hi| and \verb|lo|, between which is the contiguous block of iterations that the thread should execute. The function also has a return value which it sets to true when it determines all work is complete.
 
-The function works by first checking \verb|remaining[my_id]| to see if there is any more work in the calling threads local set. If there is then it assigns a local variable \verb|steal_id| to be equal to the threads own id. Otherwise, the thread scans the \verb|remaining| array to find the highest value, and sets steal
+The function works by first checking \verb|remaining[my_id]| to see if there is any more work in the calling threads local set. If there is then it assigns a local variable \verb|steal_id| to be equal to the threads own id. Otherwise, the thread scans the \verb|remaining| array to find the highest value, and sets the \verb|steal_id| variable to the index that contains this highest value. Where all elements of the \verb|remaining| variable are zero, the loop is complete and the function will return 1. In other cases the function instructs the thread to compute \verb|ceil(remaining[steal_id]/p)| iterations from the work associated with the thread \verb|steal_id|. It does this by setting the \verb|lo| variable to \verb|end_index[steal_id]-remaining[steal_index]| and the \verb|hi| variable to this plus \verb|ceil(remaining[steal_index]/p)|.
+
+The function as implemented is included as appendix \ref{appendix:code}
+
+One likely problem to emerge from this implementation is that the whole work assignment function is executed is a critical region. This means that only one thread may be in the section at a time. This could have negative consequences for horizontal scalability. Threads could be idling waiting to be assigned work because another is in this critical region, particularly when there is a large amount of threads in total.
 
 \section{Results}
 \subsection{Correctness}
@@ -59,14 +64,12 @@ For almost all HPC applications correctness is the primary concern. The code pro
 \begin{figure}
 \centering
 \includegraphics[width=1\textwidth]{"graphs/loop1_speeds"}
-\caption{\small Graph showing execution time for loop 1 against number of threads for the affinity and dynamic, 32 schedules. Note the performance is extremely similar. }
+\caption{Graph showing execution time for loop 1 against number of threads for the affinity and dynamic, 32 schedules. Note the performance is extremely similar. }
 \label{loop1scheds}
 \end{figure}
 
-
-
-\subsection{Results of Schedules on 4 Threads}
-The first results gathered were execution times for each loop for every available loop schedule. The results for these are shown in Figures \ref{loop1scheds} and \ref{loop2scheds}. 
+\subsection{Comparative Execution Times of Schedules}
+The first results gathered were execution times for each loop with both the affinity scheduling and the best loop schedule that comes by default with any OpenMP implementation. These best schedules were determined and discussed in an earlier report. The best schedule for loop 1 was dynamic, 32 while for loop 2 the results for dynamic 8 and dynamic 16 were similarly optimal enough that they are both used here. The results for the execution time of loops 1 and 2 are shown in figures \ref{loop1scheds} and \ref{loop2scheds} respectively. 
 
 \begin{figure}
 \centering
@@ -75,17 +78,9 @@ The first results gathered were execution times for each loop for every availabl
 \label{loop2scheds}
 \end{figure}
 
-It is possible to use the results from the \verb|static| schedule to give a good experimental indication as to how evenly computational complexity is spread between iterations for the two loops. As the iterations are evenly distributed between threads with this \verb|static| method, how performant this strategy is gives a good indication as to the spread of operations between iterations. Doing this we see that for loop 1 computational complexity is far better distributed between loop iterations than in loop 2. We also see, comparing the results for \verb|static| and \verb|static,n| (see Figure \ref{loop2scheds} and Appendix A) that performance is drastically improved when these dense iterations are striped across threads. This ties in with static analysis of the code which shows that the number of floating point operations in each iteration of loop 2 is proportional to the index of the iteration.
 
-The loop 1 results are shown in Figure \ref{loop1scheds}. These show there was a large standard deviation in all the schedules and chunk sizes. This shows a wide performance variability for this loop, particularly where the \verb|static| schedule was used. The loop 2 results shown in Figure \ref{loop2scheds} demonstrate much less performance variability for this loop, with error bars showing a much smaller standard deviation. This could be explained by the short execution time for 1000 repetitions of loop 1. This execution time is less than a second, at which point noise from I/O and other system processes can make results less reliable. 
 
-The highest performing schedule for loop 1 was found to be \verb|dynamic,32|. This had the lowest mean execution time and also had one of the lowest standard deviations, meaning this schedule had reliably good performance for this loop.
-
-For loop 2 we saw a general pattern where there was an optimal chunksize that was not so small that the overhead of work allocation became dominant, but not so large that the slowest chunk to complete was the dominant factor. This pattern was not followed by the \verb|guided| schedule, which performed uniformly, and relatively badly, regardless of chunksize. This may be because this scheme starts by assigning large chunks from the work queue, meaning that a large slow chunk was the dominant factor for all chunksizes.
-
-The highest performing schedule for loop 2 was not immediately obvious. The mean execution time with the \verb|dynamic,8| and \verb|dynamic,16| was similar to the order of nanoseconds - well beyond the accuracies of this experiment. It was therefore decided that both of these schedules would be jointly selected as the best.
-
-\subsection{Speed Up of Best Schedules}
+\subsection{Speed Up of Schedules}
 
 \begin{figure}
   \centering
@@ -116,23 +111,9 @@ The highest performing schedule for loop 2 was not immediately obvious. The mean
 \end{figure}
 
 
-After the best schedules for loop 1 and loop 2 had been found they were then run again on 1, 2, 4, 6, 8, 12 and 16 threads. The speed up for loop  1 on the \verb|dynamic,32| schedule is shown in Figure \ref{dynamic32}. Here relatively good scalability is shown until the system reaches 12 cores. At this point no more speed up is achieved. There are many reasons that could explain this, but as the chunksize is larger for this schedule it could be that there are not enough blocks in the work queue to distribute between these threads. However, considering the results for loop 2, detailed below, it seems likely that performance is limited by the time taken for the slowest chunk of 32 to execute.
-
-The best schedule for loop 2 was taken to be either \verb|dynamic,8| or \verb|16|. Here Figures \ref{dynamic8} and \ref{dynamic16} show extremely interesting results. The scalability completely plateaus after 8 threads where the chunksize is 8, and 4 threads where the chunksize is 16. There are two plausible explanations for this. It could be that with the larger chunksizes there is a shortage of work in the work queue for these extra threads to do, as the total work is divided into fewer larger blocks. However, because this threshold is not reached by loop 1 where the loop is split into chunks of size 32,  it seems more likely that that this is due to the time it takes for the slowest block to complete. As loop 2 is an inherently badly load balanced problem - the amount of flops per cycle is proportional to the loop index - it seems more likely that one of the threads is left with a larger block of these longer computations where the chunksize is bigger. However well distributed the remainder of the problem is, the loop cannot complete before this longest problem is solved. What we see, then, is the size of this most computationally dense chunk doubling as the chunksize doubles, leaving no further room for improvement however many threads are used.
-
-Comparing these two loops we can see that in a more evenly distributed loop a larger chunksize is better. This is explained by reducing the overhead from each thread going to the work queue. This becomes the dominant factor where the time taken for each chunk to complete is approximately even.
-
 
 
 \section{conclusion}
-To conclude, the results found in this experiment shows that loop schedules deserve considerable attention from a programmer trying to achieve high performance with an OpenMP code. A poor selection was shown to increase execution time in some cases by more than a factor of 2 even on 4 threads and drastically reduce horizontal scalability. 
-
-The results also demonstrate there are a balance of factors to consider when selecting the the optimal schedule. The experiments showed that the assignment of work from a queue has an overhead. It was also shown that performance could be limited by poor load balancing where a chunksize that was too large was selected, particularly where a larger number of threads are used.
-
-Specifically in this case, results showed that the optimal scheduling strategy was for \verb|dynamic,32| for loop 1 and \verb|dynamic,8| for loop 2.
-
-More generally it was shown that the optimal schedule will depend on the number of threads that the program will be run on as well as the nature of the loop being parallelised. It would therefore be advisable for any HPC programmer to conduct some experiments for their specific use cases before running a large job.
-
 
 
 \bibliographystyle{plain}
@@ -209,6 +190,7 @@ affinity & 16 & 0.18 & 0.01 \\ \hline
 
 \pagebreak
 \section{Code Snippet}
+\label{appendix:code}
 \begin{verbatim}
 int get_work(int *remaining, int *end_index, int myid, int nthreads, int *lo,
              int *hi)
