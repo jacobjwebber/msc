@@ -195,6 +195,7 @@ int main(int argc, char **argv)
   }
 
   //set old to be white
+  printf("whiting out old %i \n", rank);
   for (i = 0; i < MP + 2; i++)
   {
     for (j = 0; j < NP + 2; j++)
@@ -203,27 +204,27 @@ int main(int argc, char **argv)
     }
   }
 
+    if (rank == 0)
+    {
+        printf("writing test file\n");
+        pgmwrite("test5.pgm", local_old, MP+1, NP+1);
+    }
+ 
   /* Set fixed boundary conditions on the left and right sides */
 
-  for (j = 1; j < NP + 1; j++)
+  /*for (j = 1; j < NP + 1; j++)
   {
-    /* compute sawtooth value */
+     //compute sawtooth value 
 
     val = boundaryval(j+ (NP*(1-coords[1]) ), NP);
 
     local_old[0][j] = 255.0 * val;
     local_old[MP + 1][j] = 255.0 * (1.0 - val);
   }
- 
+ */
   float recv_north_buf[NP], recv_south_buf[NP], send_north_buf[MP],
       send_south_buf[MP];
 
-    if (rank == 2)
-    {
-        printf("writing test file\n");
-        pgmwrite("test5.pgm", local_old, MP+1, NP+1);
-    }
- 
  
   for (iter = 1; iter <= MAXITER; iter++)
   {
@@ -266,7 +267,7 @@ int main(int argc, char **argv)
       MPI_Send(&local_old[1][1], NP, MPI_FLOAT, west_rank, 0, cart_comm);
     }
 
-    if (coords[0] % 2 == 0)
+/*    if (coords[0] % 2 == 0)
     {
       MPI_Send(&send_north_buf[0], MP, MPI_FLOAT, north_rank, 0, cart_comm);
       MPI_Recv(&recv_north_buf[0], MP, MPI_FLOAT, north_rank, 0, cart_comm,
@@ -287,7 +288,7 @@ int main(int argc, char **argv)
       MPI_Send(&send_north_buf[0], MP, MPI_FLOAT, north_rank, 0, cart_comm);
     }
 
-    for (i = 0; i < MP; i++)
+*/    for (i = 0; i < MP; i++)
     {
       local_old[i + 1][NP + 1] = recv_south_buf[i];
       local_old[i + 1][1] = recv_north_buf[i];
