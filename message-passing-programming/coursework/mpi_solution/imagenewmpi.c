@@ -141,18 +141,7 @@ int main(int argc, char **argv)
         pgmwrite("test1.pgm", local_old, MP+1, NP+1);
     }
  
-  /* Set fixed boundary conditions on the left and right sides */
-
-  for (j = 1; j < NP + 1; j++)
-  {
-    /* compute sawtooth value */
-
-    val = boundaryval(j+ (NP*(1-coords[1]) ), NP);
-
-    local_old[0][j] = 255.0 * val;
-    local_old[MP + 1][j] = 255.0 * (1.0 - val);
-  }
-    if (rank == 1)
+   if (rank == 1)
     {
         printf("writing test file\n");
         pgmwrite("test2.pgm", local_old, MP+1, NP+1);
@@ -200,14 +189,42 @@ int main(int argc, char **argv)
     printf("proc %i recieved partial image from master\n", rank);
     if (rank == 2)
     {
-      printf("writing test file 3\n");
-      pgmwrite("test3.pgm", local_partial_image, MP, NP);
+      //printf("writing test file 3\n");
+      //pgmwrite("test3.pgm", local_partial_image, MP, NP);
     }
   }
 
+  //set old to be white
+  for (i = 0; i < MP + 2; i++)
+  {
+    for (j = 0; j < NP + 2; j++)
+    {
+      local_old[i][j] = 255.0;
+    }
+  }
+
+  /* Set fixed boundary conditions on the left and right sides */
+
+  for (j = 1; j < NP + 1; j++)
+  {
+    /* compute sawtooth value */
+
+    val = boundaryval(j+ (NP*(1-coords[1]) ), NP);
+
+    local_old[0][j] = 255.0 * val;
+    local_old[MP + 1][j] = 255.0 * (1.0 - val);
+  }
+ 
   float recv_north_buf[NP], recv_south_buf[NP], send_north_buf[MP],
       send_south_buf[MP];
 
+    if (rank == 2)
+    {
+        printf("writing test file\n");
+        pgmwrite("test5.pgm", local_old, MP+1, NP+1);
+    }
+ 
+ 
   for (iter = 1; iter <= MAXITER; iter++)
   {
     if (iter % PRINTFREQ == 0 && rank == 0)
@@ -215,12 +232,6 @@ int main(int argc, char **argv)
       printf("Iteration %d\n", iter);
     }
     
-    if (rank == 2 && iter ==1)
-    {
-        printf("writing test file\n");
-        pgmwrite("test4.pgm", local_partial_image, MP, NP);
-    }
-
     for (i = 0; i < MP; i++)
     {
       send_north_buf[i] = local_old[i + 1][1];
@@ -230,7 +241,7 @@ int main(int argc, char **argv)
     if (iter==1 && rank == 0)
     {
         printf("writing test file\n");
-        pgmwrite("test5.pgm", local_old, MP+1, NP+1);
+        pgmwrite("test6.pgm", local_old, MP+1, NP+1);
     }
  
     // Send edge halos
@@ -285,7 +296,7 @@ int main(int argc, char **argv)
     if (iter==1 && rank == 0)
     {
         printf("writing test file\n");
-        pgmwrite("test6.pgm", local_old, MP+1, NP+1);
+        pgmwrite("test7.pgm", local_old, MP+1, NP+1);
     }
  
 
