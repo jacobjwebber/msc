@@ -8,22 +8,11 @@
 #include <mpi.h>
 #include <stdio.h>
 #include <stdlib.h>
+
 #include "arralloc.h"
-
 #include "pgmio.h"
+#include "definitions.h"
 
-#define M 768
-#define N 768
-
-#define MAXITER 1500
-#define PRINTFREQ 200
-
-#define P 4
-
-#define MP M / 2
-#define NP N / 2
-#define DIMX 2
-#define DIMY 2
 
 float boundaryval(int i, int m);
 
@@ -92,12 +81,12 @@ int get_west(MPI_Comm cart_comm, int my_rank)
   return west_rank;
 }
 
-int mp_gather_and_write_png(float local_partial_image[MP][NP], MPI_Comm* cart_comm, char* filename, int rank, int size)
+int mp_gather_and_write_png(float** partial_image, MPI_Comm* cart_comm, char* filename, int rank, int size)
 {
   /*Send each local image back and form masterbuf!*/
   if (rank != 0)
   {
-    MPI_Send(&local_partial_image[0][0], MP * NP, MPI_FLOAT, 0, 0, *cart_comm);
+    MPI_Send(&(partial_image[0][0]), MP * NP, MPI_FLOAT, 0, 0, *cart_comm);
   }
   else
   {
@@ -108,12 +97,11 @@ int mp_gather_and_write_png(float local_partial_image[MP][NP], MPI_Comm* cart_co
     for (proc = 0; proc < size; proc++)
     {
       if (proc != 0)
-      {
-        MPI_Recv(local_partial_image, MP * NP, MPI_FLOAT, proc, 0,
+      { 
+        printf("bang");
+        MPI_Recv(partial_image, MP * NP, MPI_FLOAT, proc, 0,
                  *cart_comm, MPI_STATUS_IGNORE);
       }
-printf("writing image\n");
-
       MPI_Cart_coords(*cart_comm, proc, 2, proc_coord);
       printf("reassembling image from proc %i", proc);
       int i, j;
@@ -123,7 +111,7 @@ printf("writing image\n");
         {
             printf("writing element [%i,%i]\n", i,j);
           masterbuf[(proc_coord[0] * MP) + (i - 1)]
-                   [(proc_coord[1] * NP) + (j - 1)] = local_partial_image[i][j];
+                   [(proc_coord[1] * NP) + (j - 1)] = partial_image[i][j];
         }
       }
     }
@@ -134,28 +122,20 @@ printf("writing image\n");
   }
 }
 
+float** return_masterbuf()
+{
+  float **masterbuf = (float**)arralloc(sizeof(float), 2, M, N);
+  return masterbuf;
+} 
 
+
+int mp_get_coords(int rank, MPI_Comm cart_comm)
+{
 
 int main(int argc, char **argv)
 {
   printf("intitialising message passing \n");
-  // float old[M + 2][N + 2], new[M + 2][N + 2], edge[M + 2][N + 2];
-
-  //float masterbuf[M][N];
-  //float local_old[MP + 2][NP + 2], local_new[MP + 2][NP + 2],
-  //    local_edge[MP + 2][NP + 2], local_partial_image[MP][NP];
-
-  float** masterbuf;
-  float** local_old, local_new,
-      local_edge, local_partial_image;
-
-  local_old = (float**) arralloc(sizeof(float), 2, MP+2, NP+2);
-  local_new = (float**) arralloc(sizeof(float), 2, MP+2, NP+2);
-  local_edge = (float**) arralloc(sizeof(float), 2, MP+2, NP+2);
-  local_partial_image = (float**) arralloc(sizeof(float), 2, MP, NP);
-  if(rank == 0)
-      masterbuf = arralloc(sizeof(float), 2, M, N);
-
+  
   int i, j, iter, maxiter;
   char *filename;
   float val;
@@ -173,14 +153,26 @@ int main(int argc, char **argv)
     exit(-1);
   }
 
+  float **old = (float**)arralloc(sizeof(float), 2, MP+2, NP+2);
+  float **new = (float**)arralloc(sizeof(float), 2, MP+2, NP+2);
+  float **edge = (float**)arralloc(sizeof(float), 2, MP+2, NP+2);
+  float **partial_image = (float**)arralloc(sizeof(float), 2, MP, NP);
+ 
+  float **masterbuf;
+  if (rank==0)
+  {
+    masterbuf = return_masterbuf(); 
+  }
+
   north_rank = get_north(cart_comm, rank);
   south_rank = get_south(cart_comm, rank);
   east_rank = get_east(cart_comm, rank);
   west_rank = get_west(cart_comm, rank);
-
+  printf("lol\n");
   int coords[2];
 
   MPI_Cart_coords(cart_comm, rank, 2, coords);
+  
   printf(
       "I am rank %i, coords [%i,%i] north is %i, south %i, west %i, east %i\n",
       rank, coords[0], coords[1], north_rank, south_rank, west_rank, east_rank);
@@ -189,22 +181,10 @@ int main(int argc, char **argv)
   {
     for (j = 0; j < NP + 2; j++)
     {
-      local_old[i][j] = 255.0;
+      old[i][j] = 255.0;
     }
   }
 
-    if (rank == 1)
-    {
-        printf("writing test file\n");
-        pgmwrite("outputs/test1.pgm", local_old, MP+1, NP+1);
-    }
- 
-   if (rank == 1)
-    {
-        printf("writing test file\n");
-        pgmwrite("outputs/test2.pgm", local_old, MP+1, NP+1);
-    }
- 
   /* Master thread section */
   if (rank == 0)
   {
@@ -213,7 +193,7 @@ int main(int argc, char **argv)
     filename = "inputs/edgenew768x768.pgm";
 
     printf("\nReading <%s>\n", filename);
-    pgmread(filename, masterbuf, M, N);
+    pgmread(filename, &(masterbuf[0][0]), M, N);
     printf("\n");
 
     /*Distribute bits of the image to different procs*/
@@ -222,12 +202,14 @@ int main(int argc, char **argv)
     {
       MPI_Cart_coords(cart_comm, proc, 2, proc_coord);
 
+      //partial_image[0][0] = masterbuf[280][280];
       for (i = 0; i < MP; i++)
       {
         for (j = 0; j < NP; j++)
         {
-          local_partial_image[i][j] = masterbuf[(proc_coord[0] * MP) + (i - 1)]
-                                               [(proc_coord[1] * NP) + (j - 1)];
+          //printf("hello %i %i \n", (proc_coord[0] * MP) + (i ), (proc_coord[1] * NP) + (j) );
+          partial_image[i][j] = masterbuf[(proc_coord[0] * MP) + i]
+                                               [(proc_coord[1] * NP) + (j )];
         }
       }
 
@@ -235,55 +217,24 @@ int main(int argc, char **argv)
       {
         // send to this process
         printf("sending to proc %i\n", proc);
-        MPI_Send(&local_partial_image[0], NP * MP, MPI_FLOAT, proc, 0,
+        MPI_Send(&partial_image[0], NP * MP, MPI_FLOAT, proc, 0,
                  cart_comm);
       }
     }
   }
   else
   {
-    MPI_Recv(&local_partial_image[0], NP * MP, MPI_FLOAT, 0, 0, cart_comm,
+    MPI_Recv(&partial_image[0], NP * MP, MPI_FLOAT, 0, 0, cart_comm,
              MPI_STATUS_IGNORE);
     printf("proc %i recieved partial image from master\n", rank);
     if (rank == 2)
     {
       //printf("writing test file 3\n");
-      //pgmwrite("test3.pgm", local_partial_image, MP, NP);
+      //pgmwrite("test3.pgm", partial_image, MP, NP);
     }
   }
-
-  if (rank != 0)
-  {
-    MPI_Send(&local_partial_image[0], MP * NP, MPI_FLOAT, 0, 0, cart_comm);
-  }
-  else
-  {
-    int proc, proc_coord[2];
-    for (proc = 0; proc < size; proc++)
-    {
-      if (proc != 0)
-      {
-        MPI_Recv(&local_partial_image[0], MP * NP, MPI_FLOAT, proc, 0,
-                 cart_comm, MPI_STATUS_IGNORE);
-      }
-
-      MPI_Cart_coords(cart_comm, proc, 2, proc_coord);
-      printf("reassembling image from proc %i", proc);
-      for (i = 0; i < MP; i++)
-      {
-        for (j = 0; j < NP; j++)
-        {
-          masterbuf[(proc_coord[0] * MP) + (i - 1)]
-                   [(proc_coord[1] * NP) + (j - 1)] = local_partial_image[i][j];
-        }
-      }
-    }
-    filename = "outputs/input.pgm";
-    printf("\nWriting <%s>\n", filename);
-    pgmwrite(filename, masterbuf, M, N);
-  }
-
-
+  
+  mp_gather_and_write_png(partial_image, &cart_comm, "output/input.png", rank, size);
 
 
   //set old to be white
@@ -292,14 +243,14 @@ int main(int argc, char **argv)
   {
     for (j = 0; j < NP + 2; j++)
     {
-      local_old[i][j] = 255.0;
+      old[i][j] = 255.0;
     }
   }
 
     if (rank == 0)
     {
         printf("writing test file\n");
-        pgmwrite("outputs/test5.pgm", local_old, MP+1, NP+1);
+        pgmwrite("outputs/test5.pgm", old, MP+1, NP+1);
     }
  
   /* Set fixed boundary conditions on the left and right sides */
@@ -310,8 +261,8 @@ int main(int argc, char **argv)
 
     val = boundaryval(j+ (NP*(1-coords[1]) ), NP);
 
-    local_old[0][j] = 255.0 * val;
-    local_old[MP + 1][j] = 255.0 * (1.0 - val);
+    old[0][j] = 255.0 * val;
+    old[MP + 1][j] = 255.0 * (1.0 - val);
   }
  
   float recv_north_buf[NP], recv_south_buf[NP], send_north_buf[MP],
@@ -327,36 +278,36 @@ int main(int argc, char **argv)
     
     for (i = 0; i < MP; i++)
     {
-      send_north_buf[i] = local_old[i + 1][1];
-      send_south_buf[i] = local_old[i + 1][NP];
+      send_north_buf[i] = old[i + 1][1];
+      send_south_buf[i] = old[i + 1][NP];
     }
 
     if (iter==1 && rank == 0)
     {
         printf("writing test file\n");
-        pgmwrite("outputs/test6.pgm", local_old, MP+1, NP+1);
+        pgmwrite("outputs/test6.pgm", old, MP+1, NP+1);
     }
  
   /*  // Send edge halos
     if (coords[1] % 2 == 0)
     {
-      MPI_Send(&local_old[1][1], NP, MPI_FLOAT, west_rank, 0, cart_comm);
-      MPI_Recv(&local_old[0][1], NP, MPI_FLOAT, west_rank, 0, cart_comm,
+      MPI_Send(&old[1][1], NP, MPI_FLOAT, west_rank, 0, cart_comm);
+      MPI_Recv(&old[0][1], NP, MPI_FLOAT, west_rank, 0, cart_comm,
                MPI_STATUS_IGNORE);
 
-      MPI_Send(&local_old[MP][1], NP, MPI_FLOAT, east_rank, 0, cart_comm);
-      MPI_Recv(&local_old[MP + 1][1], NP, MPI_FLOAT, east_rank, 0, cart_comm,
+      MPI_Send(&old[MP][1], NP, MPI_FLOAT, east_rank, 0, cart_comm);
+      MPI_Recv(&old[MP + 1][1], NP, MPI_FLOAT, east_rank, 0, cart_comm,
                MPI_STATUS_IGNORE);
     }
     else
     {
-      MPI_Recv(&local_old[MP + 1][1], NP, MPI_FLOAT, east_rank, 0, cart_comm,
+      MPI_Recv(&old[MP + 1][1], NP, MPI_FLOAT, east_rank, 0, cart_comm,
                MPI_STATUS_IGNORE);
-      MPI_Send(&local_old[MP][1], NP, MPI_FLOAT, east_rank, 0, cart_comm);
+      MPI_Send(&old[MP][1], NP, MPI_FLOAT, east_rank, 0, cart_comm);
 
-      MPI_Recv(&local_old[0][1], NP, MPI_FLOAT, west_rank, 0, cart_comm,
+      MPI_Recv(&old[0][1], NP, MPI_FLOAT, west_rank, 0, cart_comm,
                MPI_STATUS_IGNORE);
-      MPI_Send(&local_old[1][1], NP, MPI_FLOAT, west_rank, 0, cart_comm);
+      MPI_Send(&old[1][1], NP, MPI_FLOAT, west_rank, 0, cart_comm);
     }
 
     if (coords[0] % 2 == 0)
@@ -382,14 +333,14 @@ int main(int argc, char **argv)
 
     for (i = 0; i < MP; i++)
     {
-      local_old[i + 1][NP + 1] = recv_south_buf[i];
-      local_old[i + 1][1] = recv_north_buf[i];
+      old[i + 1][NP + 1] = recv_south_buf[i];
+      old[i + 1][1] = recv_north_buf[i];
     }
 
     if (iter==1 && rank == 0)
     {
         printf("writing test file\n");
-        pgmwrite("outputs/test7.pgm", local_old, MP+1, NP+1);
+        pgmwrite("outputs/test7.pgm", old, MP+1, NP+1);
     }
  
 */
@@ -397,7 +348,7 @@ int main(int argc, char **argv)
     {
       for (j = 1; j < NP + 1; j++)
       {
-        local_edge[i][j] = local_partial_image[i - 1][j - 1];
+        edge[i][j] = partial_image[i - 1][j - 1];
       }
     }
 
@@ -405,9 +356,9 @@ int main(int argc, char **argv)
     {
       for (j = 1; j < NP + 1; j++)
       {
-        local_new[i][j] = 0.25 * (local_old[i - 1][j] + local_old[i + 1][j] +
-                                  local_old[i][j - 1] + local_old[i][j + 1] -
-                                  local_edge[i][j]);
+        new[i][j] = 0.25 * (old[i - 1][j] + old[i + 1][j] +
+                                  old[i][j - 1] + old[i][j + 1] -
+                                  edge[i][j]);
       }
     }
 
@@ -416,7 +367,7 @@ int main(int argc, char **argv)
     {
       for (j = 1; j < NP + 1; j++)
       {
-        local_old[i][j] = local_new[i][j];
+        old[i][j] = new[i][j];
       }
     }
   }
@@ -427,14 +378,14 @@ int main(int argc, char **argv)
   {
     for (j = 1; j < NP + 1; j++)
     {
-      local_partial_image[i - 1][j - 1] = local_old[i][j];
+      partial_image[i - 1][j - 1] = old[i][j];
     }
   }
 
   /*Send each local image back and form masterbuf!*/
   if (rank != 0)
   {
-    MPI_Send(&local_partial_image[0], MP * NP, MPI_FLOAT, 0, 0, cart_comm);
+    MPI_Send(&partial_image[0], MP * NP, MPI_FLOAT, 0, 0, cart_comm);
   }
   else
   {
@@ -443,7 +394,7 @@ int main(int argc, char **argv)
     {
       if (proc != 0)
       {
-        MPI_Recv(&local_partial_image[0], MP * NP, MPI_FLOAT, proc, 0,
+        MPI_Recv(&partial_image[0], MP * NP, MPI_FLOAT, proc, 0,
                  cart_comm, MPI_STATUS_IGNORE);
       }
 
@@ -454,7 +405,7 @@ int main(int argc, char **argv)
         for (j = 0; j < NP; j++)
         {
           masterbuf[(proc_coord[0] * MP) + (i - 1)]
-                   [(proc_coord[1] * NP) + (j - 1)] = local_partial_image[i][j];
+                   [(proc_coord[1] * NP) + (j - 1)] = partial_image[i][j];
         }
       }
     }
@@ -463,7 +414,7 @@ int main(int argc, char **argv)
     pgmwrite(filename, masterbuf, M, N);
   }
 
-//  mp_gather_and_write_png(local_partial_image, &cart_comm, "output.png", rank, size);
+//  mp_gather_and_write_png(partial_image, &cart_comm, "output.png", rank, size);
 
   MPI_Finalize();
 }
