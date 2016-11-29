@@ -9,6 +9,7 @@ EXE= imagempi
 
 SRC= \
 	pgmio.c \
+	arralloc.c \
 	imagenewmpi.c
 
 #
