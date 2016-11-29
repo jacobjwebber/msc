@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013) (format=pdflatex 2016.4.30)  28 NOV 2016 22:03
+This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013) (format=pdflatex 2016.4.30)  29 NOV 2016 18:53
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -93,38 +93,61 @@ Package: appendix 2009/09/02 v1.2b extra appendix facilities
 \c@@pps=\count92
 \c@@ppsavesec=\count93
 \c@@ppsaveapp=\count94
-) (./report.aux
-
-LaTeX Warning: Label `dynamic16' multiply defined.
-
 )
+(/usr/share/texlive/texmf-dist/tex/latex/geometry/geometry.sty
+Package: geometry 2010/09/12 v5.6 Page Geometry
+
+(/usr/share/texlive/texmf-dist/tex/generic/oberdiek/ifpdf.sty
+Package: ifpdf 2011/01/30 v2.3 Provides the ifpdf switch (HO)
+Package ifpdf Info: pdfTeX in PDF mode is detected.
+)
+(/usr/share/texlive/texmf-dist/tex/generic/oberdiek/ifvtex.sty
+Package: ifvtex 2010/03/01 v1.5 Detect VTeX and its facilities (HO)
+Package ifvtex Info: VTeX not detected.
+)
+(/usr/share/texlive/texmf-dist/tex/generic/ifxetex/ifxetex.sty
+Package: ifxetex 2010/09/12 v0.6 Provides ifxetex conditional
+)
+\Gm@cnth=\count95
+\Gm@cntv=\count96
+\c@Gm@tempcnt=\count97
+\Gm@bindingoffset=\dimen112
+\Gm@wd@mp=\dimen113
+\Gm@odd@mp=\dimen114
+\Gm@even@mp=\dimen115
+\Gm@layoutwidth=\dimen116
+\Gm@layoutheight=\dimen117
+\Gm@layouthoffset=\dimen118
+\Gm@layoutvoffset=\dimen119
+\Gm@dimlist=\toks17
+) (./report.aux)
 \openout1 = `report.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 13.
-LaTeX Font Info:    ... okay on input line 13.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 13.
-LaTeX Font Info:    ... okay on input line 13.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 13.
-LaTeX Font Info:    ... okay on input line 13.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 13.
-LaTeX Font Info:    ... okay on input line 13.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 13.
-LaTeX Font Info:    ... okay on input line 13.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 13.
-LaTeX Font Info:    ... okay on input line 13.
- (/usr/share/texlive/texmf-dist/tex/context/base/supp-pdf.mkii
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 14.
+LaTeX Font Info:    ... okay on input line 14.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 14.
+LaTeX Font Info:    ... okay on input line 14.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 14.
+LaTeX Font Info:    ... okay on input line 14.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 14.
+LaTeX Font Info:    ... okay on input line 14.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 14.
+LaTeX Font Info:    ... okay on input line 14.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 14.
+LaTeX Font Info:    ... okay on input line 14.
+(/usr/share/texlive/texmf-dist/tex/context/base/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count95
-\scratchdimen=\dimen112
+\scratchcounter=\count98
+\scratchdimen=\dimen120
 \scratchbox=\box28
-\nofMPsegments=\count96
-\nofMParguments=\count97
-\everyMPshowfont=\toks17
-\MPscratchCnt=\count98
-\MPscratchDim=\dimen113
-\MPnumerator=\count99
-\makeMPintoPDFobject=\count100
-\everyMPtoPDFconversion=\toks18
+\nofMPsegments=\count99
+\nofMParguments=\count100
+\everyMPshowfont=\toks18
+\MPscratchCnt=\count101
+\MPscratchDim=\dimen121
+\MPnumerator=\count102
+\makeMPintoPDFobject=\count103
+\everyMPtoPDFconversion=\toks19
 ) (/usr/share/texlive/texmf-dist/tex/generic/oberdiek/pdftexcmds.sty
 Package: pdftexcmds 2011/11/29 v0.20 Utility functions of pdfTeX for LuaTeX (HO
 )
@@ -132,10 +155,6 @@ Package: pdftexcmds 2011/11/29 v0.20 Utility functions of pdfTeX for LuaTeX (HO
 (/usr/share/texlive/texmf-dist/tex/generic/oberdiek/ifluatex.sty
 Package: ifluatex 2010/03/01 v1.3 Provides the ifluatex switch (HO)
 Package ifluatex Info: LuaTeX not detected.
-)
-(/usr/share/texlive/texmf-dist/tex/generic/oberdiek/ifpdf.sty
-Package: ifpdf 2011/01/30 v2.3 Provides the ifpdf switch (HO)
-Package ifpdf Info: pdfTeX in PDF mode is detected.
 )
 Package pdftexcmds Info: LuaTeX not detected.
 Package pdftexcmds Info: \pdf@primitive is available.
@@ -176,116 +195,154 @@ e
 Package caption Info: Begin \AtBeginDocument code.
 Package caption Info: float package is loaded.
 Package caption Info: End \AtBeginDocument code.
-LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <14.4> on input line 18.
-LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <7> on input line 18.
 
+*geometry* driver: auto-detecting
+*geometry* detected driver: pdftex
+*geometry* verbose mode - [ preamble ] result:
+* driver: pdftex
+* paper: a4paper
+* layout: <same size as paper>
+* layoutoffset:(h,v)=(0.0pt,0.0pt)
+* modes: 
+* h-part:(L,W,R)=(89.62709pt, 418.25368pt, 89.6271pt)
+* v-part:(T,H,B)=(101.40665pt, 591.5302pt, 152.11pt)
+* \paperwidth=597.50787pt
+* \paperheight=845.04684pt
+* \textwidth=418.25368pt
+* \textheight=591.5302pt
+* \oddsidemargin=17.3571pt
+* \evensidemargin=17.3571pt
+* \topmargin=-7.86334pt
+* \headheight=12.0pt
+* \headsep=25.0pt
+* \topskip=12.0pt
+* \footskip=30.0pt
+* \marginparwidth=35.0pt
+* \marginparsep=10.0pt
+* \columnsep=10.0pt
+* \skip\footins=10.8pt plus 4.0pt minus 2.0pt
+* \hoffset=0.0pt
+* \voffset=0.0pt
+* \mag=1000
+* \@twocolumnfalse
+* \@twosidefalse
+* \@mparswitchfalse
+* \@reversemarginfalse
+* (1in=72.27pt=25.4mm, 1cm=28.453pt)
+
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <14.4> on input line 19.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <7> on input line 19.
 [1
 
 {/usr/share/texlive/texmf/fonts/map/pdftex/updmap/pdftex.map}]
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <12> on input line 33.
+(Font)              <12> on input line 34.
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <8> on input line 33.
+(Font)              <8> on input line 34.
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <6> on input line 33.
- [2] [3]
-<"graphs/loop1_speeds".pdf, id=17, 361.35pt x 216.81pt>
+(Font)              <6> on input line 34.
+
+<"graphs/loop1_speeds".pdf, id=9, 361.35pt x 216.81pt>
 File: "graphs/loop1_speeds".pdf Graphic file (type pdf)
 
 <use "graphs/loop1_speeds".pdf>
-Package pdftex.def Info: "graphs/loop1_speeds".pdf used on input line 66.
-(pdftex.def)             Requested size: 390.0pt x 234.00243pt.
- [4 <./graphs/loop1_speeds.pdf>]
-<"graphs/loop2_speeds".pdf, id=31, 361.35pt x 216.81pt>
+Package pdftex.def Info: "graphs/loop1_speeds".pdf used on input line 49.
+(pdftex.def)             Requested size: 418.25368pt x 250.9539pt.
+ [2]
+<"graphs/loop2_speeds".pdf, id=15, 361.35pt x 216.81pt>
 File: "graphs/loop2_speeds".pdf Graphic file (type pdf)
 
 <use "graphs/loop2_speeds".pdf>
-Package pdftex.def Info: "graphs/loop2_speeds".pdf used on input line 76.
-(pdftex.def)             Requested size: 390.0pt x 234.00243pt.
+Package pdftex.def Info: "graphs/loop2_speeds".pdf used on input line 56.
+(pdftex.def)             Requested size: 418.25368pt x 250.9539pt.
+ [3 <./graphs/loop1_speeds.pdf>] [4 <./graphs/loop2_speeds.pdf>] <graphs/speedu
+p_loop1.pdf, id=40, 361.35pt x 216.81pt>
+File: graphs/speedup_loop1.pdf Graphic file (type pdf)
 
-<graphs/speedup_dynamic32_loop1.pdf, id=32, 361.35pt x 216.81pt>
-File: graphs/speedup_dynamic32_loop1.pdf Graphic file (type pdf)
+<use graphs/speedup_loop1.pdf>
+Package pdftex.def Info: graphs/speedup_loop1.pdf used on input line 79.
+(pdftex.def)             Requested size: 418.25368pt x 250.9539pt.
 
-<use graphs/speedup_dynamic32_loop1.pdf>
-Package pdftex.def Info: graphs/speedup_dynamic32_loop1.pdf used on input line 
-87.
-(pdftex.def)             Requested size: 390.0pt x 234.00243pt.
+<graphs/speedup_loop2.pdf, id=41, 361.35pt x 216.81pt>
+File: graphs/speedup_loop2.pdf Graphic file (type pdf)
 
-<graphs/speedup_affinity_loop1.pdf, id=33, 361.35pt x 216.81pt>
-File: graphs/speedup_affinity_loop1.pdf Graphic file (type pdf)
-
-<use graphs/speedup_affinity_loop1.pdf>
-Package pdftex.def Info: graphs/speedup_affinity_loop1.pdf used on input line 9
-4.
-(pdftex.def)             Requested size: 390.0pt x 234.00243pt.
-
-<graphs/speedup_dynamic8_loop2.pdf, id=34, 361.35pt x 216.81pt>
-File: graphs/speedup_dynamic8_loop2.pdf Graphic file (type pdf)
-
-<use graphs/speedup_dynamic8_loop2.pdf>
-Package pdftex.def Info: graphs/speedup_dynamic8_loop2.pdf used on input line 1
-01.
-(pdftex.def)             Requested size: 390.0pt x 234.00243pt.
-
-<graphs/speedup_dynamic16_loop2.pdf, id=35, 361.35pt x 216.81pt>
-File: graphs/speedup_dynamic16_loop2.pdf Graphic file (type pdf)
-
-<use graphs/speedup_dynamic16_loop2.pdf>
-Package pdftex.def Info: graphs/speedup_dynamic16_loop2.pdf used on input line 
-108.
-(pdftex.def)             Requested size: 390.0pt x 234.00243pt.
- [5 <./graphs/loop2_speeds.pdf>]
-[6 <./graphs/speedup_dynamic32_loop1.pdf> <./graphs/speedup_affinity_loop1.pdf
-
-pdfTeX warning: pdflatex (file ./graphs/speedup_affinity_loop1.pdf): PDF inclus
-ion: multiple pdfs with page group included in a single page
->] [7 <./graphs/speedup_dynamic8_loop2.pdf> <./graphs/speedup_dynamic16_loop2.p
-df
-
-pdfTeX warning: pdflatex (file ./graphs/speedup_dynamic16_loop2.pdf): PDF inclu
-sion: multiple pdfs with page group included in a single page
->] [8]
+<use graphs/speedup_loop2.pdf>
+Package pdftex.def Info: graphs/speedup_loop2.pdf used on input line 86.
+(pdftex.def)             Requested size: 418.25368pt x 250.9539pt.
+ [5 <./graphs/speedup_loop1.pdf>] [6 <./graphs/speedup_loop2.pdf>] [7] [8]
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <10.95> on input line 138.
+(Font)              <10.95> on input line 135.
  [9] [10]
-Overfull \hbox (85.47523pt too wide) in paragraph at lines 233--233
+*geometry* verbose mode - [ newgeometry ] result:
+* driver: pdftex
+* paper: a4paper
+* layout: <same size as paper>
+* layoutoffset:(h,v)=(0.0pt,0.0pt)
+* modes: 
+* h-part:(L,W,R)=(56.9055pt, 450.97528pt, 89.62709pt)
+* v-part:(T,H,B)=(101.40665pt, 591.5302pt, 152.11pt)
+* \paperwidth=597.50787pt
+* \paperheight=845.04684pt
+* \textwidth=450.97528pt
+* \textheight=591.5302pt
+* \oddsidemargin=-15.36449pt
+* \evensidemargin=-15.36449pt
+* \topmargin=-7.86334pt
+* \headheight=12.0pt
+* \headsep=25.0pt
+* \topskip=12.0pt
+* \footskip=30.0pt
+* \marginparwidth=35.0pt
+* \marginparsep=10.0pt
+* \columnsep=10.0pt
+* \skip\footins=10.8pt plus 4.0pt minus 2.0pt
+* \hoffset=0.0pt
+* \voffset=0.0pt
+* \mag=1000
+* \@twocolumnfalse
+* \@twosidefalse
+* \@mparswitchfalse
+* \@reversemarginfalse
+* (1in=72.27pt=25.4mm, 1cm=28.453pt)
+
+
+Overfull \hbox (24.49995pt too wide) in paragraph at lines 231--231
 []\OT1/cmtt/m/n/12 int get_work(int *remaining, int *end_index, int myid, int n
 threads, int *lo,[] 
  []
 
 
-Overfull \hbox (91.65024pt too wide) in paragraph at lines 233--233
+Overfull \hbox (30.67496pt too wide) in paragraph at lines 231--231
 []    \OT1/cmtt/m/n/12 chunk_size = (int)ceil((double)remaining[steal_index] / 
 (double)nthreads);[] 
  []
 
-[11] (./report.aux)
+[11
 
-LaTeX Warning: There were multiply-defined labels.
-
- ) 
+] (./report.aux) ) 
 Here is how much of TeX's memory you used:
- 2838 strings out of 495063
- 44756 string characters out of 3182201
- 107315 words of memory out of 3000000
- 6003 multiletter control sequences out of 15000+200000
- 10241 words of font info for 36 fonts, out of 3000000 for 9000
+ 3305 strings out of 495063
+ 51314 string characters out of 3182201
+ 119128 words of memory out of 3000000
+ 6462 multiletter control sequences out of 15000+200000
+ 10548 words of font info for 37 fonts, out of 3000000 for 9000
  14 hyphenation exceptions out of 8191
- 38i,7n,38p,877b,330s stack positions out of 5000i,500n,10000p,200000b,50000s
-</usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></us
-r/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/shar
-e/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/share/texl
-ive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texlive/tex
-mf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/share/texlive/texmf-dist
-/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/share/texlive/texmf-dist/fonts/
-type1/public/amsfonts/cm/cmti12.pfb></usr/share/texlive/texmf-dist/fonts/type1/
-public/amsfonts/cm/cmtt12.pfb>
-Output written on report.pdf (11 pages, 160601 bytes).
+ 38i,7n,38p,1229b,332s stack positions out of 5000i,500n,10000p,200000b,50000s
+</usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm
+/cmbx10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx1
+2.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb>
+</usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/s
+hare/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/share/te
+xlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/share/texlive/t
+exmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/share/texlive/texmf-dis
+t/fonts/type1/public/amsfonts/cm/cmti12.pfb></usr/share/texlive/texmf-dist/font
+s/type1/public/amsfonts/cm/cmtt12.pfb>
+Output written on report.pdf (11 pages, 159902 bytes).
 PDF statistics:
- 124 PDF objects out of 1000 (max. 8388607)
- 84 compressed objects within 1 object stream
+ 112 PDF objects out of 1000 (max. 8388607)
+ 77 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
- 31 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 21 words of extra memory for PDF output out of 10000 (max. 10000000)
 

@@ -18,24 +18,20 @@ plot "speed_affinity_loop2_graph" with lines lc rgb "blue" title "affinity", '' 
     "speed_dynamic16_loop2_graph" with lines lc rgb "green" title "dynamic, 16", '' lc rgb "green" notitle 
 
 
-set terminal pdf monochrome enhanced font "cmr10" dashed
+set terminal pdf enhanced font "cmr10" dashed
 set xlabel "Number of Threads"
 set ylabel "Speed Up (T_{1}/T_{p})"
 set xtics 2
 set yrange [0:16]
 
-set output "speedup_affinity_loop1.pdf"
-plot "speedup_affinity_loop1_graph" with linespoints notitle, x notitle with lines lt 7
+set output "speedup_loop1.pdf"
+plot "speedup_affinity_loop1_graph" with lines lt 1 lc rgb "blue" title "affinity", '' lc rgb "blue" notitle, \
+     x notitle with lines lt 7, \
+     "speedup_dynamic32_loop1_graph" with lines lt 1 lc rgb "red" title "dynamic, 32", '' lc rgb "red" notitle
 
-set output "speedup_dynamic32_loop1.pdf"
-plot "speedup_dynamic32_loop1_graph" with linespoints notitle, x notitle with lines lt 7
-
-set output "speedup_dynamic8_loop2.pdf"
-plot "speedup_dynamic8_loop2_graph" with linespoints notitle, x notitle with lines lt 7
-
-set output "speedup_dynamic16_loop2.pdf"
-plot "speedup_dynamic16_loop2_graph" with linespoints notitle, x notitle with lines lt 2 lc 7
-
-set output "speedup_affinity_loop2.pdf"
-plot "speedup_affinity_loop2_graph" with linespoints notitle, x notitle with lines lt 2 lc 7
+set output "speedup_loop2.pdf"
+plot "speedup_affinity_loop2_graph" with lines lt 1 lc rgb "blue" title "affinity", '' lc rgb "blue" notitle, \
+     "speedup_dynamic8_loop2_graph" with lines lt 1 lc rgb "red" title "dynamic, 8", '' lc rgb "red" notitle, \
+     x notitle with lines lt 7, \
+     "speedup_dynamic16_loop2_graph" with lines lt 1 lc rgb "green" title "dynamic, 16", '' lc rgb "green" notitle
 
