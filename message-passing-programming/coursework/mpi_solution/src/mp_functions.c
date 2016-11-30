@@ -75,12 +75,12 @@ int mp_get_west(MPI_Comm cart_comm, int my_rank)
   return west_rank;
 }
 
-int mp_scatter(MPI_Comm cart_comm, char* filename, float partial_image[MP][NP], int size, int rank)
+int mp_scatter(MPI_Comm cart_comm, char* filename, real_number partial_image[MP][NP], int size, int rank)
 {
 /* Master thread section */
   if (rank == 0)
   {
-    float masterbuf[M][N];
+    real_number masterbuf[M][N];
     printf("\nReading <%s>poo\n/", filename);
     pgmread(filename, &(masterbuf[0][0]), M, N);
     printf("\n");
@@ -108,29 +108,29 @@ int mp_scatter(MPI_Comm cart_comm, char* filename, float partial_image[MP][NP], 
       {
         // send to this process
         printf("sending to proc %i\n", proc);
-        MPI_Send(&partial_image[0], NP * MP, MPI_FLOAT, proc, 0,
+        MPI_Send(&partial_image[0], NP * MP, MPI_REALNUMBER, proc, 0,
                  cart_comm);
       }
     }
   }
   else
   {
-    MPI_Recv(&(partial_image[0][0]), NP * MP, MPI_FLOAT, 0, 0, cart_comm,
+    MPI_Recv(&(partial_image[0][0]), NP * MP, MPI_REALNUMBER, 0, 0, cart_comm,
              MPI_STATUS_IGNORE);
     printf("proc %i recieved partial image from master\n", rank);   
   }
  } 
 
-int mp_gather_and_write_png(MPI_Comm* cart_comm, char* filename, float partial_image[MP][NP], int size, int rank)
+int mp_gather_and_write_png(MPI_Comm* cart_comm, char* filename, real_number partial_image[MP][NP], int size, int rank)
 {
   //Send each local image back and form masterbuf!
   if (rank != 0)
   {
-    MPI_Send(&(partial_image[0][0]), MP * NP, MPI_FLOAT, 0, 0, *cart_comm);
+    MPI_Send(&(partial_image[0][0]), MP * NP, MPI_REALNUMBER, 0, 0, *cart_comm);
   }
   else
   {
-	float masterbuf[M][N];
+	real_number masterbuf[M][N];
     int i, j;
     int proc, proc_coord[2];
 
@@ -146,12 +146,12 @@ int mp_gather_and_write_png(MPI_Comm* cart_comm, char* filename, float partial_i
     }
 
     printf("writing image\n");
-    float receive_buf[MP*NP];
+    real_number receive_buf[MP*NP];
     for (proc = 0; proc < size; proc++)
     {
       if (proc != 0)
       { 
-        MPI_Recv(&(receive_buf[0]), MP * NP, MPI_FLOAT, proc, 0,
+        MPI_Recv(&(receive_buf[0]), MP * NP, MPI_REALNUMBER, proc, 0,
                  *cart_comm, MPI_STATUS_IGNORE);
       }
       MPI_Cart_coords(*cart_comm, proc, 2, proc_coord);
@@ -172,9 +172,9 @@ int mp_gather_and_write_png(MPI_Comm* cart_comm, char* filename, float partial_i
   }
 }
 
-/*float** return_masterbuf()
+/*real_number** return_masterbuf()
 {
-  float **masterbuf = (float**)arralloc(sizeof(float), 2, M, N);
+  real_number **masterbuf = (float**)arralloc(sizeof(float), 2, M, N);
   return masterbuf;
 } 
 */
@@ -186,12 +186,12 @@ int mp_get_coords(MPI_Comm* cart_comm, int rank, int* coord)
 }
 
 
-int mp_halo_swap(MPI_Comm cart_comm, float old[MP+2][NP+2], 
+int mp_halo_swap(MPI_Comm cart_comm, real_number old[MP+2][NP+2], 
                 int north, int south, int east, int west, int coords[2])
 {    
 
  
-    float recv_north_buf[NP], recv_south_buf[NP], send_north_buf[MP],
+    real_number recv_north_buf[NP], recv_south_buf[NP], send_north_buf[MP],
       send_south_buf[MP];
 
     int i,j;
@@ -204,44 +204,44 @@ int mp_halo_swap(MPI_Comm cart_comm, float old[MP+2][NP+2],
     // Send edge halos
     if (coords[1] % 2 == 0)
     {
-      MPI_Send(&old[1][1], NP, MPI_FLOAT, west, 0, cart_comm);
-      MPI_Recv(&old[0][1], NP, MPI_FLOAT, west, 0, cart_comm,
+      MPI_Send(&old[1][1], NP, MPI_REALNUMBER, west, 0, cart_comm);
+      MPI_Recv(&old[0][1], NP, MPI_REALNUMBER, west, 0, cart_comm,
                MPI_STATUS_IGNORE);
 
-      MPI_Send(&old[MP][1], NP, MPI_FLOAT, east, 0, cart_comm);
-      MPI_Recv(&old[MP + 1][1], NP, MPI_FLOAT, east, 0, cart_comm,
+      MPI_Send(&old[MP][1], NP, MPI_REALNUMBER, east, 0, cart_comm);
+      MPI_Recv(&old[MP + 1][1], NP, MPI_REALNUMBER, east, 0, cart_comm,
                MPI_STATUS_IGNORE);
     }
     else
     {
-      MPI_Recv(&old[MP + 1][1], NP, MPI_FLOAT, east, 0, cart_comm,
+      MPI_Recv(&old[MP + 1][1], NP, MPI_REALNUMBER, east, 0, cart_comm,
                MPI_STATUS_IGNORE);
-      MPI_Send(&old[MP][1], NP, MPI_FLOAT, east, 0, cart_comm);
+      MPI_Send(&old[MP][1], NP, MPI_REALNUMBER, east, 0, cart_comm);
 
-      MPI_Recv(&old[0][1], NP, MPI_FLOAT, west, 0, cart_comm,
+      MPI_Recv(&old[0][1], NP, MPI_REALNUMBER, west, 0, cart_comm,
                MPI_STATUS_IGNORE);
-      MPI_Send(&old[1][1], NP, MPI_FLOAT, west, 0, cart_comm);
+      MPI_Send(&old[1][1], NP, MPI_REALNUMBER, west, 0, cart_comm);
     }
 
     if (coords[0] % 2 == 0)
     {
-      MPI_Send(&send_north_buf[0], MP, MPI_FLOAT, north, 0, cart_comm);
-      MPI_Recv(&recv_north_buf[0], MP, MPI_FLOAT, north, 0, cart_comm,
+      MPI_Send(&send_north_buf[0], MP, MPI_REALNUMBER, north, 0, cart_comm);
+      MPI_Recv(&recv_north_buf[0], MP, MPI_REALNUMBER, north, 0, cart_comm,
                MPI_STATUS_IGNORE);
 
-      MPI_Send(&send_south_buf[0], MP, MPI_FLOAT, south, 0, cart_comm);
-      MPI_Recv(&recv_south_buf[0], MP, MPI_FLOAT, south, 0, cart_comm,
+      MPI_Send(&send_south_buf[0], MP, MPI_REALNUMBER, south, 0, cart_comm);
+      MPI_Recv(&recv_south_buf[0], MP, MPI_REALNUMBER, south, 0, cart_comm,
                MPI_STATUS_IGNORE);
     }
     else
     {
-      MPI_Recv(&recv_south_buf[0], MP, MPI_FLOAT, south, 0, cart_comm,
+      MPI_Recv(&recv_south_buf[0], MP, MPI_REALNUMBER, south, 0, cart_comm,
                MPI_STATUS_IGNORE);
-      MPI_Send(&send_south_buf[0], MP, MPI_FLOAT, south, 0, cart_comm);
+      MPI_Send(&send_south_buf[0], MP, MPI_REALNUMBER, south, 0, cart_comm);
 
-      MPI_Recv(&recv_north_buf[0], MP, MPI_FLOAT, north, 0, cart_comm,
+      MPI_Recv(&recv_north_buf[0], MP, MPI_REALNUMBER, north, 0, cart_comm,
                MPI_STATUS_IGNORE);
-      MPI_Send(&send_north_buf[0], MP, MPI_FLOAT, north, 0, cart_comm);
+      MPI_Send(&send_north_buf[0], MP, MPI_REALNUMBER, north, 0, cart_comm);
     }
 
     for (i = 0; i < MP; i++)

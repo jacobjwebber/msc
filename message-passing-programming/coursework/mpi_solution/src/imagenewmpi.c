@@ -14,7 +14,7 @@
 #include "definitions.h"
 #include "mp_functions.h"
 
-float boundaryval(int i, int m);
+real_number boundaryval(int i, int m);
 
 
 int main(int argc, char **argv)
@@ -23,7 +23,7 @@ int main(int argc, char **argv)
   
   int i, j, iter, maxiter;
   char *filename;
-  float val;
+  real_number val;
 
   int rank, size;
   int north, south, east, west;
@@ -40,7 +40,7 @@ int main(int argc, char **argv)
   
   if (rank == 0)
       printf("message passing initialised\n");
-  float old[MP+2][NP+2], new[MP+2][NP+2], edge[MP+2][NP+2],
+  real_number old[MP+2][NP+2], new[MP+2][NP+2], edge[MP+2][NP+2],
         partial_image[MP][NP];
 
   north = mp_get_north(cart_comm, rank);
@@ -142,11 +142,11 @@ int main(int argc, char **argv)
   MPI_Finalize();
 }
 
-float boundaryval(int i, int m)
+real_number boundaryval(int i, int m)
 {
-  float val;
+  real_number val;
 
-  val = 2.0 * ((float)(i - 1)) / ((float)(m - 1));
+  val = 2.0 * ((real_number)(i - 1)) / ((real_number)(m - 1));
   if (i >= m / 2 + 1)
     val = 2.0 - val;
 
