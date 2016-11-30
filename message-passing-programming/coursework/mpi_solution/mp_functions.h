@@ -1,10 +1,9 @@
 /*Functions for message passing*/
 #include <mpi.h>
 
-//float** return_masterbuf();
 int mp_get_coords(MPI_Comm* cart_comm, int rank, int* coord);
-int mp_gather_and_write_png(float partial_image[MP][NP], MPI_Comm* cart_comm, char* filename, int rank, int size);
-int mp_scatter(MPI_Comm cart_comm, char* filename, int size,int rank, float partial_image[MP][NP]);
+int mp_gather_and_write_png(MPI_Comm* cart_comm, char* filename, float partial_image[MP][NP], int size, int rank);
+int mp_scatter(MPI_Comm cart_comm, char* filename, float partial_image[MP][NP], int size, int rank);
 int mp_get_west(MPI_Comm cart_comm, int my_rank);
 int mp_get_east(MPI_Comm cart_comm, int my_rank);
 int mp_get_south(MPI_Comm cart_comm, int my_rank);

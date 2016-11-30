@@ -75,7 +75,7 @@ int mp_get_west(MPI_Comm cart_comm, int my_rank)
   return west_rank;
 }
 
-int mp_scatter(MPI_Comm cart_comm, char* filename, int size, int rank, float partial_image[MP][NP])
+int mp_scatter(MPI_Comm cart_comm, char* filename, float partial_image[MP][NP], int size, int rank)
 {
 /* Master thread section */
   if (rank == 0)
@@ -90,7 +90,7 @@ int mp_scatter(MPI_Comm cart_comm, char* filename, int size, int rank, float par
     printf("\n");
     masterbuf[M][N] = 8.0;
     printf("yeah");
-    pgmwrite("outputs/intput.pgm", masterbuf, M, N);
+    pgmwrite("outputs/input_unmodified.pgm", masterbuf, M, N);
  
     /*Distribute bits of the image to different procs*/
     int proc, proc_coord[2];
@@ -126,7 +126,7 @@ int mp_scatter(MPI_Comm cart_comm, char* filename, int size, int rank, float par
 
 } 
 
-int mp_gather_and_write_png(float partial_image[MP][NP], MPI_Comm* cart_comm, char* filename, int rank, int size)
+int mp_gather_and_write_png(MPI_Comm* cart_comm, char* filename, float partial_image[MP][NP], int size, int rank)
 {
   //Send each local image back and form masterbuf!
   if (rank != 0)

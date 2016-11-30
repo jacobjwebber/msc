@@ -12,4 +12,5 @@
 #define DIMX 2 
 #define DIMY 2
 
-
+typedef float real_number;
+#define MPI_REALNUMBER MPI_FLOAT

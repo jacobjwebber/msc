@@ -43,18 +43,6 @@ int main(int argc, char **argv)
   float old[MP+2][NP+2], new[MP+2][NP+2], edge[MP+2][NP+2],
         partial_image[MP][NP];
 
-/*  
-  float **old = (float**)arralloc(sizeof(float), 2, MP+2, NP+2);
-  float **new = (float**)arralloc(sizeof(float), 2, MP+2, NP+2);
-  float **edge = (float**)arralloc(sizeof(float), 2, MP+2, NP+2);
-  float **partial_image = (float**)arralloc(sizeof(float), 2, MP, NP);
- 
-  float **masterbuf;
-  if (rank==0)
-  {
-    masterbuf = return_masterbuf(); 
-  }
-*/
   north = mp_get_north(cart_comm, rank);
   south = mp_get_south(cart_comm, rank);
   east = mp_get_east(cart_comm, rank);
@@ -67,10 +55,10 @@ int main(int argc, char **argv)
       "I am rank %i, coords [%i,%i] north is %i, south %i, west %i, east %i\n",
       rank, coords[0], coords[1], north, south, west, east);
 
-  mp_scatter(cart_comm, "edgenew768x768.pgm", size,rank, partial_image);
+  mp_scatter(cart_comm, "edgenew768x768.pgm", partial_image, size, rank);
  
 
-  mp_gather_and_write_png(partial_image, &cart_comm, "outputs/input.pgm", rank, size);
+  mp_gather_and_write_png(&cart_comm, "outputs/input.pgm", partial_image, size, rank);
 
 
   //set old to be white
@@ -140,8 +128,9 @@ int main(int argc, char **argv)
       partial_image[i - 1][j - 1] = old[i][j];
     }
   }
-  mp_gather_and_write_png(partial_image, &cart_comm, "output.pgm", rank, size);
 
+  mp_gather_and_write_png(&cart_comm, "outputs/output.pgm", partial_image, size, rank);
+  
   MPI_Finalize();
 }
 
