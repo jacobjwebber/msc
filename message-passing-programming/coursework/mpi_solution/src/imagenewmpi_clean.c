@@ -64,8 +64,18 @@ int main(int argc, char **argv)
   }
 
   filename = "../inputs/edgenew768x768.pgm";
+
+  for (i = 0; i < MP + 2; i++)
+  {
+    for (j = 0; j < NP + 2; j++)
+    {
+      edge[i][j] = rank;
+    }
+  }
   mp_scatter(cart_comm, filename, partial_image, size, rank);
-  
+  if (rank == 1)
+    pgmwrite("../outputs/outputs_partial1.pgm", partial_image, MP, NP);
+
   mp_gather_and_write_png(cart_comm, "../outputs/input.pgm", partial_image,
                           size, rank);
 
@@ -88,15 +98,6 @@ int main(int argc, char **argv)
     }
   }
 
-  /*for (i = 0; i < MP + 2; i++)
-  {
-    for (j = 0; j < NP + 2; j++)
-    {
-      old[i][j] = rank;
-    }
-  }*/
-
-
   // Set fixed boundary conditions on the left and right sides
   for (j = 1; j < NP + 1; j++)
   {
@@ -118,7 +119,7 @@ int main(int argc, char **argv)
       printf("Iteration %d\n", iter);
     }
 
-    mp_halo_swap(cart_comm, old, north, south, east, west, coords);
+    // mp_halo_swap(cart_comm, old, north, south, east, west, coords);
 
     for (i = 1; i < MP + 1; i++)
     {
@@ -128,6 +129,7 @@ int main(int argc, char **argv)
                             old[i][j + 1] - edge[i][j]);
       }
     }
+
     // memory copy
     for (i = 1; i < MP + 1; i++)
     {
@@ -136,13 +138,11 @@ int main(int argc, char **argv)
         old[i][j] = new[i][j];
       }
     }
-
   } // END MAIN LOOP
 
-  if (rank ==0)
-  {
-    print_array(old,rank);
-  }
+  //  if (rank ==0)
+  //    print_array(old,rank);
+
   printf("\nProc %i Finished %d iterations\n", rank, iter - 1);
 
   // write to output local buffer
@@ -154,8 +154,16 @@ int main(int argc, char **argv)
     }
   }
 
+  if (rank == 0)
+  {
+    pgmwrite("../outputs/lalala.pgm", partial_image, MP, NP);
+  }
+
+  printf("partial image [00,00]from proc %i = %f \n", partial_image[0][0],
+         rank);
   mp_gather_and_write_png(cart_comm, "../outputs/output.pgm", partial_image,
                           size, rank);
+
   MPI_Finalize();
 }
 

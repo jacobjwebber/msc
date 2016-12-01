@@ -32,7 +32,7 @@ int mp_init(int *rank, int *size, MPI_Comm *cart_comm, int argc, char **argv)
     ndims = 2;
     dim_size[0] = DIMX; // replace with MPI_create_dims if poss
     dim_size[1] = DIMY;
-    periods[0] = 0;
+    periods[0] = 1;
     periods[1] = 0;
     reorder = 1;
 
@@ -49,28 +49,28 @@ int mp_init(int *rank, int *size, MPI_Comm *cart_comm, int argc, char **argv)
 int mp_get_north(MPI_Comm cart_comm, int my_rank)
 {
   int north_rank;
-  MPI_Cart_shift(cart_comm, 0, 1, &my_rank, &north_rank);
+  MPI_Cart_shift(cart_comm, 0, -1, &my_rank, &north_rank);
   return north_rank;
 }
 
 int mp_get_south(MPI_Comm cart_comm, int my_rank)
 {
   int south_rank;
-  MPI_Cart_shift(cart_comm, 0, -1, &my_rank, &south_rank);
+  MPI_Cart_shift(cart_comm, 0, 1, &my_rank, &south_rank);
   return south_rank;
 }
 
 int mp_get_east(MPI_Comm cart_comm, int my_rank)
 {
   int east_rank;
-  MPI_Cart_shift(cart_comm, 1, 1, &my_rank, &east_rank);
+  MPI_Cart_shift(cart_comm, 1, -1, &my_rank, &east_rank);
   return east_rank;
 }
 
 int mp_get_west(MPI_Comm cart_comm, int my_rank)
 {
   int west_rank;
-  MPI_Cart_shift(cart_comm, 1, -1, &my_rank, &west_rank);
+  MPI_Cart_shift(cart_comm, 1, 1, &my_rank, &west_rank);
   return west_rank;
 }
 
@@ -131,26 +131,38 @@ int mp_gather_and_write_png(MPI_Comm cart_comm, char* filename, real_number part
    else
    {
     printf("MP GATHER AND WRITE \n\n");
-    real_number masterbuf[M][N];
+    real_number masterbuf[M][N], recv_buf[MP][NP];
+
+
     int proc, proc_coord[2];
     
-    for (proc = 0; proc < size; proc++)
+    MPI_Cart_coords(cart_comm, 0, 2, proc_coord);
+    int i, j;
+    for (i = 0; i < MP; i++)
+    {
+      for (j = 0; j < NP; j++)
+      {
+         masterbuf[(proc_coord[0] * MP) + i]
+                  [(proc_coord[1] * NP) + (j )] = partial_image[i][j]; 
+      }
+    }
+    
+    for (proc = 1; proc < size; proc++)
     {
       printf("Receiving from:  %i\n", proc);
       if (proc != 0)
       {
-        MPI_Recv(&(partial_image[0][0]), NP * MP, MPI_REALNUMBER, proc, 0, cart_comm,
+        MPI_Recv(&(recv_buf[0][0]), NP * MP, MPI_REALNUMBER, proc, 0, cart_comm,
                  MPI_STATUS_IGNORE);
       }
       
       MPI_Cart_coords(cart_comm, proc, 2, proc_coord);
-      int i, j;
       for (i = 0; i < MP; i++)
       {
         for (j = 0; j < NP; j++)
         {
            masterbuf[(proc_coord[0] * MP) + i]
-                    [(proc_coord[1] * NP) + (j )] = partial_image[i][j]; 
+                    [(proc_coord[1] * NP) + (j )] = recv_buf[i][j]; 
         }
       }
     }
@@ -170,63 +182,65 @@ int mp_halo_swap(MPI_Comm cart_comm, real_number old[MP+2][NP+2],
                 int north, int south, int east, int west, int coords[2])
 {    
     
-    real_number recv_north_buf[NP], recv_south_buf[NP], send_north_buf[MP],
-      send_south_buf[MP];
-
+    real_number recv_east_buf[NP], recv_west_buf[NP], send_east_buf[MP],
+      send_west_buf[MP];
+    
     int i,j;
     for (i = 0; i < MP; i++)
     {
-      send_north_buf[i] = old[i + 1][1];
-      send_south_buf[i] = old[i + 1][NP];
+      recv_east_buf[i] = 0;
+      recv_west_buf[i] = 0;
+      send_east_buf[i] = old[i + 1][1];
+      send_west_buf[i] = old[i + 1][NP];
     }
  
     // Send edge halos
-    if (coords[1] % 2 == 0)
-    {
-      MPI_Send(&old[1][1], NP, MPI_REALNUMBER, west, 0, cart_comm);
-      MPI_Recv(&old[0][1], NP, MPI_REALNUMBER, west, 0, cart_comm,
-               MPI_STATUS_IGNORE);
-
-      MPI_Send(&old[MP][1], NP, MPI_REALNUMBER, east, 0, cart_comm);
-      MPI_Recv(&old[MP + 1][1], NP, MPI_REALNUMBER, east, 0, cart_comm,
-               MPI_STATUS_IGNORE);
-    }
-    else
-    {
-      MPI_Recv(&old[MP + 1][1], NP, MPI_REALNUMBER, east, 0, cart_comm,
-               MPI_STATUS_IGNORE);
-      MPI_Send(&old[MP][1], NP, MPI_REALNUMBER, east, 0, cart_comm);
-
-      MPI_Recv(&old[0][1], NP, MPI_REALNUMBER, west, 0, cart_comm,
-               MPI_STATUS_IGNORE);
-      MPI_Send(&old[1][1], NP, MPI_REALNUMBER, west, 0, cart_comm);
-    }
-
     if (coords[0] % 2 == 0)
     {
-      MPI_Send(&send_north_buf[0], MP, MPI_REALNUMBER, north, 0, cart_comm);
-      MPI_Recv(&recv_north_buf[0], MP, MPI_REALNUMBER, north, 0, cart_comm,
+      MPI_Send(&old[1][1], NP, MPI_REALNUMBER, south, 0, cart_comm);
+      MPI_Recv(&old[MP+1][1], NP, MPI_REALNUMBER, south, 0, cart_comm,
                MPI_STATUS_IGNORE);
 
-      MPI_Send(&send_south_buf[0], MP, MPI_REALNUMBER, south, 0, cart_comm);
-      MPI_Recv(&recv_south_buf[0], MP, MPI_REALNUMBER, south, 0, cart_comm,
+      MPI_Send(&old[MP][1], NP, MPI_REALNUMBER, north, 0, cart_comm);
+      MPI_Recv(&old[0][1], NP, MPI_REALNUMBER, north, 0, cart_comm,
                MPI_STATUS_IGNORE);
     }
     else
     {
-      MPI_Recv(&recv_south_buf[0], MP, MPI_REALNUMBER, south, 0, cart_comm,
+      MPI_Recv(&old[MP + 1][1], NP, MPI_REALNUMBER, north, 0, cart_comm,
                MPI_STATUS_IGNORE);
-      MPI_Send(&send_south_buf[0], MP, MPI_REALNUMBER, south, 0, cart_comm);
+      MPI_Send(&old[MP][1], NP, MPI_REALNUMBER, north, 0, cart_comm);
 
-      MPI_Recv(&recv_north_buf[0], MP, MPI_REALNUMBER, north, 0, cart_comm,
+      MPI_Recv(&old[0][1], NP, MPI_REALNUMBER, south, 0, cart_comm,
                MPI_STATUS_IGNORE);
-      MPI_Send(&send_north_buf[0], MP, MPI_REALNUMBER, north, 0, cart_comm);
+      MPI_Send(&old[1][1], NP, MPI_REALNUMBER, south, 0, cart_comm);
+    }
+    if (coords[1] % 2 == 0)
+    {
+      MPI_Send(&(send_east_buf[0]), MP, MPI_REALNUMBER, east, 0, cart_comm);
+      MPI_Recv(&(recv_east_buf[0]), MP, MPI_REALNUMBER, east, 0, cart_comm,
+               MPI_STATUS_IGNORE);
+
+      MPI_Send(&(send_west_buf[0]), MP, MPI_REALNUMBER, west, 0, cart_comm);
+      MPI_Recv(&(recv_west_buf[0]), MP, MPI_REALNUMBER, west, 0, cart_comm,
+               MPI_STATUS_IGNORE);
+    }
+    else
+    {
+      MPI_Recv(&(recv_west_buf[0]), MP, MPI_REALNUMBER, west, 0, cart_comm,
+               MPI_STATUS_IGNORE);
+      MPI_Send(&(send_west_buf[0]), MP, MPI_REALNUMBER, west, 0, cart_comm);
+
+      MPI_Recv(&(recv_west_buf[0]), MP, MPI_REALNUMBER, east, 0, cart_comm,
+               MPI_STATUS_IGNORE);
+      MPI_Send(&(send_west_buf[0]), MP, MPI_REALNUMBER, east, 0, cart_comm);
     }
 
     for (i = 0; i < MP; i++)
     {
-      old[i + 1][NP + 1] = recv_south_buf[i];
-      old[i + 1][1] = recv_north_buf[i];
+      old[i + 1][NP + 1] = recv_west_buf[i];
+      old[i + 1][0] = recv_east_buf[i];
     }
+    
     return 0;
 } 
