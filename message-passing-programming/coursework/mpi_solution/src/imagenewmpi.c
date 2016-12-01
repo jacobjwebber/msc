@@ -62,13 +62,13 @@ int main(int argc, char **argv)
     printf("Processing %d x %d image\n", M, N);
     printf("Number of iterations = %d\n", MAXITER);
   }
-
+/*
   filename = "../inputs/edgenew768x768.pgm";
   mp_scatter(cart_comm, filename, partial_image, size, rank);
   
   mp_gather_and_write_png(cart_comm, "../outputs/input.pgm", partial_image,
                           size, rank);
-
+*/
   // set edge to be partial image with halos.
   for (i = 1; i < MP + 1; i++)
   {
@@ -87,16 +87,6 @@ int main(int argc, char **argv)
       old[i][j] = 255.0;
     }
   }
-
-  /*for (i = 0; i < MP + 2; i++)
-  {
-    for (j = 0; j < NP + 2; j++)
-    {
-      old[i][j] = rank;
-    }
-  }*/
-
-
   // Set fixed boundary conditions on the left and right sides
   for (j = 1; j < NP + 1; j++)
   {
@@ -110,6 +100,17 @@ int main(int argc, char **argv)
 
   // pgmwrite("../outputs/old.pgm", old, MP+2, NP+2);
 
+//  /*
+  for (i = 0; i < MP + 2; i++)
+  {
+    for (j = 0; j < NP + 2; j++)
+    {
+      old[i][j] = 1000*rank + 10*j + i ;
+    }
+  }
+//  */
+
+
   // MAIN LOOP
   for (iter = 1; iter <= MAXITER; iter++)
   {
@@ -120,6 +121,7 @@ int main(int argc, char **argv)
 
     mp_halo_swap(cart_comm, old, north, south, east, west, coords);
 
+/*
     for (i = 1; i < MP + 1; i++)
     {
       for (j = 1; j < NP + 1; j++)
@@ -136,13 +138,17 @@ int main(int argc, char **argv)
         old[i][j] = new[i][j];
       }
     }
-
+*/
   } // END MAIN LOOP
 
+///*
   if (rank ==0)
   {
     print_array(old,rank);
   }
+//*/
+
+
   printf("\nProc %i Finished %d iterations\n", rank, iter - 1);
 
   // write to output local buffer
@@ -154,8 +160,10 @@ int main(int argc, char **argv)
     }
   }
 
+/*
   mp_gather_and_write_png(cart_comm, "../outputs/output.pgm", partial_image,
                           size, rank);
+*/  
   MPI_Finalize();
 }
 

@@ -49,28 +49,28 @@ int mp_init(int *rank, int *size, MPI_Comm *cart_comm, int argc, char **argv)
 int mp_get_north(MPI_Comm cart_comm, int my_rank)
 {
   int north_rank;
-  MPI_Cart_shift(cart_comm, 0, -1, &my_rank, &north_rank);
+  MPI_Cart_shift(cart_comm, 0, 1, &my_rank, &north_rank);
   return north_rank;
 }
 
 int mp_get_south(MPI_Comm cart_comm, int my_rank)
 {
   int south_rank;
-  MPI_Cart_shift(cart_comm, 0, 1, &my_rank, &south_rank);
+  MPI_Cart_shift(cart_comm, 0, -1, &my_rank, &south_rank);
   return south_rank;
 }
 
 int mp_get_east(MPI_Comm cart_comm, int my_rank)
 {
   int east_rank;
-  MPI_Cart_shift(cart_comm, 1, -1, &my_rank, &east_rank);
+  MPI_Cart_shift(cart_comm, 1, 1, &my_rank, &east_rank);
   return east_rank;
 }
 
 int mp_get_west(MPI_Comm cart_comm, int my_rank)
 {
   int west_rank;
-  MPI_Cart_shift(cart_comm, 1, 1, &my_rank, &west_rank);
+  MPI_Cart_shift(cart_comm, 1, -1, &my_rank, &west_rank);
   return west_rank;
 }
 
@@ -188,59 +188,77 @@ int mp_halo_swap(MPI_Comm cart_comm, real_number old[MP+2][NP+2],
     int i,j;
     for (i = 0; i < MP; i++)
     {
-      recv_east_buf[i] = 0;
-      recv_west_buf[i] = 0;
+      recv_east_buf[i] = old[i + 1][1];
+      recv_west_buf[i] = old;
       send_east_buf[i] = old[i + 1][1];
       send_west_buf[i] = old[i + 1][NP];
     }
  
     // Send edge halos
-    if (coords[0] % 2 == 0)
-    {
-      MPI_Send(&old[1][1], NP, MPI_REALNUMBER, south, 0, cart_comm);
-      MPI_Recv(&old[MP+1][1], NP, MPI_REALNUMBER, south, 0, cart_comm,
-               MPI_STATUS_IGNORE);
 
-      MPI_Send(&old[MP][1], NP, MPI_REALNUMBER, north, 0, cart_comm);
-      MPI_Recv(&old[0][1], NP, MPI_REALNUMBER, north, 0, cart_comm,
-               MPI_STATUS_IGNORE);
+    //up-down
+    if (DIMY == DIMY)
+    {
+        if (coords[0] % 2 == 0)
+        {
+            MPI_Send(&old[MP][1], NP, MPI_REALNUMBER, east, 0, cart_comm);
+            MPI_Recv(&old[MP + 1][1], NP, MPI_REALNUMBER, east, 0, cart_comm,
+                    MPI_STATUS_IGNORE);
+
+            MPI_Send(&old[1][1], NP, MPI_REALNUMBER, west, 0, cart_comm);
+            MPI_Recv(&old[0][1], NP, MPI_REALNUMBER, west, 0, cart_comm,
+                    MPI_STATUS_IGNORE);
+        }
+        else
+        {
+            MPI_Recv(&old[MP + 1][1], NP, MPI_REALNUMBER, west, 0, cart_comm,
+                    MPI_STATUS_IGNORE);
+            MPI_Send(&old[MP][1], NP, MPI_REALNUMBER, west, 0, cart_comm);
+
+            MPI_Recv(&old[0][1], NP, MPI_REALNUMBER, east, 0, cart_comm,
+                    MPI_STATUS_IGNORE);
+            MPI_Send(&old[1][1], NP, MPI_REALNUMBER, east, 0, cart_comm);
+        }
+    }
+    //left-right
+    if (north == south)
+    {
+      for (i=1; i < M+1; i++)
+      {
+        old[i][0]   = old[i][N];
+        old[i][N+1] = old[i][1];
+      }
     }
     else
     {
-      MPI_Recv(&old[MP + 1][1], NP, MPI_REALNUMBER, north, 0, cart_comm,
-               MPI_STATUS_IGNORE);
-      MPI_Send(&old[MP][1], NP, MPI_REALNUMBER, north, 0, cart_comm);
 
-      MPI_Recv(&old[0][1], NP, MPI_REALNUMBER, south, 0, cart_comm,
-               MPI_STATUS_IGNORE);
-      MPI_Send(&old[1][1], NP, MPI_REALNUMBER, south, 0, cart_comm);
-    }
-    if (coords[1] % 2 == 0)
-    {
-      MPI_Send(&(send_east_buf[0]), MP, MPI_REALNUMBER, east, 0, cart_comm);
-      MPI_Recv(&(recv_east_buf[0]), MP, MPI_REALNUMBER, east, 0, cart_comm,
-               MPI_STATUS_IGNORE);
+        if (coords[1] % 2 == 0)
+        {
+            MPI_Send(&(send_east_buf[0]), MP, MPI_REALNUMBER, east, 0, cart_comm);
+            MPI_Recv(&(recv_east_buf[0]), MP, MPI_REALNUMBER, east, 0, cart_comm,
+                     MPI_STATUS_IGNORE);
 
-      MPI_Send(&(send_west_buf[0]), MP, MPI_REALNUMBER, west, 0, cart_comm);
-      MPI_Recv(&(recv_west_buf[0]), MP, MPI_REALNUMBER, west, 0, cart_comm,
-               MPI_STATUS_IGNORE);
-    }
-    else
-    {
-      MPI_Recv(&(recv_west_buf[0]), MP, MPI_REALNUMBER, west, 0, cart_comm,
-               MPI_STATUS_IGNORE);
-      MPI_Send(&(send_west_buf[0]), MP, MPI_REALNUMBER, west, 0, cart_comm);
+            MPI_Send(&(send_west_buf[0]), MP, MPI_REALNUMBER, west, 0, cart_comm);
+            MPI_Recv(&(recv_west_buf[0]), MP, MPI_REALNUMBER, west, 0, cart_comm,
+                     MPI_STATUS_IGNORE);
+        }
+        else
+        {
+            MPI_Recv(&(recv_west_buf[0]), MP, MPI_REALNUMBER, west, 0, cart_comm,
+                    MPI_STATUS_IGNORE);
+            MPI_Send(&(send_west_buf[0]), MP, MPI_REALNUMBER, west, 0, cart_comm);
 
-      MPI_Recv(&(recv_west_buf[0]), MP, MPI_REALNUMBER, east, 0, cart_comm,
-               MPI_STATUS_IGNORE);
-      MPI_Send(&(send_west_buf[0]), MP, MPI_REALNUMBER, east, 0, cart_comm);
-    }
-
-    for (i = 0; i < MP; i++)
-    {
-      old[i + 1][NP + 1] = recv_west_buf[i];
-      old[i + 1][0] = recv_east_buf[i];
-    }
+            MPI_Recv(&(recv_west_buf[0]), MP, MPI_REALNUMBER, east, 0, cart_comm,
+                    MPI_STATUS_IGNORE);
+            
+            MPI_Send(&(send_west_buf[0]), MP, MPI_REALNUMBER, east, 0, cart_comm);
+        }
     
+        for (i = 0; i < MP; i++)
+        {
+            old[i + 1][NP + 1] = recv_west_buf[i];
+            old[i + 1][0] = recv_east_buf[i];
+        }
+    }
     return 0;
 } 

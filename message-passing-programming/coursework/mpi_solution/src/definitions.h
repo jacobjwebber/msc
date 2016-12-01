@@ -1,16 +1,16 @@
 
-#define M 768
-#define N 768
+//#define M 768
+//#define N 768
 
-//#define M 18
-//#define N 18
+#define M 10
+#define N 10
 
-#define MAXITER 10
+#define MAXITER 1
 #define PRINTFREQ 200
 
 
-#define DIMX 3
-#define DIMY 3
+#define DIMX 1
+#define DIMY 1
 
 #define P DIMX*DIMY 
 #define MP M / DIMX 
