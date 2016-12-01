@@ -2,7 +2,7 @@
 #include <mpi.h>
 
 int mp_get_coords(MPI_Comm* cart_comm, int rank, int* coord);
-int mp_gather_and_write_png(MPI_Comm* cart_comm, char* filename, real_number partial_image[MP][NP], int size, int rank);
+int mp_gather_and_write_png(MPI_Comm cart_comm, char* filename, real_number partial_image[MP][NP], int size, int rank);
 int mp_scatter(MPI_Comm cart_comm, char* filename, real_number partial_image[MP][NP], int size, int rank);
 int mp_get_west(MPI_Comm cart_comm, int my_rank);
 int mp_get_east(MPI_Comm cart_comm, int my_rank);

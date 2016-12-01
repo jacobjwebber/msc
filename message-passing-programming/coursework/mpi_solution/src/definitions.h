@@ -2,7 +2,7 @@
 #define M 768
 #define N 768
 
-#define MAXITER 1500
+#define MAXITER 100
 #define PRINTFREQ 200
 
 #define P 4 
