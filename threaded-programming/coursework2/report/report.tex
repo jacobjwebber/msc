@@ -108,7 +108,7 @@ Loop 2 shows some more interesting differences between scalability of the two st
 
 For the affinity scheduling the initial block size can be thought of as proportional to $1/p^2$, where $p$ is the total number of threads. This is because each thread starts off with a local set of $s=1/p$ iterations, before iterating through a block of $s/p$. This explains the affinity schedule's relatively poor performance where $p$ is smaller, as this corresponds to a large effective block size. The total number of iterations executed was $T=729$. Therefore, if the execution time of the slowest block were a completely dominating factor, we would expect the performance of the affinity schedule to eclipse that of \verb|dynamic, 16| where $T/p^2 = 16$, or $p = 6.75$ and that of \verb|dynamic, 8| where $T/p^2 = 16$, or $p = 9.5$. Interpolating from figure \ref{loop2scheds} we can see these calculated figures are broadly correct. The fact that it is more like $p=11$ before the performance of affinity and \verb|dynamic, 16| could be explained by the greater deal of synchronisation required for the affinity schedule. This is because the blocks become smaller as the process goes on, meaning more time is spent fetching work - requiring threads to enter or wait to enter a critical region. 
 
-\section{conclusion}
+\section{Conclusion}
 In conclusion we see that affinity scheduling is a broadly effective strategy. For at least some values of $p$ this schedule matched or bettered the performance of the best option from the OpenMP standard. This is no small feat considering the OpenMP implementation used has the full weight of the mighty Intel Corporation behind it, and the schedules themselves may or may not have been implemented using a lower level, faster framework than OpenMP itself. This suggests that the implementation of this schedule by the author was of high quality.
 
 However, there were no demonstrable speed ups shown to be from cache coherency effects, which is one of the justifications for this technique. Indeed, it seems likely that in the loop 2 case that affinity scheduling only provided higher horizontal scalability because of a lower effective block size. It is therefore likely that similar or better performance could be achieved where $p$ is larger simply by using the dynamic schedule with a smaller block size. This would be a worthwhile future experiment, but goes beyond the scope of this report.
@@ -175,13 +175,13 @@ dynamic,16 & 6 & 2.10 & 0.01\\
 dynamic,16 & 8 & 2.10 & 0.01\\
 dynamic,16 & 12 & 2.15 & 0.09\\
 dynamic,16 & 16 & 2.12 & 0.04 \\ 
-affinity & 1 & 1.65 & 0.00 \\
-affinity & 2 & 0.83 & 0.00 \\
-affinity & 4 & 0.46 & 0.01 \\
-affinity & 6 & 0.32 & 0.03 \\
-affinity & 8 & 0.24 & 0.01 \\
-affinity & 12 & 0.19 & 0.01 \\
-affinity & 16 & 0.18 & 0.01 \\ \hline
+affinity & 1 & 9.65 & 0.00 \\
+affinity & 2 & 5.03 & 0.00 \\
+affinity & 4 & 2.46 & 0.01 \\
+affinity & 6 & 1.82 & 0.03 \\
+affinity & 8 & 1.24 & 0.01 \\
+affinity & 12 & 1.09 & 0.01 \\
+affinity & 16 & 1.01 & 0.01 \\ \hline
 \end{tabular}
 \end{table}
 

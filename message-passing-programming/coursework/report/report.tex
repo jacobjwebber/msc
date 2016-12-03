@@ -10,6 +10,7 @@
 \usepackage{subcaption}
 \usepackage[toc,page]{appendix}
 \usepackage{geometry}
+\usepackage{verbatim}
 
 \begin{document}
 
@@ -19,7 +20,7 @@
 \maketitle
 
 \section{Introduction}
-This report details the implementation and performance of a parallel message passing code. This code performs an iterative inverse edge detection algorithm using a 2d Von Neumann stencil. For this allgorithm the result of each output pixel depends on that of its neighbours in the input image. This made parallelising the code non-trivial, as it required boundary swaps to occur before each iteration. This was further complicated in this case by the selection of a two dimensional domain decomposition.
+This report details the implementation and performance of a parallel message passing code. This code performs an iterative inverse edge detection algorithm using a 2d Von Neumann stencil. For this algorithm the result of each output pixel depends on that of its neighbours in the input image. This made parallelising the code non-trivial, as it required boundary swaps to occur before each iteration. This was further complicated in this case by the selection of a two dimensional domain decomposition.
 
 This report presents both a detailed description of the algorithm and its implementation, then shows the performance achieved with the resulting code before concluding.
 
@@ -41,16 +42,17 @@ After this the old and new arrays are swapped in memory and the process is repea
 \subsubsection{Boundary Conditions}
 \label{boundary_conditions}
 
-The resulting value of $new_{i,j}$ in each case depends on its surrounding values int the $old$ array. This presents an interesting problem as to what to do in the edge cases, where surrounding values do not completely exist.
+The resulting value of $new_{i,j}$ in each case depends on its surrounding values in the $old$ array. This presents an interesting problem as to what to do in the edge cases, where surrounding values do not completely exist.
 
 In the vertical case, where the calculation required values that were above or below the existing $old$ array, cyclical boundary conditions were used. This means that when the calculation required values one line below the $old$ image, it instead used those from the top line of the $old$ image and vice versa.
 
 In the horizontal case, "sawtooth" boundary conditions were used, where values forming a smooth gradient ranging between 0 and 255 where used on both sides of the image. Detailed discussion of this boundary condition goes beyond the scope of this report. 
 
 \subsubsection{Parallelisation}
+\label{parallelisation}
 The code was parallelised using a two dimensional domain decomposition. This means that the initial 2d array containing our edge image was split into $N_x$ sections in the $x$ direction and $N_y$ sections in the $y$ direction, where $N_x \cdot N_y = P$, and $P$ is the total number of processes. 
 
-For the same reasons as discussed in \ref{boundary_conditions} the case of what to do at the edge of the image provides problems in parallelisation. To find the values required that are outside the range of each processes local array boundary swaps must occur. The neighboring boundaries to each process's local image are appended to that image to form a halo. This boundary swap was repeated before each iteration. Full details of how this was implemented are discussed in \ref{implementaion}.
+For the same reasons as discussed in \ref{boundary_conditions} the case of what to do at the edge of the image provides problems in parallelisation. To find the values required that are outside the range of each processes local array boundary swaps must occur. The neighbouring boundaries to each process's local image are appended to that image to form a halo, as shown in figure \ref{halos}. This boundary swap was repeated before each iteration. Full details of how this was implemented are discussed in \ref{implementaion}.
 
 This means that once these halos are included, each process must perform the iterative process on an array of size $(N_x +2)\cdot(N_y+2)$.
 
@@ -70,163 +72,78 @@ Nevertheless, this process is relatively computationally expensive. To prevent t
 \subsection{Implementation}
 \label{implementaion}
 
-The algorithm described above was implemented in parallel using MPI. 
-%\begin{figure}
-%\centering
-%\includegraphics[width=1\textwidth]{"graphs/loop1_speeds"}
-%\caption{Graph showing execution time for loop 1 against number of threads for %the affinity and dynamic, 32 schedules. Note the performance is extremely %similar. }
-%\label{loop1scheds}
-%\end{figure}
+The algorithm described above was implemented in parallel using MPI. However, message passing parts of the program are separated into functions. These message passing functions are contained in a separate source file. This allows the code to be portable to another message passing framework should the need arise.
+\begin{figure}
+\centering
+\includegraphics[width=1\textwidth]{"graphs/halos"}
+\caption{Diagram showing 2d decomposition and halo swap regions. Credit: \cite{course_guide}.}
+\label{halos}
+\end{figure}
+
+\subsubsection{Initialisation and Cartesian Topology}
+
+While initialising message passing, a cartesian topology was implemented using \verb|MPI_Cart_create|. This allowed the programmer to implement cyclic boundary conditions straightforwardly. The MPI implementation of a Cartesian topology includes a function for finding processes which are a certain displacement from a given process in a given direction. Cyclical boundary conditions in a specific direction can be requested with the initial call to \verb|MPI_Cart_create|. Where this is done, if a process is requested that is outside the scope of the cartesian coordinate system, then the process at the other end of the system would be returned. In this case, cyclical boundary conditions were used in the vertical direction, meaning that when a process is requested that corresponds to being above the image, the process from the bottom of the image will be returned.
+
+In directions where cyclical boundary conditions are not implemented and where a process is requested that is out of bounds, the \verb|MPI_PROC_NULL| value is returned. Sends or receives from this null process will return immediately with no change to the receive buffer.
+
+Both of these features of the MPI Cartesian topology make it easier to code more generally, ignoring the special cases at the edge of the image. Creating a Cartesian topology also allows the MPI implementation to arrange the processes in an optimal fashion for the hardware being used.
+
+ 
+\subsubsection{Scatter and Gather}
+\label{scatter_gather}
+The scatter and gather parts of the program form the beginning and end of the program. They are, however, discussed together here, due to their similarities.
+
+Because a 2 dimensional domain decomposition was used, it was not easily possible to use the gather and scatter functions built into the MPI API.
+
+Before the image could be scattered among the different processes, it had first to be read from a PGM file. This was done using the PGMIO program. This is done into a buffer, \verb|masterbuf|, on the master rank. The master rank then loops through the other processes, writing parts of the \verb|masterbuf| to a local image 2d array. Each array is then sent to its corresponding rank using \verb|MPI_Send|. Those ranks which are not the master then receive this partial image, using \verb|MPI_Recv|.
+
+The gather process works much the same way but in reverse. First the master process writes its part of the image to the corresponding part of \verb|masterbuf|. Those ranks which are not master then call \verb|MPI_Send| to send their local arrays to the master, before the master process loops through each other process calling \verb|MPI_Recv| to each, and writing each of these to the correct part of \verb|masterbuf|. The master process then writes this masterbuf to a PGM file using the PGMIO program.
+
+As a test, before the main part of the algorithm runs, just after the program calls the scatter function, the gather function is called, writing the input edge file out. This means that the correctness of these scatter and gather functions can be verified. Using the GNU \verb|diff| tool, the file that was written out by the gather process was compared to the original input file and found to be the same, confirming that these scatter and gather functions work correctly.
+
+\subsubsection{Halo Boundary Swaps}
+As shown in figure \ref{halos}, each decomposed local image must have a halo region containing a row or column from each neighbouring process. Before each iteration messages must be passed to and received from each neighbour. As the halo boundary swaps must occur every iteration, this was very important to optimise for performance.
+
+To exchange this data non-blocking communications were used, specifically the \verb|MPI_Issend| and \verb|MPI_Irecv| functions. This meant that the programmer had the option to perform some calculations while waiting for the message to be sent and received. As the majority of calculations in this image processing application do not depend on the halo region, this could prevent performance degradation on systems with high message passing latency. This effect is therefore more likely to be appreciable on instances where more than one node is used. The \verb|MPI_Wait| function allows the programmer to synchronise processes, ensure that all swaps are complete before halo regions are used.
 
 
-\subsection{Compiling and Running the Original Code}
+\subsection{Compiling and Running}
+
+The code was compiled and run using the PGI MPT implementation of MPI on Cirrus, an Intel Xeon powered cluster. The \verb|-O3| compiler flag was used to ensure maximum serial compiler optimisation. 
+
+
+\begin{comment}
 To check the correctness of any subsequent version, the original code was compiled in its original form. This form could be thought of as an explicitly implemented version of the static loop scheduling option in OpenMP, with the iterations of the loops evenly divided between threads.
 This compilation was done using the Intel C Compiler with the \verb|-O3| option specified at compile time for maximum serial optimisation. Beyond using this to verify the correctness of any future solution and that performance was credible, analysis of the performance of this code falls outside the scope of this report.
-
+\end{comment}
 \section{Results}
 
-
 \subsection{Correctness}
-For almost all HPC applications correctness is the primary concern. The code provided included a check sum that could be used to verify the correctness of the affinity results. In all cases this sum yielded the same result as the code provided. We can therefore disregard correctness as a factor when comparing the different schedules. 
+
+As discussed in \ref{scatter_gather}, the GNU \verb|diff| tool was used to verify that the scatter and gather functions worked correctly. This same tool was also used to verify the end result. The source code that was provided to the author to parallelise was compiled in its original form, and outputs generated for each image used in the following parallel experiments. This output was then compared to all results yielded from the parallel versions of the code.
+
+
+\subsection{Scalability}
 
 
 
-\subsection{Comparative Execution Times of Schedules}
-The first results gathered were execution times for each loop with both the affinity scheduling and the best loop schedule that comes by default with any OpenMP implementation. These best schedules were determined and discussed in an earlier report. The best schedule for loop 1 was \verb|dynamic, 32| while for loop 2 the results for \verb|dynamic, 8| and \verb|dynamic, 16| were similarly optimal enough that they are both used here. The results for the execution time of loops 1 and 2 are shown in figures \ref{loop1scheds} and \ref{loop2scheds} respectively. 
-
-\subsubsection{Loop 1}
-
-For loop 1 we see that performance yielded from the loops running with affinity scheduling is almost identical to that yielded from the \verb|dynamic, 32| schedule. Such similar performance is explainable, as the scheduling techniques are quite similar in theory. As explained in \cite{intelmp}, the \verb|dynamic, 32| schedule has one work queue that is shared between all threads. Each thread claims a contiguous block of 32 iterations from this queue and executes it before going back to the queue to claim another. As the loop in question is natural fairly well load balanced, or each iteration takes a similar amount of time to execute, the main differences between performance from different schedules on this loop come from the overhead of assigning work. Although this work assignation process happens very differently on the two schedules trialled on this loop, the end result seems to be similar. It is worth noting that the affinity schedule does not gain significant performance improvements from cache coherency in this case.
-
-It is likely the same issues become limiting factors for horizontal scalability once the number of processes reaches about 12. This is that threads have to wait to be assigned work for reasons of synchronisation for both these strategies.
-
-\subsubsection{Loop 2}
-
-Loop 2 shows some more interesting differences between scalability of the two strategies. The \verb|dynamic, 8| and \verb|dynamic, 16| perform similarly to each other until the number of threads reaches 4. At this point no further speed up is shown where the block size is 16. This is because this loop is inherently badly load balanced, meaning that the slowest block of size 16 becomes the dominating factor of the computation time when the \verb|dynamic, 16| schedule is selected. Similarly, the \verb|dynamic, 8| schedule's performance is limited by the time taken for the slowest block of 8 to execute. As expected this approximately half the time taken for the slowest 16 iterations to execute, meaning that the shortest time achieved using this schedule is approximately half that of the time achieved with the larger block size.
-
-For the affinity scheduling the initial block size can be thought of as proportional to $1/p^2$, where $p$ is the total number of threads. This is because each thread starts off with a local set of $s=1/p$ iterations, before iterating through a block of $s/p$. This explains the affinity schedule's relatively poor performance where $p$ is smaller, as this corresponds to a large effective block size. The total number of iterations executed was $T=729$. Therefore, if the execution time of the slowest block were a completely dominating factor, we would expect the performance of the affinity schedule to eclipse that of \verb|dynamic, 16| where $T/p^2 = 16$, or $p = 6.75$ and that of \verb|dynamic, 8| where $T/p^2 = 16$, or $p = 9.5$. Interpolating from figure \ref{loop2scheds} we can see these calculated figures are broadly correct. The fact that it is more like $p=11$ before the performance of affinity and \verb|dynamic, 16| could be explained by the greater deal of synchronisation required for the affinity schedule. This is because the blocks become smaller as the process goes on, meaning more time is spent fetching work - requiring threads to enter or wait to enter a critical region. 
 
 \section{conclusion}
-In conclusion we see that affinity scheduling is a broadly effective strategy. For at least some values of $p$ this schedule matched or bettered the performance of the best option from the OpenMP standard. This is no small feat considering the OpenMP implementation used has the full weight of the mighty Intel Corporation behind it, and the schedules themselves may or may not have been implemented using a lower level, faster framework than OpenMP itself. This suggests that the implementation of this schedule by the author was of high quality.
 
-However, there were no demonstrable speed ups shown to be from cache coherency effects, which is one of the justifications for this technique. Indeed, it seems likely that in the loop 2 case that affinity scheduling only provided higher horizontal scalability because of a lower effective block size. It is therefore likely that similar or better performance could be achieved where $p$ is larger simply by using the dynamic schedule with a smaller block size. This would be a worthwhile future experiment, but goes beyond the scope of this report.
 
 \bibliographystyle{plain}
 \begin{thebibliography}{}
-\bibitem{intelmp}
-Intel Corp.
-\textit{OpenMP Loop Scheduling}
-\url{https://software.intel.com/en-us/articles/openmp-loop-scheduling}
+\bibitem{course_guide}
+Neil MacDonald, Elspeth Minty, Joel Malard, Tim Harding, Simon Brown, Mario Antonioletti,
+\textit{Writing Message Passing Parallel Programs with MPI,}
+\url{https://www.learn.ed.ac.uk/bbcswebdav/pid-2077851-dt-content-rid-3833626_1/courses/PGPH110782016-7SS1SEM1/MPP-notes.pdf}
 Accessed: 26-10-2016
 
 \end{thebibliography}
 
 \pagebreak
 \pagebreak
-\appendix
-\section{Full Results}
 
-\begin {table}[H]
-\caption {Loop 1}
-\small
-\center
-\begin{tabular}{ | l | l | l | l | }
-\hline
-Schedule &  No. Threads &  Mean Time (s) &  Std. Deviation (s) \\ \hline
-dynamic,32 & 1 & 1.64 & 0.00 \\ 
-dynamic,32 & 2 & 0.83 & 0.00 \\ 
-dynamic,32 & 4 & 0.43 & 0.01 \\ 
-dynamic,32 & 6 & 0.30 & 0.01 \\ 
-dynamic,32 & 8 & 0.23 & 0.01 \\ 
-dynamic,32 & 12 & 0.16 & 0.01 \\ 
-dynamic,32 & 16 & 0.13 & 0.01 \\
-affinity & 1 & 1.65 & 0.00 \\
-affinity & 2 & 0.83 & 0.00 \\
-affinity & 4 & 0.46 & 0.00 \\
-affinity & 6 & 0.32 & 0.03 \\
-affinity & 8 & 0.24 & 0.01 \\
-affinity & 12 & 0.19 & 0.01 \\
-affinity & 16 & 0.18 & 0.01 \\ \hline
-\end{tabular}
-\end{table}
-
-
-
-\begin {table}
-\caption {Loop 2}
-\small
-\center
-\begin{tabular}{ | l | l | l | l | }
-\hline
-Schedule &  No. Threads &  Mean Time (s) &  Std. Deviation (s) \\ \hline 
-dynamic,8 & 1& 8.84 & 0.01\\
-dynamic,8 & 2& 4.47 & 0.02\\
-dynamic,8 & 4 & 2.24 & 0.01\\
-dynamic,8 & 6 & 1.57 & 0.00\\
-dynamic,8 & 8 & 1.18 & 0.00\\
-dynamic,8 & 12 & 1.07 & 0.01\\
-dynamic,8 & 16 & 1.12 & 0.10\\
-dynamic,16 & 1 & 8.84 & 0.00\\
-dynamic,16 & 2 & 4.47 & 0.02\\
-dynamic,16 & 4 & 2.23 & 0.01\\
-dynamic,16 & 6 & 2.10 & 0.01\\
-dynamic,16 & 8 & 2.10 & 0.01\\
-dynamic,16 & 12 & 2.15 & 0.09\\
-dynamic,16 & 16 & 2.12 & 0.04 \\ 
-affinity & 1 & 1.65 & 0.00 \\
-affinity & 2 & 0.83 & 0.00 \\
-affinity & 4 & 0.46 & 0.01 \\
-affinity & 6 & 0.32 & 0.03 \\
-affinity & 8 & 0.24 & 0.01 \\
-affinity & 12 & 0.19 & 0.01 \\
-affinity & 16 & 0.18 & 0.01 \\ \hline
-\end{tabular}
-\end{table}
-
-\pagebreak
-\newgeometry{left=2cm}
-\section{Code Snippet}
-\label{appendix:code}
-\begin{verbatim}
-int get_work(int *remaining, int *end_index, int myid, int nthreads, int *lo,
-             int *hi)
-{
-  int i, chunk_size, steal_index, temp_max;
-  temp_max = 1;
-  // if a thread has no more work it should steal work.
-  if (remaining[myid] == 0)
-  {
-    // use loop to find thread with most work remaining
-    temp_max = 0;
-    int i;
-    for (i = 0; i < nthreads - 1; i++)
-    {
-      if (temp_max < remaining[i])
-      {
-        temp_max = remaining[i];
-        steal_index = i;
-      }
-    }
-  }
-  else
-  {
-    steal_index = myid;
-  }
-
-  if (temp_max != 0)
-  {
-    chunk_size = (int)ceil((double)remaining[steal_index] / (double)nthreads);
-    *lo = end_index[steal_index] - remaining[steal_index];
-    *hi = *lo + chunk_size;
-    remaining[steal_index] -= chunk_size;
-    return 0;
-  }
-  else
-  {
-    return 1;
-  }
-}
-\end{verbatim}
 
 
 \end{document}

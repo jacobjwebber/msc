@@ -41,8 +41,8 @@ int main(int argc, char **argv)
 
   if (rank == 0)
     printf("message passing initialised\n");
-  real_number old[WIDTH_P + 2][HEIGHT_P + 2], new[WIDTH_P + 2][HEIGHT_P + 2],
-      edge[WIDTH_P + 2][HEIGHT_P + 2], partial_image[WIDTH_P][HEIGHT_P];
+  real_number old[WIDTH_P + 2][HEIGHT_P + 2], new[WIDTH_P + 2][HEIGHT_P + 2], edge[WIDTH_P + 2][HEIGHT_P + 2],
+      partial_image[WIDTH_P][HEIGHT_P];
 
   // find neighbors for stenciling.
   up = mp_get_up(cart_comm, rank);
@@ -53,21 +53,22 @@ int main(int argc, char **argv)
   int coords[2];
   mp_get_coords(&cart_comm, rank, &(coords[0]));
 
-  printf("I am rank %i, coords [%i,%i] up is %i, down %i, left %i, right %i\n",
-         rank, coords[0], coords[1], up, down, left, right);
+  printf(
+      "I am rank %i, coords [%i,%i] up is %i, down %i, left %i, right %i\n",
+      rank, coords[0], coords[1], up, down, left, right);
 
   if (rank == 0)
   {
     printf("Processing %d x %d image\n", WIDTH_P, HEIGHT);
     printf("Number of iterations = %d\n", MAXITER);
   }
-  /*
-    filename = "../inputs/edgenew768x768.pgm";
-    mp_scatter(cart_comm, filename, partial_image, size, rank);
-
-    mp_gather_and_write_png(cart_comm, "../outputs/input.pgm", partial_image,
-                            size, rank);
-  */
+/*
+  filename = "../inputs/edgenew768x768.pgm";
+  mp_scatter(cart_comm, filename, partial_image, size, rank);
+  
+  mp_gather_and_write_png(cart_comm, "../outputs/input.pgm", partial_image,
+                          size, rank);
+*/
   // set edge to be partial image with halos.
   for (i = 1; i < WIDTH_P + 1; i++)
   {
@@ -99,15 +100,16 @@ int main(int argc, char **argv)
 
   // pgmwrite("../outputs/old.pgm", old, WIDTH_P+2, HEIGHT_P+2);
 
-  //  /*
+//  /*
   for (i = 0; i < WIDTH_P + 2; i++)
   {
     for (j = 0; j < HEIGHT_P + 2; j++)
     {
-      old[i][j] = 1000 * rank + 10 * i + j;
+      old[i][j] = 1000*rank + 10*i + j ;
     }
   }
-  //  */
+//  */
+
 
   // WIDTH_PAIHEIGHT LOOP
   for (iter = 1; iter <= MAXITER; iter++)
@@ -119,32 +121,33 @@ int main(int argc, char **argv)
 
     mp_halo_swap(cart_comm, old, up, down, right, left, coords);
 
-    /*
-        for (i = 1; i < WIDTH_P + 1; i++)
-        {
-          for (j = 1; j < HEIGHT_P + 1; j++)
-          {
-            new[i][j] = 0.25 * (old[i - 1][j] + old[i + 1][j] + old[i][j - 1] +
-                                old[i][j + 1] - edge[i][j]);
-          }
-        }
-        // memory copy
-        for (i = 1; i < WIDTH_P + 1; i++)
-        {
-          for (j = 1; j < HEIGHT_P + 1; j++)
-          {
-            old[i][j] = new[i][j];
-          }
-        }
-    */
+/*
+    for (i = 1; i < WIDTH_P + 1; i++)
+    {
+      for (j = 1; j < HEIGHT_P + 1; j++)
+      {
+        new[i][j] = 0.25 * (old[i - 1][j] + old[i + 1][j] + old[i][j - 1] +
+                            old[i][j + 1] - edge[i][j]);
+      }
+    }
+    // memory copy
+    for (i = 1; i < WIDTH_P + 1; i++)
+    {
+      for (j = 1; j < HEIGHT_P + 1; j++)
+      {
+        old[i][j] = new[i][j];
+      }
+    }
+*/
   } // EHEIGHTD WIDTH_PAIN LOOP
 
-  ///*
-  if (rank == 3)
+///*
+  if (rank ==3)
   {
-    print_array(old, rank);
+    print_array(old,rank);
   }
-  //*/
+//*/
+
 
   printf("\nProc %i Finished %d iterations\n", rank, iter - 1);
 
@@ -157,10 +160,10 @@ int main(int argc, char **argv)
     }
   }
 
-  /*
-    mp_gather_and_write_png(cart_comm, "../outputs/output.pgm", partial_image,
-                            size, rank);
-  */
+/*
+  mp_gather_and_write_png(cart_comm, "../outputs/output.pgm", partial_image,
+                          size, rank);
+*/  
   MPI_Finalize();
 }
 
