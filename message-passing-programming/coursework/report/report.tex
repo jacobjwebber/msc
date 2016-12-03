@@ -108,7 +108,7 @@ As shown in figure \ref{halos}, each decomposed local image must have a halo reg
 To exchange this data non-blocking communications were used, specifically the \verb|MPI_Issend| and \verb|MPI_Irecv| functions. This meant that the programmer had the option to perform some calculations while waiting for the message to be sent and received. As the majority of calculations in this image processing application do not depend on the halo region, this could prevent performance degradation on systems with high message passing latency. This effect is therefore more likely to be appreciable on instances where more than one node is used. The \verb|MPI_Wait| function allows the programmer to synchronise processes, ensuring that all swaps are complete before halo regions are used.
 
 \subsubsection{Max Delta}
-The max \Delta value discussed in \ref{stop} was implemented by first calculating a local delta value for each process, then finding the maximum of these values on all processes using \verb|MPI_Allreduce|. This function allows the programmer to easily find the maximum value across all processes and share this with all processes.
+The max $\Delta$ value discussed in \ref{stop} was implemented by first calculating a local delta value for each process, then finding the maximum of these values on all processes using \verb|MPI_Allreduce|. This function allows the programmer to easily find the maximum value across all processes and share this with all processes.
 
 \subsection{Compiling and Running}
 

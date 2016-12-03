@@ -5,12 +5,12 @@
 //#define WIDTH 10
 //#define HEIGHT 10
 
-#define MAXITER 100
-#define PRINTFREQ 200
+#define MAXITER 10000
+#define PRINTFREQ 100000
 
 
-#define DIMX 3
-#define DIMY 3
+#define DIMX 4
+#define DIMY 4
 
 #define P DIMX*DIMY 
 #define WIDTH_P WIDTH / DIMX 

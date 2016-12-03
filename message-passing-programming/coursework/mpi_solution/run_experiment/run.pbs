@@ -1,0 +1,22 @@
+#!/bin/bash --login                                                             
+
+#PBS -A d136                                                                    
+#PBS -N imagempi                                                                 
+#PBS -l place=excl                                                              
+#PBS -l select=72                                                              
+#PBS -l walltime=00:05:00                                                       
+
+# Change to the directory that the job was submitted from                       
+
+cd $PBS_O_WORKDIR
+
+# Load SGI MPI and Intel compilers                                              
+
+module load mpt
+module load intel-compilers-16
+
+
+for i in [1 2 4 8 16];
+    do
+        mpi -n mpi_512x384_${i} ../inputs/edge512x384
+    done
