@@ -8,7 +8,6 @@
 
 # Change to the directory that the job was submitted from                       
 
-cd $PBS_O_WORKDIR
 
 # Load SGI MPI and Intel compilers                                              
 
@@ -16,7 +15,8 @@ module load mpt
 module load intel-compilers-16
 
 
-for i in [1 2 4 8 16];
+for i in 1 2 4 8 16;
     do
-        mpi -n mpi_512x384_${i} ../inputs/edge512x384
+        echo "mpi_512x384_$i"
+        mpirun -n ${i} ./mpi_512x384_${i} 
     done
