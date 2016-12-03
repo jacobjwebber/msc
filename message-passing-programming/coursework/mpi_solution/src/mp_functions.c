@@ -74,6 +74,13 @@ int mp_get_left(MPI_Comm cart_comm, int my_rank)
   return left_rank;
 }
 
+int mp_create_vector_type(MPI_Datatype *v_halo, MPI_Datatype *h_halo)
+{
+
+    MPI_Type_vector(WIDTH_P, 1, HEIGHT_P+2, MPI_REALNUMBER, v_halo);
+    MPI_Type_commit(v_halo);
+}
+
 int mp_scatter(MPI_Comm cart_comm, char* filename, real_number partial_image[WIDTH_P][HEIGHT_P], int size, int rank)
 {
 // Master thread section 
@@ -160,6 +167,7 @@ int mp_gather_and_write_png(MPI_Comm cart_comm, char* filename, real_number part
       }
     }
     pgmwrite(filename, masterbuf, WIDTH, HEIGHT);
+    printf("finished gather\n");
    }
    return 0;
 }
@@ -171,38 +179,27 @@ int mp_get_coords(MPI_Comm* cart_comm, int rank, int* coord)
 }
 
 
-int mp_halo_swap(MPI_Comm cart_comm, real_number old[WIDTH_P+2][HEIGHT_P+2], 
-                int up, int down, int right, int left, int coords[2])
+int mp_halo_swap(MPI_Comm cart_comm, MPI_Datatype *h_halo, MPI_Datatype *v_halo, 
+                 real_number old[WIDTH_P+2][HEIGHT_P+2], 
+                 int up, int down, int right, int left, int coords[2])
 {    
-    real_number send_up_buf[WIDTH_P], send_down_buf[WIDTH_P],
-                recv_up_buf[WIDTH_P], recv_down_buf[WIDTH_P];
-
     MPI_Status status;
-
-    int i,j;
-    for (i = 0; i < WIDTH_P; i++)
-    {
-      recv_up_buf[i] = 0; //old[i+1][0];
-      recv_down_buf[i] = 0; //old[i+1][HEIGHT_P+1];
-  
-      send_up_buf[i] = old[i][1];
-      send_down_buf[i] = old[i][HEIGHT_P];
-    }
-
     MPI_Request request1, request2, request3, request4;
- 
+    
+    printf("sending... %i %i\n", left, right);
     MPI_Issend(&old[WIDTH_P][1], HEIGHT_P, MPI_REALNUMBER, right, 1, cart_comm, &request1);
     MPI_Issend(&old[1][1], HEIGHT_P, MPI_REALNUMBER, left, 2, cart_comm, &request2);
 
-    MPI_Issend(&send_up_buf[0], WIDTH_P, MPI_REALNUMBER, up, 3, cart_comm, &request3);
-    MPI_Issend(&send_down_buf[0], WIDTH_P, MPI_REALNUMBER, down, 4, cart_comm, &request4);
+    MPI_Issend(&old[1][1], 1, *h_halo, up, 3, cart_comm, &request3);
+    MPI_Issend(&old[HEIGHT_P][1],1, *h_halo, down, 4, cart_comm, &request4);
  
  
+    printf("reveice... %i %i\n", left, right);
     MPI_Irecv(&old[0][1], HEIGHT_P, MPI_REALNUMBER, left, 1, cart_comm, &request1);
     MPI_Irecv(&old[WIDTH_P+1][1], HEIGHT_P, MPI_REALNUMBER, right, 2, cart_comm, &request2);
     
-    MPI_Irecv(&recv_down_buf[0], WIDTH_P, MPI_REALNUMBER, down, 3, cart_comm, &request3);
-    MPI_Irecv(&recv_up_buf[0], WIDTH_P, MPI_REALNUMBER, up, 4, cart_comm, &request4);
+    MPI_Irecv(&old[HEIGHT_P+1][1], 1, *h_halo, down, 3, cart_comm, &request3);
+    MPI_Irecv(&old[0][1], 1, *h_halo, up, 4, cart_comm, &request4);
     
     //Optionally perform calculations that do not depend on halos here.
 
@@ -210,16 +207,6 @@ int mp_halo_swap(MPI_Comm cart_comm, real_number old[WIDTH_P+2][HEIGHT_P+2],
     MPI_Wait(&request2, &status);
     MPI_Wait(&request3, &status);
     MPI_Wait(&request4, &status);
-
-
-    for (i = 0; i < WIDTH_P; i++)
-    {
-      old[i+1][0] = recv_up_buf[i];
-      old[i+1][HEIGHT_P+1] = recv_down_buf[i];
-      send_up_buf[i] = old[i][1];
-      send_down_buf[i] = old[i][HEIGHT_P];
-    }
-
 
     return 0;
 }

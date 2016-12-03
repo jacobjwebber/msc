@@ -1,11 +1,11 @@
 
-#define WIDTH 192 
-#define HEIGHT 128
+#define WIDTH 512
+#define HEIGHT 384
 
 //#define WIDTH 10
 //#define HEIGHT 10
 
-#define MAXITER 1000
+#define MAXITER 10
 #define PRINTFREQ 200
 
 

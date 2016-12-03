@@ -22,8 +22,7 @@ int main(int argc, char **argv)
 {
   
   char *filename;
-  filename = "../inputs/edgenew192x128.pgm"; // "../inputs/edgenew768x768.pgm";
-  printf("intitialising message passing \n");
+  filename = "../inputs/edgenew512x384.pgm"; // "../inputs/edgenew768x768.pgm";
 
   int i, j, iter, maxiter;
   real_number val;
@@ -43,7 +42,8 @@ int main(int argc, char **argv)
 
   if (rank == 0)
     printf("message passing initialised\n");
-  real_number old[WIDTH_P + 2][HEIGHT_P + 2], new[WIDTH_P + 2][HEIGHT_P + 2], edge[WIDTH_P + 2][HEIGHT_P + 2],
+  real_number old[WIDTH_P + 2][HEIGHT_P + 2], new[WIDTH_P + 2][HEIGHT_P + 2], 
+              edge[WIDTH_P + 2][HEIGHT_P + 2],
       partial_image[WIDTH_P][HEIGHT_P];
 
   // find neighbors for stenciling.
@@ -99,6 +99,10 @@ int main(int argc, char **argv)
   }
 
   // pgmwrite("../outputs/old.pgm", old, WIDTH_P+2, HEIGHT_P+2);
+  
+  //Create vector type
+  MPI_Datatype h_halo, v_halo;
+  mp_create_vector_type(&v_halo, &h_halo);
 
   real_number delta;
   // BEGIN MAIN LOOP
@@ -111,7 +115,7 @@ int main(int argc, char **argv)
       printf("Iteration %d\n", iter);
     }
 
-    mp_halo_swap(cart_comm, old, up, down, right, left, coords);
+    mp_halo_swap(cart_comm, &h_halo, &v_halo, old, up, down, right, left, coords);
 
 
     for (i = 1; i < WIDTH_P + 1; i++)
