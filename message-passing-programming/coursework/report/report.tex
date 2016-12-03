@@ -57,6 +57,7 @@ For the same reasons as discussed in \ref{boundary_conditions} the case of what 
 This means that once these halos are included, each process must perform the iterative process on an array of size $(N_x +2)\cdot(N_y+2)$.
 
 \subsubsection{Stopping Condition}
+\label{stop}
 For testing performance and accuracy compared to a serial version, it was useful to be able to terminate the algorithm after a fixed number of iterations. However, it is possible to calculate, according to a certain precision, when the iterative process is complete. This is done on the basis that once the algorithm has reached a perfect solution, if the algorithm is stable, then there will be no further changes between iterations. While this perfection may never be achievable, we can say that if the output changes below a certain amount then we can declare our image to be suitably similar to our original and terminate our iterative process.
 
 In terms of calculation, this is done by calculating a value of $\Delta_{i,j}$ for every element in the two dimensional array:
@@ -104,8 +105,10 @@ As a test, before the main part of the algorithm runs, just after the program ca
 \subsubsection{Halo Boundary Swaps}
 As shown in figure \ref{halos}, each decomposed local image must have a halo region containing a row or column from each neighbouring process. Before each iteration messages must be passed to and received from each neighbour. As the halo boundary swaps must occur every iteration, this was very important to optimise for performance.
 
-To exchange this data non-blocking communications were used, specifically the \verb|MPI_Issend| and \verb|MPI_Irecv| functions. This meant that the programmer had the option to perform some calculations while waiting for the message to be sent and received. As the majority of calculations in this image processing application do not depend on the halo region, this could prevent performance degradation on systems with high message passing latency. This effect is therefore more likely to be appreciable on instances where more than one node is used. The \verb|MPI_Wait| function allows the programmer to synchronise processes, ensure that all swaps are complete before halo regions are used.
+To exchange this data non-blocking communications were used, specifically the \verb|MPI_Issend| and \verb|MPI_Irecv| functions. This meant that the programmer had the option to perform some calculations while waiting for the message to be sent and received. As the majority of calculations in this image processing application do not depend on the halo region, this could prevent performance degradation on systems with high message passing latency. This effect is therefore more likely to be appreciable on instances where more than one node is used. The \verb|MPI_Wait| function allows the programmer to synchronise processes, ensuring that all swaps are complete before halo regions are used.
 
+\subsubsection{Max Delta}
+The max \Delta value discussed in \ref{stop} was implemented by first calculating a local delta value for each process, then finding the maximum of these values on all processes using \verb|MPI_Allreduce|. This function allows the programmer to easily find the maximum value across all processes and share this with all processes.
 
 \subsection{Compiling and Running}
 

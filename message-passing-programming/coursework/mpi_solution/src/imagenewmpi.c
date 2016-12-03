@@ -16,11 +16,9 @@
 
 real_number boundaryval(int i, int m);
 
-void print_array(float array[WIDTH_P + 2][HEIGHT_P + 2], int rank);
-
 int main(int argc, char **argv)
 {
-  
+ 
   char *filename;
   filename = "../inputs/edgenew512x384.pgm"; // "../inputs/edgenew768x768.pgm";
 
@@ -40,8 +38,16 @@ int main(int argc, char **argv)
     exit(-1);
   }
 
+  //image must be equally divisible in both directions.
+  if (rank == 0 && (DIMX*WIDTH_P != WIDTH || DIMY*HEIGHT_P != HEIGHT))
+  {
+      printf("Image not decomposable\n");
+      MPI_Abort(MPI_COMM_WORLD, -2);
+  }
+
   if (rank == 0)
     printf("message passing initialised\n");
+  
   real_number old[WIDTH_P + 2][HEIGHT_P + 2], new[WIDTH_P + 2][HEIGHT_P + 2], 
               edge[WIDTH_P + 2][HEIGHT_P + 2],
       partial_image[WIDTH_P][HEIGHT_P];
@@ -70,6 +76,14 @@ int main(int argc, char **argv)
   mp_gather_and_write_png(cart_comm, "../outputs/input.pgm", partial_image,
                           size, rank);
 
+  // set edge to be white
+  for (i = 0; i < WIDTH_P + 2; i++)
+  {
+    for (j = 0; j < HEIGHT_P + 2; j++)
+    {
+      edge[i][j] = 255.0;
+    }
+  }
   // set edge to be partial image with halos.
   for (i = 1; i < WIDTH_P + 1; i++)
   {
@@ -98,7 +112,6 @@ int main(int argc, char **argv)
     old[WIDTH_P + 1][j] = 255.0; // - (1.0 - val);
   }
 
-  // pgmwrite("../outputs/old.pgm", old, WIDTH_P+2, HEIGHT_P+2);
   
   //Create vector type
   MPI_Datatype h_halo, v_halo;
@@ -115,7 +128,7 @@ int main(int argc, char **argv)
       printf("Iteration %d\n", iter);
     }
 
-    mp_halo_swap(cart_comm, &h_halo, &v_halo, old, up, down, right, left, coords);
+    //mp_halo_swap(cart_comm, &h_halo, &v_halo, old, up, down, right, left, coords);
 
 
     for (i = 1; i < WIDTH_P + 1; i++)
@@ -128,7 +141,7 @@ int main(int argc, char **argv)
     }
 
     //Calculate max delta every 20 iterations
-    if (iter % 20 == 0)
+    if (iter % DELTA_FREQ == 0)
     {
         delta = max_delta(cart_comm, old, new);
         if (delta < SMALL_DELTA)
@@ -146,7 +159,9 @@ int main(int argc, char **argv)
    
   } // END MAIN LOOP
   t2 = MPI_Wtime();
-
+  
+  if (rank == 7)
+  pgmwrite("../outputs/edge.pgm", old, WIDTH_P+2, HEIGHT_P+2);
 
   // write to output local buffer
   for (i = 1; i < WIDTH_P + 1; i++)
@@ -156,7 +171,7 @@ int main(int argc, char **argv)
       partial_image[i - 1][j - 1] = old[i][j];
     }
   }
-
+  
   mp_gather_and_write_png(cart_comm, "../outputs/output.pgm", partial_image,
                           size, rank);
   if (rank == 0)
