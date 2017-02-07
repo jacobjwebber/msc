@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2016/dev) (preloaded format=pdflatex 2016.10.16)  28 OCT 2016 15:03
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2016/dev) (preloaded format=pdflatex 2016.10.16)  4 DEC 2016 15:50
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -229,8 +229,8 @@ Package pdftex.def Info: graphs/speedup_dynamic16_loop2.pdf used on input line
  [6] [7 <./graphs/speedup_dynamic32_loop1.pdf> <./graphs/speedup_dynamic8_loop2
 .pdf
 
-pdfTeX warning: /usr/bin/pdflatex (file ./graphs/speedup_dynamic8_loop2.pdf): P
-DF inclusion: multiple pdfs with page group included in a single page
+pdfTeX warning: pdflatex (file ./graphs/speedup_dynamic8_loop2.pdf): PDF inclus
+ion: multiple pdfs with page group included in a single page
 >] [8 <./graphs/speedup_dynamic16_loop2.pdf>] [9]
 LaTeX Font Info:    External font `cmex10' loaded for size
 (Font)              <10.95> on input line 156.
@@ -254,7 +254,7 @@ xlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/share/texlive/te
 xmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-di
 st/fonts/type1/public/amsfonts/cm/cmti12.pfb></usr/share/texlive/texmf-dist/fon
 ts/type1/public/amsfonts/cm/cmtt12.pfb>
-Output written on report.pdf (12 pages, 180032 bytes).
+Output written on report.pdf (12 pages, 180022 bytes).
 PDF statistics:
  131 PDF objects out of 1000 (max. 8388607)
  90 compressed objects within 1 object stream
