@@ -5,6 +5,9 @@
 \usepackage{float}
 \usepackage{url}
 \usepackage{subcaption}
+\usepackage{tikz}
+\usetikzlibrary{shapes,arrows}
+
 
 \begin{document}
 
@@ -16,38 +19,69 @@
 \section{Introduction}
 This report describes a plan of action to improve a web application designed to assist the playing of a table top game. The code was received in a poor state, featuring errors in code that prevent it functioning properly, situations in which poor design decisions were taken by the original author, and situations where the specifications, as provided by the customer, have not yet been fully met.
 
-The web application is written in Python and Uses the Flask web framework. 
+The web application is written in Python and uses the Flask web framework. 
 
-In this report an approach will be taken that prioritises and improves upon all aspects of these failings in the current approach in an agile iterative fashion, using aspects of the Scrum methodology. The aim is not simply to provide code that is more functional, but that is also extendible and maintainable for further work. Furthermore, as development time will be limited on this project, work will be scheduled so there will be frequent releases of shippable code, as opposed to the waterfall approach which might leave no publishable code when work stops. 
+In this report an approach will be taken that prioritises and improves upon failings in the current code in an agile iterative fashion, using aspects of the Scrum methodology. The aim is not simply to provide code that is more functional, but that is also extendible and maintainable for further work. Furthermore, as development time will be limited on this project, work will be scheduled so there will be frequent releases of shippable code, as opposed to the waterfall approach which might leave no publishable code when work stops.
 
-\section{Issues With The Code}
+The Scrum approach entails dividing the project into broad stories. These stories then have particular tasks associated with them. Work is undertaken in Sprints, short bursts of work in which prioritised tasks are completed from all or some of the broader stories. Sprint planning occurs before each individual sprint, allowing for a structured yet flexible approach, which allows new issues to be dealt with as they arise in a sensible way. At the end of each sprint there should be some usable code, i.e. working code that has some way improved upon what was there before.
+
+This report first describes at a high level problems with the current code and divides these into stories, before describing in more detail the specific issues or tasks related to each story. An outline of initial sprint plans showing the order and priority of  will then be presented, followed by a Risk analysis and management strategy before a brief conclusion.
+
+\section{Problems and Stories}
+\subsection{Developer Tooling and Documentation} \label{tooling}
+
+At present there is no ReadMe file included with the source code describing how to run and do work to improve the code. The code is dependent on Python being installed on the host machine, as well as the Flask framework. 
+
+There is currently no source version control. This means that it would be hard to track changes during the development process. This would cause particular issues if there were more than one developer working on the code at once. In this case it would be essential that there was tooling in place that allowed many developers to work simultaneously on different issues in the code, tracking their changes individually and merging at the end of a task.
+
+As well as tooling to track software changes, there should be tooling in place to track tasks being worked on within sprints. This tool should track which developers are working on which tasks, again preparing this project to be worked on by more than one developer.
+
+In its current state there are no unit tests or continuous integration system in place for the project. Continuous integration would allow the code to be tested every time it is committed to the version control system. Unit tests are essential for maintainability, and for all future work tests should be written first following the 'Test-Driven Development' (TDD) \cite{agiletdd} approach. These tests should be combined with a build system that ensures only thoroughly tested code gets presented as complete.
+
+\subsection{Code Formatting and Abstraction}
+Almost all code for the project is, at present, contained within one source file. In this file are very long functions which each handle explicitly data storage, interfacing with the web framework and implementation game rules. All of these aspects should be decoupled from each other and broken into separate source files. This decoupling would make it much easier implement the unit tests described in \ref{tooling} as well as undertake the further work described in the following stories.
+
+\subsection{Missing or Inaccurate Features from Game Specification}
+
+\subsection{Data Store}
+
+\section{Tasks}
+
+\section{Work Plan}
+
+\tikzstyle{decision} = [diamond, draw, fill=blue!20, 
+    text width=4.5em, text badly centered, node distance=3cm, inner sep=0pt]
+\tikzstyle{block} = [rectangle, draw, fill=blue!20, 
+    text width=5em, text centered, rounded corners, minimum height=4em]
+\tikzstyle{line} = [draw, -latex']
+\tikzstyle{cloud} = [draw, ellipse,fill=red!20, node distance=3cm,
+    minimum height=2em]
 
 
-\subsection{Compiling and Running the Code}
+\begin{tikzpicture}[node distance = 2cm, auto]
+    % Place nodes
+    \node [block] (plan) {Plan Project};
+    \node [block, right of=plan, node distance=3cm] (sprint0) {Sprint 0};
+    \node [cloud, right of=sprint0] (plan0) {Sprint planning};
 
-As with the serial case the code was compiled using the Intel C Compiler and using the \verb|-O3| optimisation flag. In this case, however, the appropriate compiler flag was used to compile an OpenMP program. To measure the performance of the different scheduling options the code was initially run on 4 threads on a backend node of \verb|cirrus|, an Intel Xeon powered cluster. For the schedules where it is possible to set a chunksize, this chunksize took the values 1, 2, 4, 8, 32 and 64.
+    % Draw edges
+    \path [line] (plan) -- (sprint0);
+    \path [line] (sprint0) -- (plan0);
+\end{tikzpicture}
 
-From these results, the scheduling option with the best performance for each loop on 4 threads was determined. Using these optimal options the code was then run again on 1, 2, 4, 6, 8, 12 and 16 threads. This allowed the measurement of the speed up, as defined by $T_{p}/T_{1}$, so that the scalability of the best performing schedule on 4 threads could be analysed.
+\section{Risk Assessment}
 
-For all measurements the running time was measured multiple times and a mean of these values used. In addition the standard deviation was also calculated. This allows the comparison of performance variability between different schedules. Performance variability is often an important consideration in HPC applications, where it may be desirable to avoid methods that often, but unreliably, yield high performance.
-
-\section{Results}
-\subsection{Correctness}
-For almost all HPC applications correctness is the primary concern. The serial code provided included a check sum that could be used to verify the correctness of future parallel results. In all parallel cases this sum yielded the same result as the serial code. We can therefore disregard correctness as a factor when comparing the different schedules. 
-
-
-\subsection{Results of Schedules on 4 Threads}
-The first results gathered were execution times for each loop for every available loop schedule. The results for these are shown in Figures 
-
-\subsection{Speed Up of Best Schedules}
-
+\section{Conclusion}
 
 \bibliographystyle{plain}
 \begin{thebibliography}{}
-\bibitem{intelmp}
-Intel Corp.
-\textit{OpenMP Loop Scheduling}
-Accessed: 26-10-2016
+
+\bibitem{agiletdd}
+The Agile Alliance
+\textit{TDD}
+\url{https://www.agilealliance.org/glossary/tdd/}
+Accessed: 01-02-2017
+
 
 \end{thebibliography}
 \end{document}
