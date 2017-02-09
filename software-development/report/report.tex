@@ -6,6 +6,8 @@
 \usepackage{url}
 \usepackage{subcaption}
 \usepackage{tikz}
+\usepackage{graphicx}
+\usepackage{hhline}
 \usetikzlibrary{shapes,arrows}
 
 
@@ -21,11 +23,13 @@ This report describes a plan of action to improve a web application designed to 
 
 The web application is written in Python and uses the Flask web framework. 
 
-In this report an approach will be taken that prioritises and improves upon failings in the current code in an agile iterative fashion, using aspects of the Scrum methodology. The aim is not simply to provide code that is more functional, but that is also extendible and maintainable for further work. Furthermore, as development time will be limited on this project, work will be scheduled so there will be frequent releases of shippable code, as opposed to the waterfall approach which might leave no publishable code when work stops.
+In this report an approach will be taken that prioritises and improves upon failings in the current code in an agile, iterative fashion, using aspects of the Scrum methodology. The aim is not simply to provide code that is more functional, but that is also extendible and maintainable for further work. Furthermore, as development time will be limited on this project, work will be scheduled so there will be frequent releases of shippable code, as opposed to the waterfall approach which might leave no publishable code when work stops.
 
 The Scrum approach entails dividing the project into broad stories. These stories then have particular tasks associated with them. Work is undertaken in Sprints, short bursts of work in which prioritised tasks are completed from all or some of the broader stories. Sprint planning occurs before each individual sprint, allowing for a structured yet flexible approach, which allows new issues to be dealt with as they arise in a sensible way. At the end of each sprint there should be some usable code, i.e. working code that has some way improved upon what was there before.
 
 This report first describes at a high level problems with the current code and divides these into stories, before describing in more detail the specific issues or tasks related to each story. An outline of initial sprint plans showing the order and priority of  will then be presented, followed by a Risk analysis and management strategy before a brief conclusion.
+
+It should be noted that this report, other than fixing basic bugs, does not detail plans for improvement of the UI. Such plans will be delivered in a separate report.
 
 \section{Problems and Stories}
 \label{stories}
@@ -48,17 +52,23 @@ In addition to this, the code currently contains very long lines and other poor 
 \subsection{Missing or Inaccurate Features from Game Specification}
 The specification is long and detailed and contains many features not included in the current work. There are also features in the current work that deviate from the specification.
 
+Various terminologies within the game are inaccurately represented. For example, squads are referred to as bands.
+
+The specification also calls for access control, with users having their own squads that they have modification privileges too. Adding access control is a very sophisticated problem. This goes well beyond what can reasonably be achieved in this software project. Addressing this element of the specification may require more of educating the customer as to what is feasible than actual coding.
+
 \subsection{Data Store}
 All data that is persistently stored by the code is currently written to text files from within the functions that implement the game and interface with the framework. As described in \ref{format}, the data handling code must be abstracted away before any work can be done improving the implementation of the data storage.
 
 At present the data store adds a new file for every new 'squad'. This file contains unformatted plain text information on the members of that squad. This could certainly be improved so that data was stored in a more coherent way that would be interpretable by a human, with or without the help of another program. It may be necessary to use a full database, or it may be decided that a simpler flat file solution is appropriate, with data stored in XML or JSON format. Deciding on this approach is a task in itself, and is discussed further in \ref{data_spike}.
 
 \section{Tasks and Estimates}
-This section outlines specific tasks that must be completed along with estimates for how big those tasks are. Estimation is done through Fibonacci scoring, a popular technique in Agile development practice. Tasks are assigned a number from the Fibonacci sequence that shows their relative length. During early sprints a more accurate picture can then be determined as to the rate at which these numbers are completed. This enables the calculation of a 'velocity' which informs how many tasks of what size to add to later sprints. 
+This section outlines specific tasks that must be completed along with estimates for how big those tasks are. Estimation is done through Fibonacci scoring, a popular technique in Agile development practice. Tasks are assigned a number from the Fibonacci sequence that shows their relative length. These numbers are referred to as 'story points'. During early sprints a more accurate picture can then be determined as to the rate at which these numbers are completed. This enables the calculation of a 'velocity' which informs how many tasks of what size to add to later sprints. 
 
 Each task is also assigned a code, to make it easy to find in the task tracking tool, and lists the other tasks that it is dependent on.
 
-The section mirrors section \ref{stories} in structure, apart from including a new category, "Bugs". This works somewhat more informally than the full stories as tasks will be added to it as bugs arise and will prioritised outwith the usual sprint planning process.
+The section mirrors section \ref{stories} in structure, apart from including a new category, "Bugs". This works somewhat more informally than the full stories as tasks will be added to it as bugs arise and will be prioritised outwith the usual sprint planning process.
+
+The tasks listed here should not be considered a complete list. Indeed, part of the iterative process of development that the Agile/Scrum entails requires the constant discovery of new tasks. There is a very heavy bias in the tasks presented here towards code quality, as opposed to compliance with the specification. While good code that does the wrong thing is useless, it is appropriate here to improve the quality of some very poor code before further work can be done. Otherwise work would become increasingly difficult.
 
 \subsection{Developer Tooling and Documentation}
 \subsubsection{Write Readme describing how to install dependencies}
@@ -88,6 +98,13 @@ Code: tool4	\hfill Size: 2
 Dependencies: None.
 
 GitHub also has issue tracking built in. The tasks outlined in this section should all be entered into this. 
+
+\subsubsection{Write a Suite of Unit Tests}
+Code: tool5	\hfill Size: 2
+
+Dependencies: tool3, form1, form2.
+
+Write a suite of tests and run these in the build script. Also include test coverage report if possible.
 
 \subsection{Code Formatting and Abstraction}
 
@@ -162,7 +179,7 @@ Determine what best option long term for data storage is. Possibilities include 
 
 \subsection{Bugs}
 
-\subsubsection{Home Page is Titled 'Holder Page}
+\subsubsection{Home Page is Titled 'Holder Page'}
 Code: bug1 \hfill Size: 1
 
 Dependencies: None.
@@ -194,11 +211,79 @@ Figure \ref{spr} shows the general structure of an Agile/Scrum project. It does 
 
 In this project another task that requires completion before any other work can be done is a spike getting the developer up to speed in both Python and the Flask web framework. This is a non-trivial task and one that all future development work depends on.
 
+\subsection{Sprints Planning}
+Sprint planning should occur before every sprint. While in commercial settings, sprints extend to weeks long with large teams, in this case there will only be one developer working in short bursts. As such the target duration for a sprint will one week of part time work, totalling 8 hours. There will be three week long sprints associated with this project. 
 
+The dates for these are as follows:
+\begin{itemize}
+\item Sprint 1: 01/03/2017 to 08/03/2017
+\item Planning for Sprint 2: 09/03/2017
+\item Sprint 2: 10/03/2017 to 17/03/2017
+\item Planning for Sprint 3: 20/03/2017
+\item Sprint 3: 21/03/2017 to 28/03/2017
+\end{itemize}
+leaving time to write a report on the work undertaken, before work must be submitted on 31/03/2017.
 
+This structure is in line with the flow chart in figure \ref{spr}. Planning occurs in an iterative fashion, which means that more planning happens once the project is underway. This means planning is done when the developer is more experienced in the project and is more likely to make accurate estimates and correct prioritisations. The only sprint that need be planned in detail at this stage is Sprint 1.
+
+\subsection{Planning Sprint 1}
+As there will be much more work to do after Sprint 1, it seems wise to prioritise issues which will make further development easier. This includes tasks such as implementing source control, ensuring different functionalities of the code are properly abstracted away from the framework code.
+
+It was decided but as there is only one developer, and each sprint contains a relatively small amount of work, it would not be appropriate to include a Gantt chart. Instead Table \ref{sprint1} shows, in time order, the tasks that must be completed in Sprint 1.
+
+The first task completed will be \textit{tool4} "Enter Tasks in Task Tracking Tool", as this means it will be easier to track the status of all of the following tasks. Then \textit{tool1}, writing a Readme will be completed. The sources will then be uploaded to GitHub, before basic source text formatting is done. The code will then be refactored into separate functions.
+
+This sprint will leave the code in very good shape for further work to be done. There are 12 story points in total assigned to this sprint. This is 2 per day, with one day off. Progress made during this sprint will be evaluated to determine a more appropriate amount of story points to assign in future sprints.
+
+\begin{table} 
+\centering
+$\rotatebox[origin=c]{90}{time}%
+\left\Downarrow
+\begin{tabular}{ c | c } \hline
+Task Code & Story Points \\ \hline
+tool4 & 2 \\
+tool1 & 3 \\ 
+tool2 & 1 \\
+form3 & 1 \\ 
+form1 & 5 \\ \hhline{=|=}
+total & 12 \\
+
+\end{tabular}
+\right.
+$
+\caption{Table showing sprint 1 order of work.}
+\label{sprint1}
+\end{table}
 \section{Risk Assessment}
+This section presents a quantitative approach to risk management. Risk points are calculated by multiplying the expected delay from a risk by the probability of that risk being realised. Along with this, strategies of risk mitigation will be presented.
+
+\subsection{Insufficient Programmer Expertise}
+Probability: 50\% \hfill Delay on Schedule: 7 days.
+
+The developer who will work on this currently has little experience with Python and the Flask framework. The spike to learn these skills must happen around other things that the developer is working on before the first sprint starts on 01/03/2017. Mitigating this means ensuring that the developer is aware of the necessity of learning these skills before this date, as well as lightening the load in Sprint 1, when the developer will be least experienced.
+
+Risk score: 3.5.
+
+\subsection{Expectation Management}
+Probability: 30\% \hfill Delay on Schedule: 4 days.
+
+It is essential to ensure that the customer is aware of the poor state of the current code. This means that a lot of work needs to be done overcoming technical debt before they will notice any improvements. Mitigating this requires very clear communication with the customer. It also means ensuring earlier sprints involve less of the more noticeable changes to the customer. This prevents build up of further technical debt as well as tempering expectations as to the visible rate of change in the application. If not managed well the customer could expect more work, meaning more time is required.
+
+Risk score: 2.
+
+\subsection{Developer Time Limitations}
+Probability: 15\% \hfill Delay on Schedule: 7 days.
+
+The developer in question has several other draws on their time. These could become severe at around the time this work is scheduled. However this risk has been mitigated by only scheduling 8 hours work a week from the developer.
+
+Risk score: 1.
+
 
 \section{Conclusion}
+
+To conclude, a comprehensive plan of action has been presented. This plan provides significantly more detail as to how the early stages of development should be undertaken, with time allotted for planning later stages in an iterative fashion.
+
+The technical work is heavily weighted towards improving code quality, as opposed to adding features or ensuring more compliance with the specification. This is because the detailed plans described here are targeted more at early stages of development. By resolving technical debts early on, the author hopes that more features may be added later than would otherwise be the case. It would also allow other developers to continue working on a more maintainable source base.
 
 \bibliographystyle{plain}
 \begin{thebibliography}{}
