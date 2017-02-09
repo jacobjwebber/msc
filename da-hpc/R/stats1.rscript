@@ -1,0 +1,25 @@
+set.seed(600)
+data <- rpois(n=150,20)
+
+poisson_loglikelihood <- function( lambda,x)
+{
+    n <- length(x)
+    llik <- -n*lambda+sum(x*log(lambda))-sum(log(factorial(x)))
+    return(llik)
+}
+
+maximisation <- optimize(poisson_loglikelihood, interval=c(1,50),x=data,maximum=TRUE)
+
+maximisation
+
+set.seed(400)
+mle <- NULL
+for (i in 1:5000)
+{
+    x <- rpois(n=150,20)
+    mle[i] <- mean(x)
+}
+m <- mean(mle)
+v <- var(mle)
+c(m,v)
+

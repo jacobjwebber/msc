@@ -74,7 +74,8 @@ int mp_get_left(MPI_Comm cart_comm, int my_rank)
   return left_rank;
 }
 
-int mp_scatter(MPI_Comm cart_comm, char* filename, real_number partial_image[WIDTH_P][HEIGHT_P], int size, int rank)
+int mp_scatter(MPI_Comm cart_comm, char* filename, 
+			   real_number partial_image[WIDTH_P][HEIGHT_P], int size, int rank)
 {
 // Master thread section 
   if (rank == 0)
@@ -97,7 +98,7 @@ int mp_scatter(MPI_Comm cart_comm, char* filename, real_number partial_image[WID
         for (j = 0; j < HEIGHT_P; j++)
         {
           partial_image[i][j] = masterbuf[(proc_coord[0] * WIDTH_P) + i]
-                                               [(proc_coord[1] * HEIGHT_P) + (j )];
+                                         [(proc_coord[1] * HEIGHT_P) + (j )];
         }
       }
 
@@ -117,7 +118,9 @@ int mp_scatter(MPI_Comm cart_comm, char* filename, real_number partial_image[WID
   }
  } 
 
-int mp_gather_and_write_png(MPI_Comm cart_comm, char* filename, real_number partial_image[WIDTH_P][HEIGHT_P], int size, int rank)
+int mp_gather_and_write_png(MPI_Comm cart_comm, char* filename, 
+							real_number partial_image[WIDTH_P][HEIGHT_P], 
+							int size, int rank)
 {
    if (rank != 0)
    {

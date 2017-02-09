@@ -20,9 +20,9 @@
 \maketitle
 
 \section{Introduction}
-This report details the implementation and performance of a parallel message passing code. This code performs an iterative inverse edge detection algorithm using a 2d Von Neumann stencil. For this algorithm the result of each output pixel depends on that of its neighbours in the input image. This made parallelising the code non-trivial, as it required boundary swaps to occur before each iteration. This was further complicated in this case by the selection of a two dimensional domain decomposition.
+This report details the implementation and performance of a parallel message passing code. This code performs an iterative inverse edge detection algorithm using a 2d Von Neumann stencil. For this algorithm, the result of each output pixel depends on that of its neighbours in the input image. This made parallelising the code non-trivial, as it required boundary swaps to occur before each iteration. This was further complicated in this case by the selection of a two dimensional domain decomposition.
 
-This report presents both a detailed description of the algorithm and its implementation, then shows the performance achieved with the resulting code before concluding.
+This report presents both a detailed description of the algorithm and its implementation, then shows the performance achieved with the resulting code, before concluding.
 
 
 \section{Methods}
@@ -31,11 +31,11 @@ This report presents both a detailed description of the algorithm and its implem
 
 The code is designed to perform the inverse of an edge detection algorithm. In that algorithm, each element, $edge_{i,j}$, is replaced as follows:
 
-$$edge_{i,j} = image_{i−1,j} + image_{i+1,j} + image_{i,j−1} + image_{i,j+1} {-} 4 image_{i,j}$$
+$$edge_{i,j} = image_{i-1,j} + image_{i+1,j} + image_{i,j-1} + image_{i,j+1} {-} 4 image_{i,j}$$
 
 To invert this algorithm and reconstruct the original image an iterative process must be used. In this process, for each iteration, an new two dimensional array is generated as follows:
 
-$$new_{i,j} = 1/4 (old_{i−1,j} + old_{i+1,j} + old_{i,j−1} + old_{i,j+1} {-} edge_{i,j}) $$
+$$new_{i,j} = 1/4 (old_{i-1,j} + old_{i+1,j} + old_{i,j-1} + old_{i,j+1} {-} edge_{i,j}) $$
 
 After this the old and new arrays are swapped in memory and the process is repeated.
 
@@ -103,7 +103,17 @@ The gather process works much the same way but in reverse. First the master proc
 As a test, before the main part of the algorithm runs, just after the program calls the scatter function, the gather function is called, writing the input edge file out. This means that the correctness of these scatter and gather functions can be verified. Using the GNU \verb|diff| tool, the file that was written out by the gather process was compared to the original input file and found to be the same, confirming that these scatter and gather functions work correctly.
 
 \subsubsection{Halo Boundary Swaps}
+\label{halo_implementation}
 As shown in figure \ref{halos}, each decomposed local image must have a halo region containing a row or column from each neighbouring process. Before each iteration messages must be passed to and received from each neighbour. As the halo boundary swaps must occur every iteration, this was very important to optimise for performance.
+
+\begin{figure}
+\centering
+\includegraphics[width=1\textwidth]{"graphs/halo_derived"}
+\caption{Derived data type for sending subvectors not contiguous in memory. Credit: \cite{vector_type}}
+\label{vector_type}
+\end{figure}
+
+In C only 2d array elements in the vertical direction are contiguous. This means that a derived data type had to be used to send non-contiguous blocks of memory. To do this the \verb|MPI_Type_vector| functions was used, which allows the programmer to specify which elements are selected from an array. How this applies to a 2d array is shown clearly in figure \ref{vector_type}.
 
 To exchange this data non-blocking communications were used, specifically the \verb|MPI_Issend| and \verb|MPI_Irecv| functions. This meant that the programmer had the option to perform some calculations while waiting for the message to be sent and received. As the majority of calculations in this image processing application do not depend on the halo region, this could prevent performance degradation on systems with high message passing latency. This effect is therefore more likely to be appreciable on instances where more than one node is used. The \verb|MPI_Wait| function allows the programmer to synchronise processes, ensuring that all swaps are complete before halo regions are used.
 
@@ -125,14 +135,33 @@ This compilation was done using the Intel C Compiler with the \verb|-O3| option 
 
 As discussed in \ref{scatter_gather}, the GNU \verb|diff| tool was used to verify that the scatter and gather functions worked correctly. This same tool was also used to verify the end result. The source code that was provided to the author to parallelise was compiled in its original form, and outputs generated for each image used in the following parallel experiments. This output was then compared to all results yielded from the parallel versions of the code.
 
+\begin{figure}
+\centering
+\includegraphics[width=1\textwidth]{"graphs/output"}
+\caption{Image generated from 2x2 domain decomposition. It clearly shows artifacts from Halo swapping or boundary conditions. }
+\label{artifacts}
+\end{figure}
+
+Unfortunately it was not possible to generate an accurate image using the MPI program discussed in this report. As shown in figure \ref{artifacts}, there are clear artefacts in the generated image.
+
+
 
 \subsection{Scalability}
+\label{scalability}
+Unfortunately, as well as yielding incorrect results, the code was not stable enough to perform a solid examination of its performance. The program would not reliably complete, often dead locking, and would not run at all when the domain was not decomposed by the same extent in both directions.
 
+Had it been possible to do so it would have been interesting to compare how the speed up changed with the image size. As the message size is proportional to the perimeter of the image and the calculation size is proportional to the square of the side of the image, it seems likely that parallel efficiency will increase as the image size becomes larger. This is because, to achieve maximum parallel efficiency, it is desirable to have a high ratio of compute time to message passing time. More formally, it could be said that the halo swaps are $~O(N)$ whereas the calculation itself is $~O(N^2)$. This means the calculation becomes dominant where $N$ is large.
 
+It also would have been of interest to implement the technique described in \ref{halo_implementation}, where elements that do not depend on the halos are calculated first. It seems unlikely that this technique would yield performance improvements when the latency of message passing is low. Indeed, it could have a negative effect due to losing the cache efficiency of performing all calculations together. A further experiment would be to see the effect of this technique when several nodes are used. In this case this technique is more likely to be effective.
 
+The code was programmed such that it would be trivial to switch from using single precision floating point numbers to double precision floating point numbers. Experimenting with how doing this would affect performance would also have been worthwhile.
 
 \section{conclusion}
+To conclude, it was deeply disappointing that a working program was not produced. This made it impossible to verify the hypotheses proposed in \ref{scalability}.
 
+The MPI code was found very difficult and time consuming to debug, which as well as making the end result unusable, prevented the author from exploring other more interesting performance aspects of the code.
+
+However, the code is at least well laid out and provides a good basis for another programmer to start from when tackling this problem. Conducting this process also gave the programmer some insight as to the message passing paradigm and its idiomatic techniques, such as halo swapping, the creation of topologies and reductions. This is hopefully demonstrated to some extent in this report.
 
 \bibliographystyle{plain}
 \begin{thebibliography}{}
@@ -140,6 +169,12 @@ As discussed in \ref{scatter_gather}, the GNU \verb|diff| tool was used to verif
 Neil MacDonald, Elspeth Minty, Joel Malard, Tim Harding, Simon Brown, Mario Antonioletti,
 \textit{Writing Message Passing Parallel Programs with MPI,}
 \url{https://www.learn.ed.ac.uk/bbcswebdav/pid-2077851-dt-content-rid-3833626_1/courses/PGPH110782016-7SS1SEM1/MPP-notes.pdf}
+Accessed: 26-10-2016
+
+\bibitem{vector_type}
+SPCL
+\textit{libpack: Runtime compiled pack functions}
+\url{https://spcl.inf.ethz.ch/Research/Parallel_Programming/MPI_Datatypes/libpack/}
 Accessed: 26-10-2016
 
 \end{thebibliography}
