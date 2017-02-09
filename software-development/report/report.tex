@@ -28,6 +28,7 @@ The Scrum approach entails dividing the project into broad stories. These storie
 This report first describes at a high level problems with the current code and divides these into stories, before describing in more detail the specific issues or tasks related to each story. An outline of initial sprint plans showing the order and priority of  will then be presented, followed by a Risk analysis and management strategy before a brief conclusion.
 
 \section{Problems and Stories}
+\label{stories}
 \subsection{Developer Tooling and Documentation} \label{tooling}
 
 At present there is no ReadMe file included with the source code describing how to run and do work to improve the code. The code is dependent on Python being installed on the host machine, as well as the Flask framework. 
@@ -39,35 +40,161 @@ As well as tooling to track software changes, there should be tooling in place t
 In its current state there are no unit tests or continuous integration system in place for the project. Continuous integration would allow the code to be tested every time it is committed to the version control system. Unit tests are essential for maintainability, and for all future work tests should be written first following the 'Test-Driven Development' (TDD) \cite{agiletdd} approach. These tests should be combined with a build system that ensures only thoroughly tested code gets presented as complete.
 
 \subsection{Code Formatting and Abstraction}
+\label{format}
 Almost all code for the project is, at present, contained within one source file. In this file are very long functions which each handle explicitly data storage, interfacing with the web framework and implementation game rules. All of these aspects should be decoupled from each other and broken into separate source files. This decoupling would make it much easier implement the unit tests described in \ref{tooling} as well as undertake the further work described in the following stories.
+
+In addition to this, the code currently contains very long lines and other poor styling features. Work should be done to ensure basic formatting is done correctly. Some sort of automated linting could also be included as part of the developer tooling, to be done at every build.
+
+\subsection{Missing or Inaccurate Features from Game Specification}
+The specification is long and detailed and contains many features not included in the current work. There are also features in the current work that deviate from the specification.
+
+\subsection{Data Store}
+All data that is persistently stored by the code is currently written to text files from within the functions that implement the game and interface with the framework. As described in \ref{format}, the data handling code must be abstracted away before any work can be done improving the implementation of the data storage.
+
+At present the data store adds a new file for every new 'squad'. This file contains unformatted plain text information on the members of that squad. This could certainly be improved so that data was stored in a more coherent way that would be interpretable by a human, with or without the help of another program. It may be necessary to use a full database, or it may be decided that a simpler flat file solution is appropriate, with data stored in XML or JSON format. Deciding on this approach is a task in itself, and is discussed further in \ref{data_spike}.
+
+\section{Tasks and Estimates}
+This section outlines specific tasks that must be completed along with estimates for how big those tasks are. Estimation is done through Fibonacci scoring, a popular technique in Agile development practice. Tasks are assigned a number from the Fibonacci sequence that shows their relative length. During early sprints a more accurate picture can then be determined as to the rate at which these numbers are completed. This enables the calculation of a 'velocity' which informs how many tasks of what size to add to later sprints. 
+
+Each task is also assigned a code, to make it easy to find in the task tracking tool, and lists the other tasks that it is dependent on.
+
+The section mirrors section \ref{stories} in structure, apart from including a new category, "Bugs". This works somewhat more informally than the full stories as tasks will be added to it as bugs arise and will prioritised outwith the usual sprint planning process.
+
+\subsection{Developer Tooling and Documentation}
+\subsubsection{Write Readme describing how to install dependencies}
+Code: tool1	\hfill Size: 3
+
+Dependencies: None.
+
+Write a readme detailing dependencies. This should say that Python and PIP are system requirements, giving versions. It should further describe how to install Flask using PIP. The Readme should then detail how to run and test the program.
+
+\subsubsection{Upload Sources to GitHub}
+Code: tool2	\hfill Size: 1
+
+Dependencies: None.
+
+Git is an obvious choice for a source control tool. It is completely dominant and the author is familiar with it. A GitHub account already exists for code to be uploaded to.
+
+\subsubsection{Link GitHub to CI}
+Code: tool3	\hfill Size: 3
+
+Dependencies: tool2.
+
+Use Travis CI to run a build script every time source is pushed. At first this can just check that the code runs in Python without errors, later it should run a suite of unit tests. Even later it could also run integration/UI tests.
+
+\subsubsection{Enter Tasks in Task Tracking Tool}
+Code: tool4	\hfill Size: 2
+
+Dependencies: None.
+
+GitHub also has issue tracking built in. The tasks outlined in this section should all be entered into this. 
+
+\subsection{Code Formatting and Abstraction}
+
+\subsubsection{Abstract All File Writes to Separate Program}
+Code: form1	\hfill Size: 5
+
+Dependencies: None.
+
+All code that handles persistent storage should be within its own source file. This should then be imported into the main source file.
+
+\subsubsection{Abstract All Game Rules to Separate Program}
+Code: form2	\hfill Size: 5
+
+Dependencies: None.
+
+All code that implements game rules should be within its own source file. This should then be imported into the main source file.
+
+\subsubsection{Wrap Long Lines in Source}
+Code: form3	\hfill Size: 1
+
+Dependencies: None.
+
+Make sure lines do not exceed a certain length in source. Make sure all lines are indented to the correct degree.
+
+\subsubsection{Add Linting To Build Script}
+Code: form4	\hfill Size: 2
+
+Dependencies: tool3, tool2.
+
+Find a suitable linting tool for Python and run it on all sources from within the build script.
+
+\subsubsection{Make Port etc. Depend on Config File}
+Code: form5	\hfill Size: 3
+
+Dependencies: None.
+
+Write a config file and use it to determine what port to serve to and other variables that may change.
+
 
 \subsection{Missing or Inaccurate Features from Game Specification}
 
+\subsubsection{Correct Game Terminologies}
+Code: game1 \hfill Size: 1
+
+Dependencies: none.
+
+Rename: 
+\begin{itemize}
+\item 'Wizard' to 'Captain'
+\item 'Band' to 'Squad'
+\item 'Apprentice' to 'Ensign'
+\end{itemize}
+to more accurately reflect specification.
+
+\subsubsection{Make Port Characters and Values Depend on Config File}
+Code: game2	\hfill Size: 3
+
+Dependencies: None.
+
+Write a config file and use it to determine what characters cost and their attributes. It should be possible to change these without editing source code.
+
+
 \subsection{Data Store}
 
-\section{Tasks}
+\subsubsection{Research Most Appropriate Data Storage Solution}
+\label{data_spike}
+Code: data1 \hfill Size: 3
+
+Dependencies: form1.
+
+Determine what best option long term for data storage is. Possibilities include SQL database, JSON flat files, XML flat files.
+
+\subsection{Bugs}
+
+\subsubsection{Home Page is Titled 'Holder Page}
+Code: bug1 \hfill Size: 1
+
+Dependencies: None.
+
+Rename this to something sensible, such as 'Home Page'.
+
+\subsubsection{'Internal Server Error' When Adding New Squad}
+Code: bug2 \hfill Size: 3
+
+Dependencies: form1.
+
+Error when writing new file for new squad. This appears to happen when the form is incorrectly filled. Instead there should be an error message clearly explaining to the user what is wrong. For ease, development work on this should happen after data handling code has been abstracted out.
+\begin{verbatim}
+IOError: [Errno 21] Is a directory: u'~/project/bands/'
+\end{verbatim}
 
 \section{Work Plan}
 
-\tikzstyle{decision} = [diamond, draw, fill=blue!20, 
-    text width=4.5em, text badly centered, node distance=3cm, inner sep=0pt]
-\tikzstyle{block} = [rectangle, draw, fill=blue!20, 
-    text width=5em, text centered, rounded corners, minimum height=4em]
-\tikzstyle{line} = [draw, -latex']
-\tikzstyle{cloud} = [draw, ellipse,fill=red!20, node distance=3cm,
-    minimum height=2em]
+\begin{figure}
+\centering
+\includegraphics{sprints_flow}
+\caption{Flow Chart of Agile/Scrum Process}
+\label{spr}
+\end{figure}
+
+\subsection{Spikes}
+
+Figure \ref{spr} shows the general structure of an Agile/Scrum project. It does not, however, include spikes. Spikes are a special class of task that can happen before or during a sprint. They involve doing the research required so that other tasks can be completed \cite{agilespike}. An example is \textit{data1}. Research work is needed to determine the future direction of the project. 
+
+In this project another task that requires completion before any other work can be done is a spike getting the developer up to speed in both Python and the Flask web framework. This is a non-trivial task and one that all future development work depends on.
 
 
-\begin{tikzpicture}[node distance = 2cm, auto]
-    % Place nodes
-    \node [block] (plan) {Plan Project};
-    \node [block, right of=plan, node distance=3cm] (sprint0) {Sprint 0};
-    \node [cloud, right of=sprint0] (plan0) {Sprint planning};
-
-    % Draw edges
-    \path [line] (plan) -- (sprint0);
-    \path [line] (sprint0) -- (plan0);
-\end{tikzpicture}
 
 \section{Risk Assessment}
 
@@ -80,6 +207,13 @@ Almost all code for the project is, at present, contained within one source file
 The Agile Alliance
 \textit{TDD}
 \url{https://www.agilealliance.org/glossary/tdd/}
+Accessed: 01-02-2017
+
+
+\bibitem{agilespike}
+Scaled Agile
+\textit{Spikes}
+\url{http://www.scaledagileframework.com/spikes/}
 Accessed: 01-02-2017
 
 
