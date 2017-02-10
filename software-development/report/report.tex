@@ -25,9 +25,9 @@ The web application is written in Python and uses the Flask web framework.
 
 In this report an approach will be taken that prioritises and improves upon failings in the current code in an agile, iterative fashion, using aspects of the Scrum methodology. The aim is not simply to provide code that is more functional, but that is also extendible and maintainable for further work. Furthermore, as development time will be limited on this project, work will be scheduled so there will be frequent releases of shippable code, as opposed to the waterfall approach which might leave no publishable code when work stops.
 
-The Scrum approach entails dividing the project into broad stories. These stories then have particular tasks associated with them. Work is undertaken in Sprints, short bursts of work in which prioritised tasks are completed from all or some of the broader stories. Sprint planning occurs before each individual sprint, allowing for a structured yet flexible approach, which allows new issues to be dealt with as they arise in a sensible way. At the end of each sprint there should be some usable code, i.e. working code that has some way improved upon what was there before.
+The Scrum approach entails dividing the project into broad stories. These stories then have particular tasks associated with them. Work is undertaken in Sprints, short bursts of work in which prioritised tasks are completed from all or some of the broader stories. Sprint planning occurs before each individual sprint, allowing for a structured yet flexible approach, with new issues to be dealt with as they arise in a sensible way. At the end of each sprint there should be some usable code, i.e. working code that has some way improved upon what was there before.
 
-This report first describes at a high level problems with the current code and divides these into stories, before describing in more detail the specific issues or tasks related to each story. An outline of initial sprint plans showing the order and priority of  will then be presented, followed by a Risk analysis and management strategy before a brief conclusion.
+This report first describes at a high level problems with the current code and divides these into stories, before describing in more detail the specific issues or tasks related to each story. An outline of initial sprint plans showing their order and priority will then be presented, followed by a Risk analysis and management strategy, before a brief conclusion.
 
 It should be noted that this report, other than fixing basic bugs, does not detail plans for improvement of the UI. Such plans will be delivered in a separate report.
 
@@ -35,7 +35,7 @@ It should be noted that this report, other than fixing basic bugs, does not deta
 \label{stories}
 \subsection{Developer Tooling and Documentation} \label{tooling}
 
-At present there is no ReadMe file included with the source code describing how to run and do work to improve the code. The code is dependent on Python being installed on the host machine, as well as the Flask framework. 
+At present there is no README file included with the source code describing how to run and do work to improve the code. The code is dependent on Python being installed on the host machine, as well as the Flask framework. 
 
 There is currently no source version control. This means that it would be hard to track changes during the development process. This would cause particular issues if there were more than one developer working on the code at once. In this case it would be essential that there was tooling in place that allowed many developers to work simultaneously on different issues in the code, tracking their changes individually and merging at the end of a task.
 
@@ -50,7 +50,7 @@ Almost all code for the project is, at present, contained within one source file
 In addition to this, the code currently contains very long lines and other poor styling features. Work should be done to ensure basic formatting is done correctly. Some sort of automated linting could also be included as part of the developer tooling, to be done at every build.
 
 \subsection{Missing or Inaccurate Features from Game Specification}
-The specification is long and detailed and contains many features not included in the current work. There are also features in the current work that deviate from the specification.
+The specification is long and detailed and contains many features not included in the current work. There are also features in the current work that deviate from the specification. The following is not intended to be a complete list of failings in this regard, as it is intended that part of ongoing work will be discovering more of these deviations. This will become more straightforward as the code quality improves and bugs are removed.
 
 Various terminologies within the game are inaccurately represented. For example, squads are referred to as bands.
 
@@ -62,21 +62,21 @@ All data that is persistently stored by the code is currently written to text fi
 At present the data store adds a new file for every new 'squad'. This file contains unformatted plain text information on the members of that squad. This could certainly be improved so that data was stored in a more coherent way that would be interpretable by a human, with or without the help of another program. It may be necessary to use a full database, or it may be decided that a simpler flat file solution is appropriate, with data stored in XML or JSON format. Deciding on this approach is a task in itself, and is discussed further in \ref{data_spike}.
 
 \section{Tasks and Estimates}
-This section outlines specific tasks that must be completed along with estimates for how big those tasks are. Estimation is done through Fibonacci scoring, a popular technique in Agile development practice. Tasks are assigned a number from the Fibonacci sequence that shows their relative length. These numbers are referred to as 'story points'. During early sprints a more accurate picture can then be determined as to the rate at which these numbers are completed. This enables the calculation of a 'velocity' which informs how many tasks of what size to add to later sprints. 
+This section outlines specific tasks that must be completed along with estimates for how big those tasks are. Estimation is done through Fibonacci scoring, a popular technique in Agile development practice. Tasks are assigned a number from the Fibonacci sequence that shows their relative length. These numbers are referred to as 'story points'. During early sprints a more accurate picture can then be determined as to the rate at which these numbers are completed. This enables the calculation of a 'velocity' which informs how many tasks of what size to add to later sprints.
 
 Each task is also assigned a code, to make it easy to find in the task tracking tool, and lists the other tasks that it is dependent on.
 
-The section mirrors section \ref{stories} in structure, apart from including a new category, "Bugs". This works somewhat more informally than the full stories as tasks will be added to it as bugs arise and will be prioritised outwith the usual sprint planning process.
+The section mirrors section \ref{stories} in structure, apart from including a new category, "Bugs". This works somewhat more informally than the full stories, as tasks will be added to it as bugs arise and will be prioritised outwith the usual sprint planning process.
 
-The tasks listed here should not be considered a complete list. Indeed, part of the iterative process of development that the Agile/Scrum entails requires the constant discovery of new tasks. There is a very heavy bias in the tasks presented here towards code quality, as opposed to compliance with the specification. While good code that does the wrong thing is useless, it is appropriate here to improve the quality of some very poor code before further work can be done. Otherwise work would become increasingly difficult.
+The tasks listed here should not be considered a complete list. Indeed, part of the iterative process of development that the Agile/Scrum entails requires the constant discovery of new tasks. There is a very heavy bias in the tasks presented here towards code quality, as opposed to compliance with the specification. While good code that does the wrong thing is useless, it is appropriate here to improve the quality of some very poor code before further work can be done. Otherwise work would become increasingly inefficient.
 
 \subsection{Developer Tooling and Documentation}
-\subsubsection{Write Readme describing how to install dependencies}
+\subsubsection{Write README describing how to install dependencies}
 Code: tool1	\hfill Size: 3
 
 Dependencies: None.
 
-Write a readme detailing dependencies. This should say that Python and PIP are system requirements, giving versions. It should further describe how to install Flask using PIP. The Readme should then detail how to run and test the program.
+Write a README detailing dependencies. This should say that Python and PIP are system requirements, giving versions. It should further describe how to install Flask using PIP. The README should then detail how to run and test the program.
 
 \subsubsection{Upload Sources to GitHub}
 Code: tool2	\hfill Size: 1
@@ -141,7 +141,7 @@ Code: form5	\hfill Size: 3
 
 Dependencies: None.
 
-Write a config file and use it to determine what port to serve to and other variables that may change.
+Write a config file and use it to determine what port to serve to and other variables that may change. Configuration changes should not require edition of the source code.
 
 
 \subsection{Missing or Inaccurate Features from Game Specification}
@@ -231,7 +231,7 @@ As there will be much more work to do after Sprint 1, it seems wise to prioritis
 
 It was decided but as there is only one developer, and each sprint contains a relatively small amount of work, it would not be appropriate to include a Gantt chart. Instead Table \ref{sprint1} shows, in time order, the tasks that must be completed in Sprint 1.
 
-The first task completed will be \textit{tool4} "Enter Tasks in Task Tracking Tool", as this means it will be easier to track the status of all of the following tasks. Then \textit{tool1}, writing a Readme will be completed. The sources will then be uploaded to GitHub, before basic source text formatting is done. The code will then be refactored into separate functions.
+The first task completed will be \textit{tool4} "Enter Tasks in Task Tracking Tool", as this means it will be easier to track the status of all of the following tasks. Then \textit{tool1}, writing a README will be completed. The sources will then be uploaded to GitHub, before basic source text formatting is done. The code will then be refactored into separate functions.
 
 This sprint will leave the code in very good shape for further work to be done. There are 12 story points in total assigned to this sprint. This is 2 per day, with one day off. Progress made during this sprint will be evaluated to determine a more appropriate amount of story points to assign in future sprints.
 
@@ -255,12 +255,14 @@ $
 \label{sprint1}
 \end{table}
 \section{Risk Assessment}
-This section presents a quantitative approach to risk management. Risk points are calculated by multiplying the expected delay from a risk by the probability of that risk being realised. Along with this, strategies of risk mitigation will be presented.
+This section presents a quantitative approach to risk management. Risk points are calculated by multiplying the expected delay from a risk by the probability of that risk being realised. Along with this, strategies of risk mitigation will be presented. The probabilities and delays presented are for the risks with the recommended mitigations.
 
 \subsection{Insufficient Programmer Expertise}
 Probability: 50\% \hfill Delay on Schedule: 7 days.
 
 The developer who will work on this currently has little experience with Python and the Flask framework. The spike to learn these skills must happen around other things that the developer is working on before the first sprint starts on 01/03/2017. Mitigating this means ensuring that the developer is aware of the necessity of learning these skills before this date, as well as lightening the load in Sprint 1, when the developer will be least experienced.
+
+If there is a significant delay there may not be time to complete the full 3 sprints. As working code is presented after each sprint, it would be perfectly possible, if not desirable, to present work as complete after an earlier sprint, if timing considerations made this necessary.
 
 Risk score: 3.5.
 
