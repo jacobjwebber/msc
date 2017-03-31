@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2016.3.28)  29 MAR 2017 20:21
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2016.3.28)  30 MAR 2017 18:17
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -531,52 +531,38 @@ LaTeX Font Info:    External font `cmex10' loaded for size
 <issue-screen.png, id=4, 1927.2pt x 1072.005pt>
 File: issue-screen.png Graphic file (type png)
  <use issue-screen.png>
-Package pdftex.def Info: issue-screen.png used on input line 38.
+Package pdftex.def Info: issue-screen.png used on input line 42.
 (pdftex.def)             Requested size: 390.0pt x 216.9326pt.
  [1
 
 {/opt/texlive/2015/texmf-var/fonts/map/pdftex/updmap/pdftex.map}] [2 <./issue-s
-creen.png>] [3]
-LaTeX Font Info:    Try loading font information for OMS+cmr on input line 66.
- (/opt/texlive/2015/texmf-dist/tex/latex/base/omscmr.fd
-File: omscmr.fd 2014/09/29 v2.5h Standard LaTeX font definitions
-)
-LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <12> not available
-(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 66.
-
-<debug-screen.png, id=25, 1926.19624pt x 1115.16624pt>
+creen.png>] <debug-screen.png, id=22, 1926.19624pt x 1115.16624pt>
 File: debug-screen.png Graphic file (type png)
- <use debug-screen.png>
-Package pdftex.def Info: debug-screen.png used on input line 74.
-(pdftex.def)             Requested size: 390.0pt x 225.78589pt.
-LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <12> on input line 86.
-LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <8> on input line 86.
-LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <6> on input line 86.
 
-[4] [5 <./debug-screen.png>] (./report.aux) ) 
+<use debug-screen.png>
+Package pdftex.def Info: debug-screen.png used on input line 71.
+(pdftex.def)             Requested size: 390.0pt x 225.78589pt.
+ [3] [4 <./debug-screen.png>] [5] [6] [7] (./report.aux) ) 
 Here is how much of TeX's memory you used:
- 14851 strings out of 493089
- 319384 string characters out of 6103488
- 371583 words of memory out of 5000000
- 18063 multiletter control sequences out of 15000+600000
- 9625 words of font info for 34 fonts, out of 8000000 for 9000
+ 14816 strings out of 493089
+ 318895 string characters out of 6103488
+ 371587 words of memory out of 5000000
+ 18037 multiletter control sequences out of 15000+600000
+ 7187 words of font info for 26 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 55i,6n,67p,1503b,347s stack positions out of 5000i,500n,10000p,200000b,80000s
-</opt/texlive/2015/texmf-dist/font
-s/type1/public/amsfonts/cm/cmbx10.pfb></opt/texlive/2015/texmf-dist/fonts/type1
-/public/amsfonts/cm/cmbx12.pfb></opt/texlive/2015/texmf-dist/fonts/type1/public
-/amsfonts/cm/cmr10.pfb></opt/texlive/2015/texmf-dist/fonts/type1/public/amsfont
-s/cm/cmr12.pfb></opt/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmr
-17.pfb></opt/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb>
-</opt/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmti12.pfb></opt/t
-exlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt12.pfb>
-Output written on report.pdf (5 pages, 345315 bytes).
+ 55i,6n,67p,917b,347s stack positions out of 5000i,500n,10000p,200000b,80000s
+</opt/texlive/2015/te
+xmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></opt/texlive/2015/texmf-dis
+t/fonts/type1/public/amsfonts/cm/cmbx12.pfb></opt/texlive/2015/texmf-dist/fonts
+/type1/public/amsfonts/cm/cmr10.pfb></opt/texlive/2015/texmf-dist/fonts/type1/p
+ublic/amsfonts/cm/cmr12.pfb></opt/texlive/2015/texmf-dist/fonts/type1/public/am
+sfonts/cm/cmr17.pfb></opt/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/c
+m/cmti12.pfb></opt/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt1
+2.pfb>
+Output written on report.pdf (7 pages, 345645 bytes).
 PDF statistics:
- 60 PDF objects out of 1000 (max. 8388607)
- 40 compressed objects within 1 object stream
+ 64 PDF objects out of 1000 (max. 8388607)
+ 43 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
  23 words of extra memory for PDF output out of 10000 (max. 10000000)
 
