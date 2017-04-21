@@ -11,3 +11,4 @@
 #### revision lectures:
 - ASR:  Thursday 27 April, 2pm, Room S1, 7 George Square
 - HPC Ecosystem:  2pm on Tuesday April 25th, in room 3212
+-  DA + HPC: room 4312 for Thu April 27th at 11:00am
